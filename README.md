@@ -1,85 +1,84 @@
 # DM Tools
 
-*Français · [English](README.en.md)*
+*English · [Français](README.fr.md)*
 
-> Prépare l'ambiance sonore de ta campagne de jeu de rôle sur table, scène après scène.
+> Prep the sound of your tabletop RPG campaign, scene after scene.
 
 [![Unit Tests](https://github.com/Narfedome/DmTools/actions/workflows/tests.yml/badge.svg)](https://github.com/Narfedome/DmTools/actions/workflows/tests.yml)
 
-DM Tools est une application communautaire pour les maîtres du jeu : un mixeur audio,
-un gestionnaire de campagnes et une bibliothèque de pistes, pensés pour une partie
-autour de la table. **100 % hors ligne** — aucune connexion requise, tout est stocké
-localement sur l'appareil.
+DM Tools is a community-made app for game masters: an audio mixer, a campaign manager
+and a track library, built for a session around the table. **100% offline** — no
+connection required, everything is stored locally on the device.
 
-Site : <https://dmtools-app.netlify.app/> · Disponible sur **Windows** et **Android**.
+Website: <https://dmtools-app.netlify.app/en/> · Available for **Windows** and **Android**.
 
-## Fonctionnalités
+## Features
 
-- **Mixeur audio** — superposition de plusieurs pistes en direct (lecture, boucle,
-  fondu d'entrée/sortie et volume indépendants par piste) pour installer une ambiance
-  instantanément. Utilisable sur une scène ou en mode libre, sans passer par une scène.
-- **Bibliothèque audio** — centralise tes pistes `.mp3`, réutilisables d'une campagne à
-  l'autre, regroupées automatiquement par catégorie.
-- **Organisation par campagne** — campagnes → chapitres → scènes, avec réorganisation
-  par glisser-déposer, pour retrouver la bonne scène en pleine partie.
-- **Import / export** — packs `.dmpack` signés (détection d'altération) pour partager
-  une campagne ou une bibliothèque entière.
-- **Thèmes visuels** et interface **française / anglaise**.
-- **Hors ligne** — la base SQLite et les fichiers audio ne quittent jamais l'appareil.
+- **Audio mixer** — layer multiple tracks live (independent play, loop, fade in/out and
+  volume per track) to set the mood instantly. Works on a scene or in freeform mode,
+  without going through a scene.
+- **Audio library** — centralize your `.mp3` tracks, reusable from one campaign to the
+  next, grouped automatically by category.
+- **Campaign organization** — campaigns → chapters → scenes, with drag-and-drop
+  reordering, to find the right scene mid-session.
+- **Import / export** — signed `.dmpack` packs (tamper detection) to share a whole
+  campaign or library.
+- **Visual themes** and a **French / English** interface.
+- **Offline** — the SQLite database and audio files never leave the device.
 
-## Captures d'écran
+## Screenshots
 
-| Mixeur audio | Réglages d'une piste | Organisation par campagne |
+| Audio mixer | Track settings | Campaign organization |
 |:---:|:---:|:---:|
-| <img src="Website/assets/screenshots/1.png" width="240" alt="Mixeur audio" /> | <img src="Website/assets/screenshots/2.png" width="240" alt="Réglages d'une piste" /> | <img src="Website/assets/screenshots/3.png" width="240" alt="Organisation par campagne" /> |
-| **Bibliothèque audio** | **Import / export d'une campagne** | **Réglages** |
-| <img src="Website/assets/screenshots/4.png" width="240" alt="Bibliothèque audio" /> | <img src="Website/assets/screenshots/5.png" width="240" alt="Import et export d'une campagne" /> | <img src="Website/assets/screenshots/6.png" width="240" alt="Réglages de l'application" /> |
+| <img src="Website/assets/screenshots/1.png" width="240" alt="Audio mixer" /> | <img src="Website/assets/screenshots/2.png" width="240" alt="Track settings" /> | <img src="Website/assets/screenshots/3.png" width="240" alt="Campaign organization" /> |
+| **Audio library** | **Import / export a campaign** | **Settings** |
+| <img src="Website/assets/screenshots/4.png" width="240" alt="Audio library" /> | <img src="Website/assets/screenshots/5.png" width="240" alt="Import and export a campaign" /> | <img src="Website/assets/screenshots/6.png" width="240" alt="App settings" /> |
 
-## Stack technique
+## Tech stack
 
 - [.NET 10](https://dotnet.microsoft.com/) / **.NET MAUI** (`net10.0-android`,
   `net10.0-ios`, `net10.0-maccatalyst`, `net10.0-windows`)
-- MVVM avec [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet) et
+- MVVM with [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet) and
   [CommunityToolkit.Maui](https://github.com/CommunityToolkit/Maui)
-- [Plugin.Maui.Audio](https://github.com/jfversluis/Plugin.Maui.Audio) pour la lecture audio
-- [sqlite-net-pcl](https://github.com/praeclarum/sqlite-net) pour la persistance locale
-- [TagLibSharp](https://github.com/mono/taglib-sharp) pour les métadonnées et pochettes des pistes
-- Tests : [xUnit](https://xunit.net/)
+- [Plugin.Maui.Audio](https://github.com/jfversluis/Plugin.Maui.Audio) for audio playback
+- [sqlite-net-pcl](https://github.com/praeclarum/sqlite-net) for local persistence
+- [TagLibSharp](https://github.com/mono/taglib-sharp) for track metadata and cover art
+- Tests: [xUnit](https://xunit.net/)
 
-## Structure du dépôt
+## Repository layout
 
-| Projet / dossier        | Rôle |
+| Project / folder        | Role |
 |-------------------------|------|
-| `DmToolsApp/`           | Application MAUI : pages, vues, composants, services de plateforme, ressources. |
-| `DmToolsApp.Core/`      | Logique pure partagée et testable (modèles, accès données SQLite, services d'import/export et de bibliothèque). Aucune dépendance MAUI UI. |
-| `DmToolsApp.Tests/`     | Tests unitaires xUnit, ne référencent que `DmToolsApp.Core` (net10.0 pur, sans workload MAUI). |
-| `Deploy/`               | Scripts de publication (`Build-Release.ps1`, `Build-Test.ps1`), script Inno Setup (`Installer.iss`), keystore Android (non commitée). |
-| `Website/`              | Site vitrine statique (FR/EN), déployé sur Netlify. |
-| `.github/workflows/`    | CI : tests unitaires à chaque push/PR, build iOS non signé sur demande. |
+| `DmToolsApp/`           | MAUI app: pages, views, components, platform services, resources. |
+| `DmToolsApp.Core/`      | Shared, testable pure logic (models, SQLite data access, import/export and library services). No MAUI UI dependency. |
+| `DmToolsApp.Tests/`     | xUnit unit tests, referencing only `DmToolsApp.Core` (plain net10.0, no MAUI workload). |
+| `Deploy/`               | Publishing scripts (`Build-Release.ps1`, `Build-Test.ps1`), Inno Setup script (`Installer.iss`), Android keystore (never committed). |
+| `Website/`              | Static marketing site (FR/EN), deployed on Netlify. |
+| `.github/workflows/`    | CI: unit tests on every push/PR, unsigned iOS build on demand. |
 
-> Les `ViewModels` liés à l'UI restent dans l'application MAUI ; `Core` ne contient que
-> de la logique partagée réellement indépendante de l'UI.
+> UI-bound `ViewModels` stay in the MAUI app; `Core` only holds logic that is genuinely
+> UI-independent.
 
-## Prérequis
+## Prerequisites
 
-- [SDK .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0)
-- Workloads MAUI : `dotnet workload install maui`
-- Pour builder l'installeur Windows : [Inno Setup 6](https://jrsoftware.org/isinfo.php)
-- Visual Studio 2022+ ou VS Code avec l'extension .NET MAUI (optionnel)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- MAUI workloads: `dotnet workload install maui`
+- To build the Windows installer: [Inno Setup 6](https://jrsoftware.org/isinfo.php)
+- Visual Studio 2022+ or VS Code with the .NET MAUI extension (optional)
 
-## Développement
+## Development
 
 ```bash
-# Restaurer
+# Restore
 dotnet restore DmTools.slnx
 
-# Lancer sur une plateforme donnée
+# Run on a given platform
 dotnet build DmToolsApp/DmToolsApp.csproj -f net10.0-windows10.0.19041.0
 dotnet build DmToolsApp/DmToolsApp.csproj -f net10.0-android -t:Run
 ```
 
-Sous Visual Studio, ouvrir `DmTools.slnx`, choisir `DmToolsApp` comme projet de
-démarrage et sélectionner la cible souhaitée.
+In Visual Studio, open `DmTools.slnx`, set `DmToolsApp` as the startup project and pick
+the target you want.
 
 ## Tests
 
@@ -87,46 +86,45 @@ démarrage et sélectionner la cible souhaitée.
 dotnet test DmToolsApp.Tests/DmToolsApp.Tests.csproj -c Release
 ```
 
-Les tests ne dépendent que de `DmToolsApp.Core`, donc ils tournent sur Linux sans les
-workloads MAUI (c'est ce que fait la CI).
+Tests depend only on `DmToolsApp.Core`, so they run on Linux without the MAUI workloads
+(that's what CI does).
 
-## Publication
+## Publishing
 
-Les scripts de `Deploy/` s'exécutent d'un clic droit → *Exécuter avec PowerShell* :
+The scripts in `Deploy/` run from a right-click → *Run with PowerShell*:
 
-- **`Build-Test.ps1`** — publie Windows + Android et génère l'installeur, sans rien
-  diffuser. Pour tester une build localement avant une vraie release.
-- **`Build-Release.ps1`** — même build, puis crée une *GitHub Release* `v<version>`
-  avec l'installeur et l'APK, et redéclenche le déploiement Netlify du site.
+- **`Build-Test.ps1`** — publishes Windows + Android and builds the installer, without
+  releasing anything. For testing a build locally before a real release.
+- **`Build-Release.ps1`** — same build, then creates a *GitHub Release* `v<version>`
+  with the installer and the APK, and re-triggers the Netlify site deploy.
 
-La signature Android utilise `Deploy/dmtools-release.keystore` (jamais commitée) et les
-identifiants définis dans `Deploy/Build-Release.local.ps1` (à créer une fois par machine
-depuis `Build-Release.local.ps1.example`). Sans elle, la build retombe sur le
-`debug.keystore` local.
+Android signing uses `Deploy/dmtools-release.keystore` (never committed) and the
+credentials set in `Deploy/Build-Release.local.ps1` (created once per machine from
+`Build-Release.local.ps1.example`). Without it, the build falls back to the local
+`debug.keystore`.
 
-## Versionnage
+## Versioning
 
-Le numéro de version est `AppVersionMajor.AppVersionMinor.<nombre de commits git>` :
-`major` / `minor` se règlent à la main dans `DmToolsApp/DmToolsApp.csproj`, le patch est
-calculé au build (cible MSBuild `SetVersionFromGit`) et par les scripts de `Deploy/`, si
-bien que l'installeur, l'APK et l'écran *Réglages* de l'app affichent toujours le même
-numéro. L'app lit sa version au runtime via `AppInfo.Current.VersionString`.
+The version number is `AppVersionMajor.AppVersionMinor.<git commit count>`: `major` /
+`minor` are set by hand in `DmToolsApp/DmToolsApp.csproj`, the patch is computed at build
+time (the `SetVersionFromGit` MSBuild target) and by the `Deploy/` scripts, so the
+installer, the APK and the app's *Settings* screen always show the same number. The app
+reads its version at runtime via `AppInfo.Current.VersionString`.
 
-## Téléchargement
+## Download
 
-Dernières versions sur la page des *Releases* du dépôt, ou depuis le site :
+Latest builds on the repository's *Releases* page, or from the website:
 
-- Windows : installeur `.exe` (Windows 10 1809+)
-- Android : APK (Android 5.0+), installation hors Play Store
+- Windows: `.exe` installer (Windows 10 1809+)
+- Android: APK (Android 5.0+), installed outside the Play Store
 
-## Licence
+## License
 
-Tous droits réservés — voir [`LICENSE`](LICENSE). Le code source est publié à des fins
-de consultation et de référence uniquement ; aucune permission de copie, de modification
-ou de redistribution n'est accordée. L'application compilée reste gratuite via les
-canaux de distribution officiels.
+All rights reserved — see [`LICENSE`](LICENSE). The source code is published for viewing
+and reference only; no permission is granted to copy, modify or redistribute it. The
+compiled application stays free through official distribution channels.
 
-## Soutenir le projet
+## Support the project
 
-DM Tools est développé sur le temps libre, pour la communauté.
-[☕ Buy Me a Coffee](https://buymeacoffee.com/narfedome) · Support : dmtools.support@gmail.com
+DM Tools is built in spare time, for the community.
+[☕ Buy Me a Coffee](https://buymeacoffee.com/narfedome) · Support: dmtools.support@gmail.com
