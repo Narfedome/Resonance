@@ -1,5 +1,7 @@
 # DM Tools
 
+*Français · [English](README.en.md)*
+
 > Prépare l'ambiance sonore de ta campagne de jeu de rôle sur table, scène après scène.
 
 [![Unit Tests](https://github.com/Narfedome/DmTools/actions/workflows/tests.yml/badge.svg)](https://github.com/Narfedome/DmTools/actions/workflows/tests.yml)
