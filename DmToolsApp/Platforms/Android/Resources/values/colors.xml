@@ -3,5 +3,5 @@
     <!-- Neutral dark values — actual palette colors are applied at runtime via ThemeService -->
     <color name="colorPrimary">#1C1A2E</color>
     <color name="colorPrimaryDark">#141020</color>
-    <color name="colorAccent">#C9A84C</color>
+    <color name="colorAccent">#87cefa</color>
 </resources>
