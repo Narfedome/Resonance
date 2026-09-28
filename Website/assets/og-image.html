@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!--
+  Source éditable de l'image Open Graph (1200x630), en HTML/CSS plutôt qu'en SVG : plus simple à
+  éditer à la main (texte, couleurs, polices en CSS standard) et sans les pièges de compatibilité
+  clip-path/filter/SVG imbriqué qui cassaient sous Inkscape.
+
+  Export en PNG :
+  - Ouvrir ce fichier dans Chrome, ouvrir les DevTools (F12)
+  - Dans l'onglet Elements, sélectionner le <div class="stage">
+  - Clic droit sur l'élément dans l'arbre DOM > "Capture node screenshot"
+    (exporte exactement 1200x630, fond compris, sans dépendre de la taille de la fenêtre)
+  - Enregistrer sous og-image.png / og-image-en.png
+
+  Pour la variante EN : dupliquer ce fichier en og-image-en.html et ne changer que le texte dans
+  <div class="text">, cf. Website/en/index.html pour la tagline exacte.
+-->
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>OG - DM Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    /* Mêmes tokens que Website/styles.css */
+    --bg: #1c1a2e;
+    --accent: #c9a84c;
+    --text: #f0ede0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    background: #444; /* juste pour distinguer la scène du reste de la page pendant l'édition */
+  }
+
+  .stage {
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Open Sans', sans-serif;
+  }
+
+  /* Halo : formule exacte de .hero dans styles.css, superposé au fond plein */
+  .stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% -10%, rgba(107, 93, 170, 0.35), transparent 60%);
+  }
+
+  .icon {
+    width: 150px;
+    height: 150px;
+    border-radius: 27px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    margin-bottom: 32px;
+    position: relative;
+  }
+
+  h1 {
+    font-family: 'Pirata One', serif;
+    font-size: 76px;
+    font-weight: 400;
+    color: var(--accent);
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .tagline {
+    font-size: 30px;
+    color: var(--text);
+    text-align: center;
+    position: relative;
+  }
+</style>
+</head>
+<body>
+
+  <div class="stage">
+    <img class="icon" src="logo.svg" alt="" />
+
+    <h1>DM Tools</h1>
+
+    <div class="tagline">Prépare l'ambiance de ta campagne de jeu de rôle.</div>
+  </div>
+
+</body>
+</html>
