@@ -1,4 +1,4 @@
-// Récupère l'exe Windows et l'APK Android de la dernière GitHub Release avant que Netlify ne
+// Récupère l'installeur Windows de la dernière GitHub Release avant que Netlify ne
 // publie le site : ces binaires ne sont jamais commités dans le dépôt (cf. Build-Release.ps1
 // -Publish et le .gitignore de Website/downloads/), donc le site les télécharge lui-même à
 // chaque build plutôt que de dépendre d'une copie versionnée qui ferait gonfler l'historique git
@@ -15,7 +15,7 @@ const fs = require("fs");
 const path = require("path");
 
 const REPO = "Narfedome/Resonance";
-const ASSETS = ["ResonanceInstaller.exe", "Resonance.apk"];
+const ASSETS = ["ResonanceInstaller.exe"];
 const OUT_DIR = path.join(__dirname, "..", "downloads");
 const GITHUB_TOKEN = process.env.DMTOOLS_GITHUB_TOKEN;
 

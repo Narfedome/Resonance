@@ -96,10 +96,11 @@ Les scripts de `Deploy/` s'exécutent d'un clic droit → *Exécuter avec PowerS
 
 - **`Build-Test.ps1`** — publie Windows + Android et génère l'installeur, sans rien
   diffuser. Pour tester une build localement avant une vraie release.
-- **`Build-Release.ps1`** — même build, puis crée une *GitHub Release* `v<version>`
-  avec l'installeur et l'APK, et redéclenche le déploiement Netlify du site.
+- **`Build-Release.ps1`** — génère l'installeur et un Android App Bundle signé
+  (`Deploy/PlayStore/Resonance-<version>.aab`, à uploader dans la Play Console), crée une
+  *GitHub Release* `v<version>` avec l'installeur, et redéclenche le déploiement Netlify du site.
 
-La signature Android utilise `Deploy/dmtools-release.keystore` (jamais commitée) et les
+La signature Android (clé d'upload Play Store) utilise `Deploy/dmtools-release.keystore` (jamais commitée) et les
 identifiants définis dans `Deploy/Build-Release.local.ps1` (à créer une fois par machine
 depuis `Build-Release.local.ps1.example`). Sans elle, la build retombe sur le
 `debug.keystore` local.
@@ -109,15 +110,16 @@ depuis `Build-Release.local.ps1.example`). Sans elle, la build retombe sur le
 Le numéro de version est `AppVersionMajor.AppVersionMinor.<nombre de commits git>` :
 `major` / `minor` se règlent à la main dans `Resonance/Resonance.csproj`, le patch est
 calculé au build (cible MSBuild `SetVersionFromGit`) et par les scripts de `Deploy/`, si
-bien que l'installeur, l'APK et l'écran *Réglages* de l'app affichent toujours le même
-numéro. L'app lit sa version au runtime via `AppInfo.Current.VersionString`.
+bien que l'installeur, l'AAB et l'écran *Réglages* de l'app affichent toujours le même
+numéro. Ce même nombre de commits sert de `versionCode` Android, que le Play Store exige
+strictement croissant à chaque upload. L'app lit sa version au runtime via `AppInfo.Current.VersionString`.
 
 ## Téléchargement
 
 Dernières versions sur la page des *Releases* du dépôt, ou depuis le site :
 
 - Windows : installeur `.exe` (Windows 10 1809+)
-- Android : APK (Android 5.0+), installation hors Play Store
+- Android : bientôt sur Google Play (Android 5.0+)
 
 ## Licence
 

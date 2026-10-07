@@ -43,7 +43,7 @@
 
 		<!-- Versions — patch auto-incrémenté via git au build, major/minor à la main -->
 		<AppVersionMajor>1</AppVersionMajor>
-		<AppVersionMinor>1</AppVersionMinor>
+		<AppVersionMinor>2</AppVersionMinor>
 		<ApplicationDisplayVersion>$(AppVersionMajor).$(AppVersionMinor).0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
@@ -238,10 +238,17 @@
 		<PropertyGroup Condition="'$(_AppPatch)' == ''">
 			<_AppPatch>0</_AppPatch>
 		</PropertyGroup>
+		<!-- ApplicationVersion (versionCode Android) suit le meme compteur : le Play Store refuse tout
+		     upload dont le versionCode n'est pas strictement superieur au precedent. Plancher a 1, un
+		     versionCode a 0 etant invalide. -->
 		<PropertyGroup>
 			<ApplicationDisplayVersion>$(AppVersionMajor).$(AppVersionMinor).$(_AppPatch)</ApplicationDisplayVersion>
+			<ApplicationVersion>$(_AppPatch)</ApplicationVersion>
 		</PropertyGroup>
-		<Message Text="Version: $(ApplicationDisplayVersion)" Importance="high" />
+		<PropertyGroup Condition="'$(_AppPatch)' == '0'">
+			<ApplicationVersion>1</ApplicationVersion>
+		</PropertyGroup>
+		<Message Text="Version: $(ApplicationDisplayVersion) (versionCode $(ApplicationVersion))" Importance="high" />
 
 		<!-- Le manifeste Android est régénéré par une cible incrémentale (_GenerateJavaStubs) qui ne
 		     surveille pas cette propriété : sans supprimer son stamp, la version packagée peut rester
