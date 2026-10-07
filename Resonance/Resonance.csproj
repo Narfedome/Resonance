@@ -43,7 +43,7 @@
 
 		<!-- Versions — patch auto-incrémenté via git au build, major/minor à la main -->
 		<AppVersionMajor>1</AppVersionMajor>
-		<AppVersionMinor>1</AppVersionMinor>
+		<AppVersionMinor>2</AppVersionMinor>
 		<ApplicationDisplayVersion>$(AppVersionMajor).$(AppVersionMinor).0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
