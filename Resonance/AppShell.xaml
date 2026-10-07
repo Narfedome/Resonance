@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="Resonance.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:audioMixer="clr-namespace:Resonance.Features.AudioMixer"
+    xmlns:campaign="clr-namespace:Resonance.Features.Campaigns"
+    xmlns:library="clr-namespace:Resonance.Features.Library"
+    xmlns:settings="clr-namespace:Resonance.Features.Settings"
+    xmlns:extensions="clr-namespace:Resonance.Extensions"
+    xmlns:loc="clr-namespace:Resonance.Extensions"
+    xmlns:icons="clr-namespace:Resonance.Resources.Icons">
+    <TabBar>
+        <Tab x:Name="CampaignsTab"
+             Title="Campagnes"
+             Icon="{extensions:FaIcon Glyph={x:Static icons:SolidFont.Map}}">
+            <ShellContent Route="CampaignPage" ContentTemplate="{DataTemplate campaign:CampaignPage}" />
+        </Tab>
+
+        <Tab x:Name="AudioMixerTab"
+             Title="AudioMixer"
+             Icon="{extensions:FaIcon Glyph={x:Static icons:SolidFont.Sliders}}">
+            <ShellContent Route="AudioMixerPage" ContentTemplate="{DataTemplate audioMixer:AudioMixerPage}" />
+        </Tab>
+
+        <Tab x:Name="LibraryTab"
+             Title="Bibliothèque"
+             Icon="{extensions:FaIcon Glyph={x:Static icons:SolidFont.BookOpen}}">
+            <ShellContent x:Name="TracksContent" Title="{loc:Loc TabLibrary}" ContentTemplate="{DataTemplate library:LibraryTrackPage}" />
+            <ShellContent x:Name="SpellsContent" Title="{loc:Loc TabLibrary}" ContentTemplate="{DataTemplate library:LibrarySpellPage}" IsVisible="False" />
+            <ShellContent Route="LibrarySpellEditPage" ContentTemplate="{DataTemplate library:LibrarySpellEditPage}" IsVisible="False" />
+        </Tab>
+
+        <Tab x:Name="SettingsTab"
+             Title="Paramètres"
+             Icon="{extensions:FaIcon Glyph={x:Static icons:SolidFont.Gear}}">
+            <ShellContent Route="SettingsPage" ContentTemplate="{DataTemplate settings:SettingsPage}" />
+        </Tab>
+    </TabBar>
+</Shell>

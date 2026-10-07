@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Resonance.Features.Library.LibrarySpellEditPage"
+             xmlns:icons="clr-namespace:Resonance.Resources.Icons"
+             xmlns:loc="clr-namespace:Resonance.Extensions"
+             xmlns:components="clr-namespace:Resonance.Components">
+
+    <components:WatermarkedLayout>
+    <Grid Padding="20" RowSpacing="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" RowSpacing="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <components:LibraryItemImageView Grid.Row="0" ImagePath="{Binding ImagePath}" DefaultGlyph="{x:Static  icons:SolidFont.Meteor}" MaximumHeightRequest="30" />
+            <Label Grid.Row="1"
+                   Text="{Binding Title}"
+                   FontSize="{OnIdiom Default=20, Desktop=17}" HorizontalOptions="Center" Margin="0,0,0,20"/>
+            <Grid Grid.Row="2"  RowSpacing="15">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Entry Grid.Row="0" Text="{Binding Item.Title}"
+                       Placeholder="{loc:Loc SpellTitlePh}" />
+                <Editor Grid.Row="1" Text="{Binding Item.Description}"
+                        Placeholder="{loc:Loc SpellDescPh}"/>
+            </Grid>
+        </Grid>
+        <HorizontalStackLayout Grid.Row="1"
+                             HorizontalOptions="Center"
+                             Spacing="20">
+
+            <components:FaIconButtonView Icon="{x:Static  icons:SolidFont.FloppyDisk}"
+                                           Command="{Binding SaveCommand}"
+                                           Tooltip="{loc:Loc BtnSave}"/>
+            <components:FaIconButtonView Icon="{x:Static  icons:SolidFont.CircleXmark}"
+                                           Command="{Binding CancelCommand}"
+                                           Tooltip="{loc:Loc BtnCancel}"/>
+
+        </HorizontalStackLayout>
+    </Grid>
+    </components:WatermarkedLayout>
+
+</ContentPage>

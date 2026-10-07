@@ -17,14 +17,14 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore MAUI workloads
-        run: dotnet workload restore DmToolsApp/DmToolsApp.csproj
+        run: dotnet workload restore Resonance/Resonance.csproj
 
       # Build a device (arm64) build without a real signing identity.
       # This produces an unsigned .ipa meant to be re-signed locally with
       # a free Apple ID (e.g. via Sideloadly) rather than installed as-is.
       - name: Build unsigned iOS IPA
         run: >
-          dotnet build DmToolsApp/DmToolsApp.csproj
+          dotnet build Resonance/Resonance.csproj
           -f net10.0-ios
           -c Release
           -p:RuntimeIdentifier=ios-arm64
@@ -35,11 +35,11 @@ jobs:
           -p:EnableCodeSigning=false
 
       - name: Locate IPA
-        run: find DmToolsApp/bin -iname "*.ipa" -print
+        run: find Resonance/bin -iname "*.ipa" -print
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: DmToolsApp-ios-ipa
-          path: DmToolsApp/bin/Release/net10.0-ios/**/*.ipa
+          name: Resonance-ios-ipa
+          path: Resonance/bin/Release/net10.0-ios/**/*.ipa
           if-no-files-found: error

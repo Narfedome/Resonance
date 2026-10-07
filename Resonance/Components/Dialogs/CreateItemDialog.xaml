@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:system="clr-namespace:System;assembly=mscorlib"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               xmlns:loc="clr-namespace:Resonance.Extensions"
+               xmlns:icons="clr-namespace:Resonance.Resources.Icons"
+               xmlns:components="clr-namespace:Resonance.Components"
+               xmlns:dialogs="clr-namespace:Resonance.Components.Dialogs"
+               x:TypeArguments="system:Boolean"
+               x:Class="Resonance.Components.Dialogs.CreateItemDialog"
+               x:DataType="dialogs:CreateItemDialogViewModel"
+               BackgroundColor="Transparent"
+               Padding="0"
+               VerticalOptions="{OnPlatform Default=Start, WinUI=Center}"
+               Margin="{OnPlatform Default='0,80,0,0', WinUI='0'}">
+    <!-- Ancrée en haut (pas centrée) sur Android/iOS : quand le clavier s'ouvre, le popup ne se
+         repositionne pas de façon fiable sur Android (relayout pas toujours redéclenché par
+         AdjustResize) — une carte centrée verticalement finit alors trop bas, ses boutons masqués
+         par le clavier. Ancrée en haut, sa position ne dépend plus de la hauteur disponible du tout.
+         Sur Windows (WinUI), pas de clavier logiciel à éviter : centrée normalement, sinon la carte
+         apparaît collée en haut de l'écran sans raison.
+         VerticalOptions/Margin sont posés sur le Popup racine, pas sur le Border : les poser
+         seulement sur le Border laissait le Popup lui-même considérer tout son ancien espace alloué
+         comme "à l'intérieur", donc taper sur le voile visuellement vide au-dessus/à côté de la carte
+         ne fermait plus le dialogue. -->
+    <Border Style="{StaticResource DialogCardBorderStyle}" WidthRequest="320">
+        <!-- ScrollView : ce formulaire a le plus de champs de tous les dialogues (Type + Campagne +
+             Chapitre + Nom) — le plus exposé si le clavier réduit la hauteur disponible sur mobile.
+             MaximumHeightRequest fixé en code-behind (fraction de la hauteur d'écran) plutôt qu'en dur
+             ici : une valeur fixe assez grande pour un desktop dépassait largement l'espace restant
+             au-dessus du clavier sur téléphone. VerticalOptions="Start" : un ScrollView remplit par
+             défaut tout l'espace que son parent lui alloue (donc jusqu'au plafond) même quand son
+             contenu est plus court — sans ça la carte du dialogue restait grande à vide. -->
+        <ScrollView x:Name="ContentScroll" VerticalOptions="Start">
+        <VerticalStackLayout Spacing="12">
+            <Label Text="{Binding Title}"
+                   FontAttributes="Bold" FontSize="{DynamicResource AppFontSizeSectionTitle}"
+                   TextColor="{DynamicResource AppText}"/>
+
+            <!-- Les 3 champs (Type/Campagne/Chapitre) partagent le même rythme : label à gauche,
+                 IconTextButton (icône + valeur, une seule zone tappable) plaqué à droite jusqu'au bord
+                 de la carte (Grid *,Auto — comme les lignes de Paramètres), séparés par un trait. -->
+            <VerticalStackLayout Spacing="6">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0" Text="{loc:Loc FieldType}" FontSize="{OnIdiom Default=13, Desktop=11}" TextColor="{DynamicResource AppTextMuted}" VerticalOptions="Center"/>
+                    <components:IconTextButton Grid.Column="1"
+                                                Text="{Binding TypeButtonText}"
+                                                Icon="{Binding TypeButtonIcon}"
+                                                IsEnabled="{Binding TypeButtonEnabled}"
+                                                Command="{Binding SelectTypeCommand}"
+ IconSize="14" TextColor="{DynamicResource AppAccent}"
+                                                TextMaximumWidth="150"/>
+                </Grid>
+                <BoxView HeightRequest="1" Color="{DynamicResource AppBorder}"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="6" IsVisible="{Binding CampaignFieldVisible}">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0" Text="{loc:Loc NounCampaign}" FontSize="{OnIdiom Default=13, Desktop=11}" TextColor="{DynamicResource AppTextMuted}" VerticalOptions="Center"/>
+                    <components:IconTextButton Grid.Column="1"
+                                                Text="{Binding CampaignButtonText}"
+                                                Icon="{x:Static icons:SolidFont.Map}"
+                                                Command="{Binding SelectCampaignCommand}"
+ IconSize="14" TextColor="{DynamicResource AppAccent}"
+                                                TextMaximumWidth="150"/>
+                </Grid>
+                <BoxView HeightRequest="1" Color="{DynamicResource AppBorder}"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="6" IsVisible="{Binding SessionFieldVisible}">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0" Text="{loc:Loc NounChapter}" FontSize="{OnIdiom Default=13, Desktop=11}" TextColor="{DynamicResource AppTextMuted}" VerticalOptions="Center"/>
+                    <components:IconTextButton Grid.Column="1"
+                                                Text="{Binding SessionButtonText}"
+                                                Icon="{x:Static icons:SolidFont.Bookmark}"
+                                                Command="{Binding SelectSessionCommand}"
+ IconSize="14" TextColor="{DynamicResource AppAccent}"
+                                                TextMaximumWidth="150"/>
+                </Grid>
+                <BoxView HeightRequest="1" Color="{DynamicResource AppBorder}"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="4">
+                <Label Text="{loc:Loc PromptName}" FontSize="{OnIdiom Default=13, Desktop=11}" TextColor="{DynamicResource AppTextMuted}"/>
+                <Entry x:Name="NameEntry" Text="{Binding Name}"/>
+            </VerticalStackLayout>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button Grid.Column="0"
+                        Text="{loc:Loc BtnCancel}"
+                        Style="{StaticResource DialogSecondaryButtonStyle}"
+                        Command="{Binding CancelCommand}"/>
+                <Button Grid.Column="1"
+                        Text="{loc:Loc BtnSave}"
+                        Command="{Binding SaveCommand}"/>
+            </Grid>
+        </VerticalStackLayout>
+        </ScrollView>
+    </Border>
+</toolkit:Popup>

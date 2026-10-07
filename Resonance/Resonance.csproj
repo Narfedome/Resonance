@@ -1,0 +1,262 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release' and $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+		<AndroidPackageFormat>apk</AndroidPackageFormat>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<TargetFrameworks>net10.0-android</TargetFrameworks>
+		<TargetFrameworks Condition="!$([MSBuild]::IsOSPlatform('linux'))">$(TargetFrameworks);net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+
+		<!-- Note for MacCatalyst:
+		The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
+		When specifying both architectures, use the plural <RuntimeIdentifiers> instead of the singular <RuntimeIdentifier>.
+		The Mac App Store will NOT accept apps with ONLY maccatalyst-arm64 indicated;
+		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
+		<!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
+
+		<OutputType>Exe</OutputType>
+		<RootNamespace>Resonance</RootNamespace>
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<!-- NU1603: métadonnée buggée de Plugin.Maui.Audio 4.0.0 (cf. commentaire détaillé dans
+		     Resonance.Core.csproj) -->
+		<!-- MVVMTK0045: partial properties AOT - refactoring trop large, pas de cible WinRT stricte -->
+		<NoWarn>$(NoWarn);NU1603;MVVMTK0045</NoWarn>
+
+		<!-- Enable XAML source generation for faster build times and improved performance.
+		     This generates C# code from XAML at compile time instead of runtime inflation.
+		     To disable, remove this line.
+		     For individual files, you can override by setting Inflator metadata:
+		       <MauiXaml Update="MyPage.xaml" Inflator="Default" /> (reverts to defaults: Runtime for Debug, XamlC for Release)
+		       <MauiXaml Update="MyPage.xaml" Inflator="Runtime" /> (force runtime inflation) -->
+		<MauiXamlInflator>SourceGen</MauiXamlInflator>
+
+		<!-- Display name -->
+		<ApplicationTitle>Resonance</ApplicationTitle>
+
+		<!-- App Identifier -->
+		<ApplicationId>com.narfedome.resonance</ApplicationId>
+
+		<!-- Versions — patch auto-incrémenté via git au build, major/minor à la main -->
+		<AppVersionMajor>1</AppVersionMajor>
+		<AppVersionMinor>1</AppVersionMinor>
+		<ApplicationDisplayVersion>$(AppVersionMajor).$(AppVersionMinor).0</ApplicationDisplayVersion>
+		<ApplicationVersion>1</ApplicationVersion>
+
+		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
+		<WindowsPackageType>None</WindowsPackageType>
+
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<PackageIcon>icon.png</PackageIcon>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- App Icon -->
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#1C1A2E" />
+
+		<!-- Splash Screen -->
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#1C1A2E" BaseSize="128,128" />
+
+		<!-- Images -->
+		<MauiImage Include="Resources\Images\*" />
+		
+		<!-- Custom Fonts -->
+		<MauiFont Include="Resources\Fonts\*" />
+
+		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+
+		<!-- Watermark de fond (WatermarkedLayout) : EmbeddedResource + ImageSource.FromResource plutôt
+		     que MauiImage + Source="fichier.svg" - chemin de chargement différent (lu directement du
+		     flux de la resource embarquée, decode natif direct) pour tester si le bug d'affichage sur
+		     Windows est spécifique à la résolution FileImageSource des assets MauiImage. -->
+		<EmbeddedResource Include="Resources\WatermarkImages\*.png" LogicalName="%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Maui" Version="14.2.0" />
+		<PackageReference Include="CommunityToolkit.Maui.Core" Version="14.2.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.80" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.9" />
+		<PackageReference Include="Plugin.Maui.Audio" Version="4.0.0" />
+		<!-- 1.11.285 embarque SQLitePCLRaw 3.x / SQLite 3.53 (CVE-2025-6965 corrigée) : le pin
+		     SQLitePCLRaw.bundle_green 2.x qui alignait les binaires natifs n'a plus lieu d'être. -->
+		<PackageReference Include="sqlite-net-pcl" Version="1.11.285" />
+		<PackageReference Include="TagLibSharp" Version="2.3.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Components\TrackButton\TrackButtonView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Components\ChannelStrip\ChannelStripView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Components\LibraryItemImage\LibraryItemImageView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Components\FaIconButton\FaIconButtonView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Components\RotatedLabel\RotatedLabelView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Components\ChannelVolumeSlider\ChannelVolumeSliderView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Features\AudioMixer\AudioMixerPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Features\Library\Spell\LibrarySpellSelectorPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Features\Library\Track\LibraryTrackSelectorPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Features\Library\Spell\LibrarySpellPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Features\Library\Spell\LibrarySpellView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Features\Library\Track\LibraryTrackPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Features\Library\Spell\CreateEdit\LibrarySpellEditPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Features\Library\Track\CreateEdit\LibraryTrackEditPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Features\Library\Track\LibraryTrackView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Resources\Styles\Icons.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Update="Strings\AppStrings.resx" />
+	  <EmbeddedResource Update="Strings\AppStrings.en.resx">
+	    <Culture>en</Culture>
+	  </EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Components\TrackButton\TrackButtonView.xaml.cs">
+	    <DependentUpon>TrackButtonView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Components\LibraryItemImage\LibraryItemImageView.xaml.cs">
+	    <DependentUpon>LibraryItemImageView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Features\AudioMixer\AudioMixerPage.xaml.cs">
+	    <DependentUpon>AudioMixerPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Features\Library\Spell\LibrarySpellSelectorPage.xaml.cs">
+	    <DependentUpon>LibrarySpellSelectorPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Features\Library\Track\LibraryTrackSelectorPage.xaml.cs">
+	    <DependentUpon>LibraryTrackSelectorPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Features\Library\Spell\LibrarySpellView.xaml.cs">
+	    <DependentUpon>LibrarySpellView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Features\Library\Track\LibraryTrackView.xaml.cs">
+	    <DependentUpon>LibraryTrackView.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiFont Update="Resources\Fonts\Font Awesome 7 Brands-Regular-400.otf">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiFont>
+	  <MauiFont Update="Resources\Fonts\Font Awesome 7 Free-Regular-400.otf">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiFont>
+	  <MauiFont Update="Resources\Fonts\Font Awesome 7 Free-Solid-900.otf">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiFont>
+	  <MauiFont Update="Resources\Fonts\OpenSans-Regular.ttf">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiFont>
+	  <MauiFont Update="Resources\Fonts\OpenSans-Semibold.ttf">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiFont>
+	  <MauiFont Update="Resources\Fonts\PirataOne-Regular.ttf">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiFont>
+	  <MauiFont Update="Resources\Fonts\rpgawesome-webfont.ttf">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiFont>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Resources\AppIcon\appicon.svg">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	  <None Update="Resources\Images\icon.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Resonance.Core\Resonance.Core.csproj" />
+	</ItemGroup>
+
+
+	<!-- Auto-incrémente le patch en comptant les commits git et fixe ApplicationDisplayVersion.
+	     L'app lit sa version au runtime via AppInfo.Current.VersionString, qui reflète exactement
+	     ce qui a été packagé (AndroidManifest/Info.plist/Package.appxmanifest) : plus de fichier
+	     généré séparément à garder en synchro.
+	     _GetAndroidPackageName est la cible qui fige _AndroidVersionName = $(ApplicationDisplayVersion)
+	     pour le manifeste Android ; elle tourne très tôt (via AndroidPrepareForBuild, avant CoreCompile),
+	     donc on doit y accrocher ce calcul explicitement sous peine de packager la version statique.
+	     Idem côté Windows : MauiGeneratePackageAppxManifest (package Resizetizer) lit
+	     ApplicationDisplayVersion pour générer Package.appxmanifest, puis GetAssemblyAttributes en
+	     extrait la version pour l'embarquer en AssemblyMetadataAttribute (ce que AppInfo.VersionString
+	     lit vraiment au runtime, l'appli étant non empaquetée) - les deux doivent tourner APRÈS ce
+	     calcul, sous peine de packager/embarquer la version statique par défaut du csproj. -->
+	<Target Name="SetVersionFromGit" BeforeTargets="CoreCompile;_GenerateJavaStubs;GetAssemblyVersion;_GetAndroidPackageName;MauiGeneratePackageAppxManifest;GetAssemblyAttributes">
+		<Exec Command="git rev-list --count HEAD" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="low">
+			<Output TaskParameter="ConsoleOutput" PropertyName="_GitCommitCount" />
+		</Exec>
+		<PropertyGroup Condition="'$(_GitCommitCount)' != ''">
+			<_AppPatch>$(_GitCommitCount.Trim())</_AppPatch>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(_AppPatch)' == ''">
+			<_AppPatch>0</_AppPatch>
+		</PropertyGroup>
+		<PropertyGroup>
+			<ApplicationDisplayVersion>$(AppVersionMajor).$(AppVersionMinor).$(_AppPatch)</ApplicationDisplayVersion>
+		</PropertyGroup>
+		<Message Text="Version: $(ApplicationDisplayVersion)" Importance="high" />
+
+		<!-- Le manifeste Android est régénéré par une cible incrémentale (_GenerateJavaStubs) qui ne
+		     surveille pas cette propriété : sans supprimer son stamp, la version packagée peut rester
+		     figée sur une valeur périmée même quand ApplicationDisplayVersion change. -->
+		<ItemGroup Condition="Exists('$(_AndroidStampDirectory)_GenerateJavaStubs.stamp')">
+			<_StampToDelete Include="$(_AndroidStampDirectory)_GenerateJavaStubs.stamp" />
+		</ItemGroup>
+
+		<!-- Idem côté Windows : le stamp de MauiGeneratePackageAppxManifest ne surveille en incrémental
+		     que le Package.appxmanifest source, jamais cette propriété. -->
+		<ItemGroup Condition="Exists('$(IntermediateOutputPath)mauimanifest.stamp')">
+			<_StampToDelete Include="$(IntermediateOutputPath)mauimanifest.stamp" />
+		</ItemGroup>
+
+		<Delete Files="@(_StampToDelete)" Condition="'@(_StampToDelete)' != ''" />
+	</Target>
+
+</Project>

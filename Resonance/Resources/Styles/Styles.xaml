@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:components="clr-namespace:Resonance.Components">
+
+    <!-- Variante discrete de FaIconButtonView (fond transparent, icone en gris muet) pour un
+         chevron/retour qui doit se fondre dans le fond plutot que ressortir comme une action
+         primaire pleine accent (cf. DetailPageHeaderView, chevrons d'accordeon CampaignPage). -->
+    <Style x:Key="GhostIconButtonStyle" TargetType="components:FaIconButtonView">
+        <Setter Property="IconBackgroundColor" Value="Transparent"/>
+        <Setter Property="IconColor" Value="{DynamicResource AppTextMuted}"/>
+    </Style>
+
+    <!-- Style implicite (pas de x:Key, s'applique a tout FaIconButtonView qui ne precise pas
+         Style="...") : fond plein accent par defaut (Ajouter/Editer/Supprimer partout dans
+         l'appli), via un vrai {DynamicResource} pour suivre les changements de theme/palette -
+         contrairement a un defaultValueCreator C#, qui ne peut que figer la valeur une seule fois.
+         Un Style="{StaticResource GhostIconButtonStyle}" explicite (chevrons) prend le pas dessus. -->
+    <Style TargetType="components:FaIconButtonView">
+        <Setter Property="IconBackgroundColor" Value="{DynamicResource AppAccent}"/>
+    </Style>
+
+    <!-- Carte de ligne d'accordeon/liste (CampaignPage, CategoryListPage) : forme, padding, hauteur
+         mini et gris par defaut - factorisee ici plutot que dupliquee dans les deux pages (Categories
+         redeclarait les 5 memes proprietes a la main). Chaque page garde son propre mecanisme de mise
+         en avant (DataTrigger sur IsExpanded pour l'accordeon Campagnes, VisualStateManager natif
+         "Selected" pour la liste plate Categories) : trop different pour etre factorise aussi. -->
+    <Style x:Key="RowBorderStyle" TargetType="Border">
+        <Setter Property="StrokeThickness" Value="2"/>
+        <Setter Property="StrokeShape" Value="RoundRectangle 8"/>
+        <!-- Pas de Margin ici (peu fiable sur ce Border, racine de DataTemplate de CollectionView sur
+             Windows) - l'espacement entre lignes vient du Padding du Grid englobant, cf. les
+             commentaires sur CampaignTemplate/SessionTemplate dans CampaignPage.xaml. -->
+        <Setter Property="Padding" Value="{DynamicResource AppAccordionRowPadding}"/>
+        <Setter Property="MinimumHeightRequest" Value="{DynamicResource AppAccordionRowMinHeight}"/>
+        <Setter Property="Stroke" Value="Grey"/>
+    </Style>
+
+    <!-- Carte de tuile selectionnable de la bibliotheque (Track/Spell) : dupliquee mot pour mot
+         entre LibraryTrackView et LibrarySpellView avant cette factorisation (a un StrokeThickness=3
+         pres sur l'etat Selected cote Spell, qui n'avait pas de raison d'etre - alignee sur Track). -->
+    <Style x:Key="SelectableGridItemBorderStyle" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource AppSurfaceTranslucent}"/>
+        <Setter Property="StrokeThickness" Value="2"/>
+        <Setter Property="StrokeShape" Value="RoundRectangle 5"/>
+        <Setter Property="HorizontalOptions" Value="{OnPlatform Default=Fill, WinUI=Center}"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup Name="CommonStates">
+                    <VisualState Name="Normal">
+                        <VisualState.Setters>
+                            <Setter Property="Stroke" Value="Grey" />
+                            <Setter Property="StrokeThickness" Value="2" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState Name="Selected">
+                        <VisualState.Setters>
+                            <Setter Property="Stroke" Value="LightSkyBlue" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ActivityIndicator">
+        <Setter Property="Color" Value="{DynamicResource AppAccent}" />
+    </Style>
+
+    <Style TargetType="IndicatorView">
+        <Setter Property="IndicatorColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"/>
+        <Setter Property="SelectedIndicatorColor" Value="{DynamicResource AppAccent}"/>
+    </Style>
+
+    <Style TargetType="Border">
+        <Setter Property="Stroke" Value="{DynamicResource AppBorder}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 15"/>
+        <Setter Property="StrokeThickness" Value="1"/>
+    </Style>
+
+    <Style TargetType="Border"  x:Key="NoRoundedBorder">
+        <Setter Property="Stroke" Value="{DynamicResource AppBorder}" />
+        <Setter Property="StrokeThickness" Value="1"/>
+    </Style>
+
+    <!-- Carte utilisée par les popups thémées (dialogues de confirmation/saisie/choix, import) -->
+    <Style TargetType="Border" x:Key="DialogCardBorderStyle">
+        <Setter Property="BackgroundColor" Value="{DynamicResource AppSurface}" />
+        <Setter Property="Stroke" Value="{DynamicResource AppBorder}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 8"/>
+        <Setter Property="StrokeThickness" Value="1"/>
+        <Setter Property="Padding" Value="{DynamicResource AppDialogCardPadding}"/>
+    </Style>
+
+    <!-- Carte de section (Settings, ImportExport, Onboarding, cf. AppSectionCardPadding) : fond
+         AppSurfaceTranslucent (AppSurface a 85% d'opacite, cf. ThemeService.Apply) plutot que
+         transparente (defaut du Border implicite) - sur WatermarkedLayout, un fond transparent
+         rendait le texte difficile a lire par-dessus le filigrane. Une couleur translucide plutot
+         que Border.Opacity : Opacity s'appliquerait a tout le contenu (texte compris), pas
+         seulement au fond. -->
+    <Style TargetType="Border" x:Key="SectionCardBorderStyle">
+        <Setter Property="BackgroundColor" Value="{DynamicResource AppSurfaceTranslucent}" />
+        <Setter Property="Stroke" Value="{DynamicResource AppBorder}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 8"/>
+        <Setter Property="StrokeThickness" Value="1"/>
+        <Setter Property="Padding" Value="{DynamicResource AppSectionCardPadding}"/>
+    </Style>
+
+    <!-- Bouton secondaire (Annuler/Non) pour les popups thémées : contour au lieu du fond plein accent -->
+    <Style TargetType="Button" x:Key="DialogSecondaryButtonStyle">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{DynamicResource AppAccent}" />
+        <Setter Property="BorderColor" Value="{DynamicResource AppAccent}" />
+        <Setter Property="BorderWidth" Value="1"/>
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="{DynamicResource AppFontSizeBase}"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="{DynamicResource AppButtonPadding}"/>
+        <Setter Property="MinimumHeightRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="MinimumWidthRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.85" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.7" />
+                            <Setter Property="Scale" Value="0.97" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <!-- Bouton d'option (liste de choix) pour ActionSheetDialog -->
+    <Style TargetType="Button" x:Key="DialogOptionButtonStyle">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{DynamicResource AppText}" />
+        <Setter Property="BorderColor" Value="{DynamicResource AppBorder}" />
+        <Setter Property="BorderWidth" Value="1"/>
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="{DynamicResource AppFontSizeBase}"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="{DynamicResource AppButtonPadding}"/>
+        <Setter Property="MinimumHeightRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="MinimumWidthRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+    </Style>
+
+    <Style TargetType="BoxView">
+        <Setter Property="BackgroundColor" Value="{DynamicResource AppText}" />
+    </Style>
+
+    <Style TargetType="Button">
+        <Setter Property="TextColor" Value="{DynamicResource AppBackground}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource AppAccent}" />
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="{DynamicResource AppFontSizeBase}"/>
+        <Setter Property="BorderWidth" Value="0"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="{DynamicResource AppButtonPadding}"/>
+        <Setter Property="MinimumHeightRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="MinimumWidthRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
+                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.85" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.7" />
+                            <Setter Property="Scale" Value="0.97" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style TargetType="CheckBox">
+        <Setter Property="Color" Value="{DynamicResource AppAccent}" />
+        <Setter Property="MinimumHeightRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="MinimumWidthRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style TargetType="DatePicker">
+        <Setter Property="TextColor" Value="{DynamicResource AppText}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="{DynamicResource AppFontSizeBase}"/>
+        <Setter Property="MinimumHeightRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="MinimumWidthRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Editor">
+        <Setter Property="TextColor" Value="{DynamicResource AppText}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="{DynamicResource AppFontSizeBase}" />
+        <Setter Property="PlaceholderColor" Value="{DynamicResource AppTextMuted}" />
+        <Setter Property="MinimumHeightRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="MinimumWidthRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <!-- "Text" embarque CapitalizeSentence (+ Suggestions/Spellcheck) : le clavier natif met une
+             majuscule au premier caractère pendant la frappe, plutôt que de le corriger après coup en
+             code (cf. StringExtensions.CapitalizeFirst, qui ne couvrait que Campagne/Chapitre/Scène et
+             seulement après sauvegarde). Tous les champs de texte de l'appli sont des noms/titres en
+             langage naturel : aucun besoin d'un clavier plus restrictif ici. -->
+        <Setter Property="Keyboard" Value="Text"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Entry">
+        <Setter Property="TextColor" Value="{DynamicResource AppText}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="{DynamicResource AppFontSizeBase}" />
+        <Setter Property="PlaceholderColor" Value="{DynamicResource AppTextMuted}" />
+        <Setter Property="MinimumHeightRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="MinimumWidthRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <!-- Cf. le style Editor ci-dessus : même raison, "Text" pour capitaliser la première lettre
+             directement au clavier plutôt qu'en code après coup. -->
+        <Setter Property="Keyboard" Value="Text"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ImageButton">
+        <Setter Property="Opacity" Value="1" />
+        <Setter Property="BorderColor" Value="Transparent"/>
+        <Setter Property="BorderWidth" Value="0"/>
+        <Setter Property="CornerRadius" Value="0"/>
+        <Setter Property="MinimumHeightRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="MinimumWidthRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.5" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="PointerOver" />
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Label">
+        <Setter Property="TextColor" Value="{DynamicResource AppText}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontSize" Value="{DynamicResource AppFontSizeBase}" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor" Value="{DynamicResource AppTextMuted}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+
+    <!-- Pour tout Label/Button affichant un nom généré par l'utilisateur (titre de campagne, de
+         piste, de catégorie...) qui doit tenir sur une seule ligne plutôt que de wrapper et casser la
+         mise en page d'une ligne/carte. Ne remplace pas les cas où un contrôle a aussi besoin d'une
+         largeur bornée (WidthRequest/TextMaximumWidth) pour empêcher un débordement visuel dans une
+         colonne "*" ou "Auto" voisine - voir CampaignPage/ImportExportPage/AudioMixerPage pour des
+         exemples des deux.
+         Un Style explicite remplace entièrement le Style implicite du TargetType (pas de cascade en
+         MAUI) : ces deux styles reprennent donc les mêmes setters de base que les styles Label/Button
+         par défaut ci-dessus, pour ne pas perdre couleurs/police/police/état Disabled en les appliquant. -->
+    <Style TargetType="Label" x:Key="TruncatedLabelStyle">
+        <Setter Property="TextColor" Value="{DynamicResource AppText}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontSize" Value="{DynamicResource AppFontSizeBase}" />
+        <Setter Property="LineBreakMode" Value="TailTruncation"/>
+        <Setter Property="MaxLines" Value="1"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor" Value="{DynamicResource AppTextMuted}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Button" x:Key="TruncatedButtonStyle">
+        <Setter Property="TextColor" Value="{DynamicResource AppBackground}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource AppAccent}" />
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="{DynamicResource AppFontSizeBase}"/>
+        <Setter Property="BorderWidth" Value="0"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="{DynamicResource AppButtonPadding}"/>
+        <Setter Property="MinimumHeightRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="MinimumWidthRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="LineBreakMode" Value="TailTruncation"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
+                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.85" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.7" />
+                            <Setter Property="Scale" Value="0.97" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Picker">
+        <Setter Property="TextColor" Value="{DynamicResource AppText}" />
+        <Setter Property="TitleColor" Value="{DynamicResource AppTextMuted}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="{DynamicResource AppFontSizeBase}" />
+        <Setter Property="MinimumHeightRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="MinimumWidthRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Setter Property="TitleColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ProgressBar">
+        <Setter Property="ProgressColor" Value="{DynamicResource AppAccent}" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="ProgressColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style TargetType="RadioButton">
+        <Setter Property="BackgroundColor" Value="Transparent"/>
+        <Setter Property="TextColor" Value="{DynamicResource AppText}" />
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="{DynamicResource AppFontSizeBase}"/>
+        <Setter Property="MinimumHeightRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="MinimumWidthRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor" Value="{DynamicResource AppTextMuted}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style TargetType="RefreshView">
+        <Setter Property="RefreshColor" Value="{DynamicResource AppAccent}" />
+    </Style>
+
+    <Style TargetType="SearchBar">
+        <Setter Property="TextColor" Value="{DynamicResource AppText}" />
+        <Setter Property="PlaceholderColor" Value="{DynamicResource AppTextMuted}" />
+        <Setter Property="CancelButtonColor" Value="{DynamicResource AppTextMuted}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontSize" Value="{DynamicResource AppFontSizeBase}" />
+        <Setter Property="MinimumHeightRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="MinimumWidthRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+    </Style>
+
+    <Style TargetType="SearchHandler">
+        <Setter Property="TextColor" Value="{DynamicResource AppText}" />
+        <Setter Property="PlaceholderColor" Value="{DynamicResource AppTextMuted}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontSize" Value="{DynamicResource AppFontSizeBase}" />
+    </Style>
+
+    <Style TargetType="Shadow">
+        <Setter Property="Radius" Value="15" />
+        <Setter Property="Opacity" Value="0.5" />
+        <Setter Property="Brush" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}" />
+        <Setter Property="Offset" Value="10,10" />
+    </Style>
+
+    <Style TargetType="Slider">
+        <Setter Property="MinimumTrackColor" Value="{DynamicResource AppAccent}" />
+        <Setter Property="MaximumTrackColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" />
+        <Setter Property="ThumbColor" Value="{DynamicResource AppAccent}" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="MinimumTrackColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"/>
+                            <Setter Property="MaximumTrackColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"/>
+                            <Setter Property="ThumbColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}"/>
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style TargetType="SwipeItem">
+        <Setter Property="BackgroundColor" Value="{DynamicResource AppSurface}" />
+    </Style>
+
+    <Style TargetType="Switch">
+        <Setter Property="OnColor" Value="{DynamicResource AppAccentSecondary}" />
+        <Setter Property="ThumbColor" Value="{StaticResource White}" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="OnColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Setter Property="ThumbColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="On">
+                        <VisualState.Setters>
+                            <Setter Property="OnColor" Value="{DynamicResource AppAccentSecondary}" />
+                            <Setter Property="ThumbColor" Value="{DynamicResource AppAccent}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Off">
+                        <VisualState.Setters>
+                            <Setter Property="ThumbColor" Value="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style TargetType="TimePicker">
+        <Setter Property="TextColor" Value="{DynamicResource AppText}" />
+        <Setter Property="BackgroundColor" Value="Transparent"/>
+        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontSize" Value="{DynamicResource AppFontSizeBase}"/>
+        <Setter Property="MinimumHeightRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+        <Setter Property="MinimumWidthRequest" Value="{DynamicResource AppMinTouchTarget}"/>
+    </Style>
+
+    <Style TargetType="Page" ApplyToDerivedTypes="True">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="BackgroundColor" Value="{DynamicResource AppBackground}" />
+    </Style>
+
+    <Style TargetType="Shell" ApplyToDerivedTypes="True">
+        <Setter Property="Shell.BackgroundColor" Value="{DynamicResource AppBackground}" />
+        <Setter Property="Shell.ForegroundColor" Value="{DynamicResource AppText}" />
+        <Setter Property="Shell.TitleColor" Value="{DynamicResource AppText}" />
+        <Setter Property="Shell.DisabledColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray950}}" />
+        <Setter Property="Shell.UnselectedColor" Value="{DynamicResource AppTextMuted}" />
+        <Setter Property="Shell.NavBarHasShadow" Value="False" />
+        <Setter Property="Shell.TabBarBackgroundColor" Value="{DynamicResource AppSurface}" />
+        <Setter Property="Shell.TabBarForegroundColor" Value="{DynamicResource AppAccent}" />
+        <Setter Property="Shell.TabBarTitleColor" Value="{DynamicResource AppAccent}" />
+        <Setter Property="Shell.TabBarUnselectedColor" Value="{DynamicResource AppTextMuted}" />
+    </Style>
+
+    <Style TargetType="NavigationPage">
+        <Setter Property="BarBackgroundColor" Value="{DynamicResource AppBackground}" />
+        <Setter Property="BarTextColor" Value="{DynamicResource AppText}" />
+        <Setter Property="IconColor" Value="{DynamicResource AppText}" />
+    </Style>
+
+    <Style TargetType="TabbedPage">
+        <Setter Property="BarBackgroundColor" Value="{DynamicResource AppSurface}" />
+        <Setter Property="BarTextColor" Value="{DynamicResource AppAccent}" />
+        <Setter Property="UnselectedTabColor" Value="{DynamicResource AppTextMuted}" />
+        <Setter Property="SelectedTabColor" Value="{DynamicResource AppAccent}" />
+    </Style>
+
+</ResourceDictionary>

@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:system="clr-namespace:System;assembly=mscorlib"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               xmlns:loc="clr-namespace:Resonance.Extensions"
+               xmlns:dialogs="clr-namespace:Resonance.Components.Dialogs"
+               x:TypeArguments="system:Boolean"
+               x:Class="Resonance.Components.Dialogs.ChannelSettingsDialog"
+               x:DataType="dialogs:ChannelSettingsDialogViewModel"
+               BackgroundColor="Transparent"
+               Padding="0">
+    <Border Style="{StaticResource DialogCardBorderStyle}" WidthRequest="320">
+        <VerticalStackLayout Spacing="16">
+            <Label Text="{loc:Loc ChannelSettings}"
+                   FontAttributes="Bold" FontSize="{DynamicResource AppFontSizeSectionTitle}"
+                   TextColor="{DynamicResource AppText}"/>
+            <Label Text="{Binding TrackName}"
+                   TextColor="{DynamicResource AppTextMuted}"
+                   Style="{StaticResource TruncatedLabelStyle}"/>
+
+            <!-- Volume -->
+            <Grid ColumnDefinitions="auto,*,40" ColumnSpacing="10">
+                <Label Text="{loc:Loc SceneVolume}" VerticalOptions="Center"/>
+                <Slider Grid.Column="1"
+                        Minimum="0" Maximum="1"
+                        Value="{Binding Volume, Mode=TwoWay}"/>
+                <Label Grid.Column="2"
+                       Text="{Binding VolumePercent}"
+ VerticalOptions="Center" HorizontalTextAlignment="End"/>
+            </Grid>
+
+            <!-- Toggles -->
+            <Grid ColumnDefinitions="*,auto" RowDefinitions="auto,auto,auto,auto" RowSpacing="4">
+                <Label Grid.Row="0" Text="{loc:Loc ChannelLoop}" VerticalOptions="Center"/>
+                <CheckBox Grid.Row="0" Grid.Column="1" IsChecked="{Binding IsLooping, Mode=TwoWay}"/>
+
+                <Label Grid.Row="1" Text="{loc:Loc SceneFadeIn}" VerticalOptions="Center"/>
+                <CheckBox Grid.Row="1" Grid.Column="1" IsChecked="{Binding FadeIn, Mode=TwoWay}"/>
+
+                <Label Grid.Row="2" Text="{loc:Loc SceneFadeOut}" VerticalOptions="Center"/>
+                <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding FadeOut, Mode=TwoWay}"/>
+
+                <Label Grid.Row="3" Text="{loc:Loc SceneAuto}" VerticalOptions="Center"/>
+                <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding AutoPlay, Mode=TwoWay}"/>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button Grid.Column="0"
+                        Text="{loc:Loc BtnCancel}"
+                        Style="{StaticResource DialogSecondaryButtonStyle}"
+                        Command="{Binding CancelCommand}"/>
+                <Button Grid.Column="1"
+                        Text="{loc:Loc BtnSave}"
+                        Command="{Binding SaveCommand}"/>
+            </Grid>
+        </VerticalStackLayout>
+    </Border>
+</toolkit:Popup>

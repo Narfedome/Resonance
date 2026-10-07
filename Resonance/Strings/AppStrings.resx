@@ -1,0 +1,609 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="TabCampaigns" xml:space="preserve">
+    <value>Campagnes</value>
+  </data>
+  <data name="TabAudiomixer" xml:space="preserve">
+    <value>AudioMixer</value>
+  </data>
+  <data name="TabLibrary" xml:space="preserve">
+    <value>Bibliothèque</value>
+  </data>
+  <data name="TabTracks" xml:space="preserve">
+    <value>Pistes</value>
+  </data>
+  <data name="TabSpells" xml:space="preserve">
+    <value>Sorts</value>
+  </data>
+  <data name="TabSettings" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="CampaignsHeader" xml:space="preserve">
+    <value>Vos Campagnes</value>
+  </data>
+  <data name="ChaptersHeader" xml:space="preserve">
+    <value>Chapitres</value>
+  </data>
+  <data name="ScenesHeader" xml:space="preserve">
+    <value>Scènes</value>
+  </data>
+  <data name="CategoriesHeader" xml:space="preserve">
+    <value>Catégories</value>
+  </data>
+  <data name="TracksHeader" xml:space="preserve">
+    <value>Pistes audio</value>
+  </data>
+  <data name="EmptyCampaignsTitle" xml:space="preserve">
+    <value>Créez votre première campagne</value>
+  </data>
+  <data name="EmptyCampaignsBody" xml:space="preserve">
+    <value>Les campagnes regroupent vos chapitres, scènes et pistes d'ambiance.</value>
+  </data>
+  <data name="BtnBack" xml:space="preserve">
+    <value>Retour</value>
+  </data>
+  <data name="BtnRename" xml:space="preserve">
+    <value>Renommer</value>
+  </data>
+  <data name="BtnDelete" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="BtnSave" xml:space="preserve">
+    <value>Enregistrer</value>
+  </data>
+  <data name="BtnCancel" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="BtnLaunch" xml:space="preserve">
+    <value>▶ Lancer</value>
+  </data>
+  <data name="BtnAddTrack" xml:space="preserve">
+    <value>Ajouter une piste</value>
+  </data>
+  <data name="BtnAddChannel" xml:space="preserve">
+    <value>Ajouter un channel</value>
+  </data>
+  <data name="BtnSaveTrack" xml:space="preserve">
+    <value>Sauvegarder</value>
+  </data>
+  <data name="BtnRemoveSceneTrack" xml:space="preserve">
+    <value>Retirer de la scène</value>
+  </data>
+  <data name="MixerCampaign" xml:space="preserve">
+    <value>Campagne</value>
+  </data>
+  <data name="MixerChapter" xml:space="preserve">
+    <value>Chapitre</value>
+  </data>
+  <data name="MixerScene" xml:space="preserve">
+    <value>Scène</value>
+  </data>
+  <data name="MixerPrevScene" xml:space="preserve">
+    <value>Scène précédente</value>
+  </data>
+  <data name="MixerNextScene" xml:space="preserve">
+    <value>Scène suivante</value>
+  </data>
+  <data name="MixerFreeform" xml:space="preserve">
+    <value>Scène libre</value>
+  </data>
+  <data name="MixerGlobal" xml:space="preserve">
+    <value>Global</value>
+  </data>
+  <data name="MixerPlayAll" xml:space="preserve">
+    <value>Play All</value>
+  </data>
+  <data name="MixerFadeOutAll" xml:space="preserve">
+    <value>Fade Out All</value>
+  </data>
+  <data name="MixerStopAll" xml:space="preserve">
+    <value>Stop All</value>
+  </data>
+  <data name="ChannelLoop" xml:space="preserve">
+    <value>Loop</value>
+  </data>
+  <data name="ChannelSettings" xml:space="preserve">
+    <value>Paramètres du canal</value>
+  </data>
+  <data name="ChannelPlay" xml:space="preserve">
+    <value>Lecture</value>
+  </data>
+  <data name="ChannelPause" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="ChannelNew" xml:space="preserve">
+    <value>Canal</value>
+  </data>
+  <data name="SceneAuto" xml:space="preserve">
+    <value>Autoplay</value>
+  </data>
+  <data name="SceneFadeIn" xml:space="preserve">
+    <value>Fade in</value>
+  </data>
+  <data name="SceneFadeOut" xml:space="preserve">
+    <value>Fade out</value>
+  </data>
+  <data name="ChannelStop" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="SceneVolume" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="LibAdd" xml:space="preserve">
+    <value>Ajouter</value>
+  </data>
+  <data name="LibEdit" xml:space="preserve">
+    <value>Modifier</value>
+  </data>
+  <data name="LibDelete" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="LibConfirm" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="LibCancel" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="LibImport" xml:space="preserve">
+    <value>Importer plusieurs</value>
+  </data>
+  <data name="LibManageCategories" xml:space="preserve">
+    <value>Gérer les catégories</value>
+  </data>
+  <data name="LibSelectAll" xml:space="preserve">
+    <value>Tout sélectionner</value>
+  </data>
+  <data name="LibSelectedCount" xml:space="preserve">
+    <value>Supprimer ({0} sélectionnée(s))</value>
+  </data>
+  <data name="LibDeleteSelectedConfirm" xml:space="preserve">
+    <value>{0} piste(s) seront supprimée(s) définitivement, fichiers compris. Confirmer ?</value>
+  </data>
+  <data name="LibImportResult" xml:space="preserve">
+    <value>{0} piste(s) importée(s) ({1} doublon(s) réutilisé(s))</value>
+  </data>
+  <data name="LibImportResultErrors" xml:space="preserve">
+    <value>{0} fichier(s) n'ont pas pu être importé(s) (illisibles ou corrompus)</value>
+  </data>
+  <data name="LibImportInProgress" xml:space="preserve">
+    <value>Import en cours...</value>
+  </data>
+  <data name="LibImportCategoryTitle" xml:space="preserve">
+    <value>Choisir une catégorie</value>
+  </data>
+  <data name="LibImportNoCategory" xml:space="preserve">
+    <value>Aucune catégorie</value>
+  </data>
+  <data name="LibImportNewCategory" xml:space="preserve">
+    <value>+ Nouvelle catégorie</value>
+  </data>
+  <data name="LibImportNewCategoryPrompt" xml:space="preserve">
+    <value>Nom de la nouvelle catégorie</value>
+  </data>
+  <data name="LibAllCategories" xml:space="preserve">
+    <value>Toutes les catégories</value>
+  </data>
+  <data name="LibCategoryNoFolderReserved" xml:space="preserve">
+    <value>Ce nom est réservé pour les pistes sans catégorie.</value>
+  </data>
+  <data name="EmptyTracksTitle" xml:space="preserve">
+    <value>Ajoutez votre première piste</value>
+  </data>
+  <data name="EmptyTracksBody" xml:space="preserve">
+    <value>La bibliothèque regroupe la musique et les ambiances utilisées dans vos scènes.</value>
+  </data>
+  <data name="LibEmptyCategoryMessage" xml:space="preserve">
+    <value>Aucune piste dans cette catégorie.</value>
+  </data>
+  <data name="LibImportOneTrackButton" xml:space="preserve">
+    <value>Importer une piste</value>
+  </data>
+  <data name="LibImportMultipleTracksButton" xml:space="preserve">
+    <value>Importer plusieurs pistes</value>
+  </data>
+  <data name="LibSelect" xml:space="preserve">
+    <value>Sélectionner</value>
+  </data>
+  <data name="TrackTitlePh" xml:space="preserve">
+    <value>Titre</value>
+  </data>
+  <data name="TrackEditTitle" xml:space="preserve">
+    <value>Modifier la piste</value>
+  </data>
+  <data name="TrackCreateTitle" xml:space="preserve">
+    <value>Créer une piste</value>
+  </data>
+  <data name="TrackImport" xml:space="preserve">
+    <value>Importer</value>
+  </data>
+  <data name="TrackSelectFile" xml:space="preserve">
+    <value>Sélectionner un fichier audio</value>
+  </data>
+  <data name="TrackSelectFiles" xml:space="preserve">
+    <value>Sélectionner des fichiers audio</value>
+  </data>
+  <data name="SpellTitlePh" xml:space="preserve">
+    <value>Titre</value>
+  </data>
+  <data name="SpellDescPh" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="SpellEditTitle" xml:space="preserve">
+    <value>Modifier le sort</value>
+  </data>
+  <data name="SpellCreateTitle" xml:space="preserve">
+    <value>Créer un sort</value>
+  </data>
+  <data name="SettingsTitle" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="SettingsLanguage" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="SettingsPalette" xml:space="preserve">
+    <value>Palette de couleurs</value>
+  </data>
+  <data name="SettingsTheme" xml:space="preserve">
+    <value>Thème</value>
+  </data>
+  <data name="SettingsThemeSystem" xml:space="preserve">
+    <value>Système</value>
+  </data>
+  <data name="SettingsThemeLight" xml:space="preserve">
+    <value>Clair</value>
+  </data>
+  <data name="SettingsThemeDark" xml:space="preserve">
+    <value>Sombre</value>
+  </data>
+  <data name="SettingsSupportTitle" xml:space="preserve">
+    <value>Soutenir le projet</value>
+  </data>
+  <data name="SettingsSupportDesc" xml:space="preserve">
+    <value>Buy me a coffee ☕</value>
+  </data>
+  <data name="SettingsReportBugTitle" xml:space="preserve">
+    <value>Signaler un bug</value>
+  </data>
+  <data name="SettingsReportBugDesc" xml:space="preserve">
+    <value>Ouvrir le formulaire</value>
+  </data>
+  <data name="SettingsVersion" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="SettingsStorageTitle" xml:space="preserve">
+    <value>Stockage</value>
+  </data>
+  <data name="SettingsStorageCleanupButton" xml:space="preserve">
+    <value>Nettoyer</value>
+  </data>
+  <data name="SettingsStorageCleanupConfirmTitle" xml:space="preserve">
+    <value>Nettoyer les fichiers orphelins</value>
+  </data>
+  <data name="SettingsStorageCleanupConfirmMessage" xml:space="preserve">
+    <value>{0} fichier(s) inutilisé(s) trouvé(s), soit {1}. Les supprimer ?</value>
+  </data>
+  <data name="SettingsStorageCleanupResult" xml:space="preserve">
+    <value>{0} libéré(s)</value>
+  </data>
+  <data name="SettingsStorageNothingToClean" xml:space="preserve">
+    <value>Aucun fichier orphelin à nettoyer</value>
+  </data>
+  <data name="SettingsStorageDeleteAllTracksDesc" xml:space="preserve">
+    <value>Supprime définitivement toutes les pistes audio</value>
+  </data>
+  <data name="SettingsStorageDeleteAllButton" xml:space="preserve">
+    <value>Supprimer tout</value>
+  </data>
+  <data name="SettingsStorageDeleteAllConfirmTitle" xml:space="preserve">
+    <value>Suppression définitive</value>
+  </data>
+  <data name="SettingsStorageDeleteAllConfirmMessage" xml:space="preserve">
+    <value>Ceci supprimera définitivement {0} piste(s) audio ({1}) ainsi que leurs fichiers. Cette action est irréversible.</value>
+  </data>
+  <data name="SettingsStorageDeleteAllFinalConfirmMessage" xml:space="preserve">
+    <value>Dernière confirmation : voulez-vous vraiment tout supprimer ? Il n'y a aucun moyen de revenir en arrière.</value>
+  </data>
+  <data name="SettingsStorageDeleteAllNothingToDelete" xml:space="preserve">
+    <value>Aucune piste à supprimer</value>
+  </data>
+  <data name="SettingsStorageDeleteAllPlaybackWarning" xml:space="preserve">
+    <value>Une piste est en cours de lecture. Arrêtez la lecture avant de supprimer toutes les pistes.</value>
+  </data>
+  <data name="SettingsStorageDeleteAllResult" xml:space="preserve">
+    <value>{0} piste(s) supprimée(s) définitivement</value>
+  </data>
+  <data name="OnboardingTitle" xml:space="preserve">
+    <value>Bienvenue dans Resonance</value>
+  </data>
+  <data name="OnboardingDesc" xml:space="preserve">
+    <value>Votre assistant numérique pour les maîtres du jeu. Gérez vos campagnes, pilotez vos ambiances sonores et consultez vos sorts — le tout depuis une interface sobre et thématique.</value>
+  </data>
+  <data name="OnboardingPalette" xml:space="preserve">
+    <value>Choisissez votre palette</value>
+  </data>
+  <data name="OnboardingLanguage" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="OnboardingStart" xml:space="preserve">
+    <value>Commencer</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Erreur</value>
+  </data>
+  <data name="ErrorChapterHasNoScenes" xml:space="preserve">
+    <value>Ce chapitre n'a aucune scène.</value>
+  </data>
+  <data name="ErrorNoCampaigns" xml:space="preserve">
+    <value>Aucune campagne n'existe.</value>
+  </data>
+  <data name="ErrorCampaignHasNoChapters" xml:space="preserve">
+    <value>Cette campagne n'a aucun chapitre.</value>
+  </data>
+  <data name="ErrorTrackFileMissing" xml:space="preserve">
+    <value>Le fichier audio de cette piste est introuvable.</value>
+  </data>
+  <data name="ErrorTracksFailedToLoad" xml:space="preserve">
+    <value>Ces pistes n'ont pas pu être chargées : {0}</value>
+  </data>
+  <data name="ErrorSourceFileMissing" xml:space="preserve">
+    <value>Le fichier source est introuvable.</value>
+  </data>
+  <data name="PromptName" xml:space="preserve">
+    <value>Nom :</value>
+  </data>
+  <data name="DialogRename" xml:space="preserve">
+    <value>Renommer</value>
+  </data>
+  <data name="DialogDelete" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="DialogYes" xml:space="preserve">
+    <value>Oui</value>
+  </data>
+  <data name="DialogNo" xml:space="preserve">
+    <value>Non</value>
+  </data>
+  <data name="DialogOk" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="DialogDeleteConfirm" xml:space="preserve">
+    <value>Supprimer "{0}" ?</value>
+  </data>
+  <data name="DialogRemoveChannel" xml:space="preserve">
+    <value>Retirer "{0}" ?</value>
+  </data>
+  <data name="DialogDeleteTrackConfirm" xml:space="preserve">
+    <value>"{0}" sera supprimé définitivement. Confirmer ?</value>
+  </data>
+  <data name="DialogCreateItem" xml:space="preserve">
+    <value>Créer</value>
+  </data>
+  <data name="DialogEditItem" xml:space="preserve">
+    <value>Modifier</value>
+  </data>
+  <data name="BtnEditItem" xml:space="preserve">
+    <value>Modifier</value>
+  </data>
+  <data name="FieldType" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="NounCampaign" xml:space="preserve">
+    <value>Campagne</value>
+  </data>
+  <data name="NounChapter" xml:space="preserve">
+    <value>Chapitre</value>
+  </data>
+  <data name="NounScene" xml:space="preserve">
+    <value>Scène</value>
+  </data>
+  <data name="DialogNewCategory" xml:space="preserve">
+    <value>Nouvelle catégorie</value>
+  </data>
+  <data name="LibCategoryAmbience" xml:space="preserve">
+    <value>Ambiance</value>
+  </data>
+  <data name="LibCategorySoundEffect" xml:space="preserve">
+    <value>SFX</value>
+  </data>
+  <data name="LibCategoryMusic" xml:space="preserve">
+    <value>Musique</value>
+  </data>
+  <data name="ImportExportTitle" xml:space="preserve">
+    <value>Import / Export</value>
+  </data>
+  <data name="ImportExportSettingsDesc" xml:space="preserve">
+    <value>Exportez ou importez vos campagnes et votre bibliothèque</value>
+  </data>
+  <data name="ImportExportOpenButton" xml:space="preserve">
+    <value>Ouvrir</value>
+  </data>
+  <data name="ImportExportSectionExport" xml:space="preserve">
+    <value>Exporter</value>
+  </data>
+  <data name="ImportExportSectionImport" xml:space="preserve">
+    <value>Importer</value>
+  </data>
+  <data name="ImportExportLevelLabel" xml:space="preserve">
+    <value>Niveau</value>
+  </data>
+  <data name="ImportExportLevelTitle" xml:space="preserve">
+    <value>Choisir un niveau d'export</value>
+  </data>
+  <data name="ImportExportLevel1" xml:space="preserve">
+    <value>Structure seule (campagne, chapitres, scènes)</value>
+  </data>
+  <data name="ImportExportLevel2" xml:space="preserve">
+    <value>Structure + canaux (avec l'audio)</value>
+  </data>
+  <data name="ImportExportLevel3" xml:space="preserve">
+    <value>Bibliothèque audio seule</value>
+  </data>
+  <data name="ImportExportLevel4" xml:space="preserve">
+    <value>Sauvegarde complète (tout)</value>
+  </data>
+  <data name="ImportExportCampaignLabel" xml:space="preserve">
+    <value>Campagne</value>
+  </data>
+  <data name="ImportExportCampaignTitle" xml:space="preserve">
+    <value>Choisir une campagne</value>
+  </data>
+  <data name="ImportExportSelectCampaignFirst" xml:space="preserve">
+    <value>Choisissez d'abord une campagne.</value>
+  </data>
+  <data name="ImportExportNoCampaigns" xml:space="preserve">
+    <value>Aucune campagne à exporter.</value>
+  </data>
+  <data name="ImportExportExportButton" xml:space="preserve">
+    <value>Exporter…</value>
+  </data>
+  <data name="ImportExportImportButton" xml:space="preserve">
+    <value>Importer un fichier…</value>
+  </data>
+  <data name="ImportExportPickFile" xml:space="preserve">
+    <value>Choisir un fichier .dmpack</value>
+  </data>
+  <data name="ImportExportExportInProgress" xml:space="preserve">
+    <value>Export en cours...</value>
+  </data>
+  <data name="ImportExportImportInProgress" xml:space="preserve">
+    <value>Import en cours...</value>
+  </data>
+  <data name="ImportExportVerifyingTracks" xml:space="preserve">
+    <value>Vérification des pistes…</value>
+  </data>
+  <data name="ImportExportCopyingFile" xml:space="preserve">
+    <value>Copie du fichier… ({0:F0} Mo)</value>
+  </data>
+  <data name="ErrorNotEnoughSpace" xml:space="preserve">
+    <value>Espace disque insuffisant pour importer ce fichier : environ {0:F1} Go nécessaires, {1:F1} Go disponibles.</value>
+  </data>
+  <data name="ErrorIncompleteFileCopy" xml:space="preserve">
+    <value>Copie du fichier incomplète : {0:F0} Mo copiés sur {1:F0} Mo attendus.</value>
+  </data>
+  <data name="ImportExportExportSuccess" xml:space="preserve">
+    <value>Export enregistré : {0}</value>
+  </data>
+  <data name="ImportProgressCancelling" xml:space="preserve">
+    <value>Annulation…</value>
+  </data>
+  <data name="ImportExportImportSummary" xml:space="preserve">
+    <value>{0} campagne(s) importée(s), {1} piste(s) copiée(s), {2} réutilisée(s), {3} rejetée(s), {4} sort(s) importé(s).</value>
+  </data>
+  <data name="ImportExportRejectDetails" xml:space="preserve">
+    <value>Détail des rejets : {0} hash invalide, {1} audio illisible, {2} entrée manquante, {3} autre.</value>
+  </data>
+  <data name="ImportExportDurationSummary" xml:space="preserve">
+    <value>Terminé en {0} (extraction : {1}, vérification audio : {2}, pochettes : {3}).</value>
+  </data>
+  <data name="ImportExportLoadingCovers" xml:space="preserve">
+    <value>Chargement des pochettes…</value>
+  </data>
+</root>

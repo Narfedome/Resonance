@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Resonance.Features.Settings"
+             xmlns:loc="clr-namespace:Resonance.Extensions"
+             xmlns:components="clr-namespace:Resonance.Components"
+             x:Class="Resonance.Features.Settings.SettingsPage"
+             x:DataType="local:SettingsViewModel">
+
+    <components:WatermarkedLayout>
+    <ScrollView>
+        <!-- Sur Desktop, une fenêtre large étirait chaque carte de section bord à bord - plafonnée et
+             centrée à la place (comme les pages de préférences Windows/macOS), plutôt qu'une grille
+             (contenu trop hétérogène en hauteur, casserait l'ordre de lecture haut en bas). Fait en
+             code-behind (cf. SettingsPage.xaml.cs), pas via OnPlatform ici : contrairement à
+             WidthRequest, -1 n'est PAS la valeur "pas de contrainte" pour MaximumWidthRequest (dont le
+             vrai défaut est PositiveInfinity) - la mettre explicitement à -1 pour Android écrasait tout
+             le contenu à une largeur nulle, page blanche. Plus sûr de ne pas toucher à cette propriété
+             du tout sur Android/iOS. -->
+        <VerticalStackLayout x:Name="ContentStack" Padding="20" Spacing="16">
+
+            <!-- Langue -->
+            <Border Style="{StaticResource SectionCardBorderStyle}">
+                <Grid ColumnDefinitions="*,auto">
+                    <Label Grid.Column="0" Text="{loc:Loc SettingsLanguage}"
+                           VerticalOptions="Center" FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
+                    <Button Grid.Column="1"
+                            Text="{Binding SelectedLanguageLabel}"
+                            Command="{Binding SelectLanguageCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{DynamicResource AppAccent}"
+                            FontSize="{OnIdiom Default=15, Desktop=13}"
+                            Padding="8,0"
+                            MinimumHeightRequest="{DynamicResource AppInlineButtonMinSize}"
+                            MinimumWidthRequest="{DynamicResource AppInlineButtonMinSize}"/>
+                </Grid>
+            </Border>
+
+            <!-- Thème -->
+            <Border Style="{StaticResource SectionCardBorderStyle}">
+                <Grid ColumnDefinitions="*,auto">
+                    <Label Grid.Column="0" Text="{loc:Loc SettingsTheme}"
+                           VerticalOptions="Center" FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
+                    <Button Grid.Column="1"
+                            Text="{Binding SelectedThemeOption}"
+                            Command="{Binding SelectThemeCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{DynamicResource AppAccent}"
+                            FontSize="{OnIdiom Default=15, Desktop=13}"
+                            Padding="8,0"
+                            MinimumHeightRequest="{DynamicResource AppInlineButtonMinSize}"
+                            MinimumWidthRequest="{DynamicResource AppInlineButtonMinSize}"/>
+                </Grid>
+            </Border>
+
+            <!-- Palette -->
+            <Border Style="{StaticResource SectionCardBorderStyle}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="{loc:Loc SettingsPalette}" FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
+                    <components:PalettePickerView
+                        SelectedPalette="{Binding SelectedPalette, Mode=TwoWay}"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Version -->
+            <Border Style="{StaticResource SectionCardBorderStyle}">
+                <Grid ColumnDefinitions="*,auto">
+                    <Label Grid.Column="0" Text="{loc:Loc SettingsVersion}"
+                           VerticalOptions="Center" FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
+                    <Label Grid.Column="1" Text="{Binding AppVersion}"
+                           VerticalOptions="Center"
+                           TextColor="{DynamicResource AppTextMuted}"/>
+                </Grid>
+            </Border>
+
+            <!-- Stockage -->
+            <Border Style="{StaticResource SectionCardBorderStyle}">
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*,auto">
+                        <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                            <Label Text="{loc:Loc SettingsStorageTitle}" FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
+                            <Label Text="{Binding StorageUsedText}"
+                                   TextColor="{DynamicResource AppTextMuted}"/>
+                        </VerticalStackLayout>
+                        <Button Grid.Column="1"
+                                Text="{loc:Loc SettingsStorageCleanupButton}"
+                                Command="{Binding CleanupStorageCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{DynamicResource AppAccent}"
+                                FontSize="{OnIdiom Default=15, Desktop=13}"
+                                Padding="8,4"
+                            MinimumHeightRequest="{DynamicResource AppInlineButtonMinSize}"
+                            MinimumWidthRequest="{DynamicResource AppInlineButtonMinSize}"/>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{DynamicResource AppBorder}"/>
+
+                    <Grid ColumnDefinitions="*,auto">
+                        <Label Grid.Column="0" Text="{loc:Loc SettingsStorageDeleteAllTracksDesc}"
+                               VerticalOptions="Center" FontSize="{OnIdiom Default=13, Desktop=11}"
+                               TextColor="{DynamicResource AppTextMuted}"/>
+                        <Button Grid.Column="1"
+                                Text="{loc:Loc SettingsStorageDeleteAllButton}"
+                                Command="{Binding DeleteAllTracksCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{DynamicResource AppDanger}"
+                                FontSize="{OnIdiom Default=15, Desktop=13}"
+                                Padding="8,4"
+                            MinimumHeightRequest="{DynamicResource AppInlineButtonMinSize}"
+                            MinimumWidthRequest="{DynamicResource AppInlineButtonMinSize}"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Import / Export -->
+            <Border Style="{StaticResource SectionCardBorderStyle}">
+                <Grid ColumnDefinitions="*,auto">
+                    <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                        <Label Text="{loc:Loc ImportExportTitle}" FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
+                        <Label Text="{loc:Loc ImportExportSettingsDesc}"
+                               FontSize="{OnIdiom Default=13, Desktop=11}"
+                               TextColor="{DynamicResource AppTextMuted}"/>
+                    </VerticalStackLayout>
+                    <Button Grid.Column="1"
+                            Text="{loc:Loc ImportExportOpenButton}"
+                            Command="{Binding OpenImportExportCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{DynamicResource AppAccent}"
+                            FontSize="{OnIdiom Default=15, Desktop=13}"
+                            MinimumHeightRequest="{DynamicResource AppInlineButtonMinSize}"
+                            MinimumWidthRequest="{DynamicResource AppInlineButtonMinSize}"/>
+                </Grid>
+            </Border>
+
+            <!-- Buy Me a Coffee -->
+            <Border Style="{StaticResource SectionCardBorderStyle}">
+                <Grid ColumnDefinitions="*,auto">
+                    <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                        <Label Text="{loc:Loc SettingsSupportTitle}" FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
+                    </VerticalStackLayout>
+                    <Label Grid.Column="1"
+                           Text="{loc:Loc SettingsSupportDesc}"
+                           TextColor="{DynamicResource AppAccent}"
+                           VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenCoffeeLinkCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Grid>
+            </Border>
+
+            <!-- Signaler un bug -->
+            <Border Style="{StaticResource SectionCardBorderStyle}">
+                <Grid ColumnDefinitions="*,auto">
+                    <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                        <Label Text="{loc:Loc SettingsReportBugTitle}" FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
+                    </VerticalStackLayout>
+                    <Label Grid.Column="1"
+                           Text="{loc:Loc SettingsReportBugDesc}"
+                           TextColor="{DynamicResource AppAccent}"
+                           VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ReportBugCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Grid>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+    </components:WatermarkedLayout>
+</ContentPage>

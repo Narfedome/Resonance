@@ -1,17 +1,17 @@
-# DM Tools
+# Resonance: TTRPG Mixer
 
 *[English](README.md) · Français*
 
 > Prépare l'ambiance sonore de ta campagne de jeu de rôle sur table, scène après scène.
 
-[![Unit Tests](https://github.com/Narfedome/DmTools/actions/workflows/tests.yml/badge.svg)](https://github.com/Narfedome/DmTools/actions/workflows/tests.yml)
+[![Unit Tests](https://github.com/Narfedome/Resonance/actions/workflows/tests.yml/badge.svg)](https://github.com/Narfedome/Resonance/actions/workflows/tests.yml)
 
-DM Tools est une application communautaire pour les maîtres du jeu : un mixeur audio,
+Resonance est une application communautaire pour les maîtres du jeu : un mixeur audio,
 un gestionnaire de campagnes et une bibliothèque de pistes, pensés pour une partie
 autour de la table. **100 % hors ligne** — aucune connexion requise, tout est stocké
 localement sur l'appareil.
 
-Site : <https://dmtools-app.netlify.app/> · Disponible sur **Windows** et **Android**.
+Site : <https://resonance-app.com/> · Disponible sur **Windows** et **Android**.
 
 ## Fonctionnalités
 
@@ -50,9 +50,9 @@ Site : <https://dmtools-app.netlify.app/> · Disponible sur **Windows** et **And
 
 | Projet / dossier        | Rôle |
 |-------------------------|------|
-| `DmToolsApp/`           | Application MAUI : pages, vues, composants, services de plateforme, ressources. |
-| `DmToolsApp.Core/`      | Logique pure partagée et testable (modèles, accès données SQLite, services d'import/export et de bibliothèque). Aucune dépendance MAUI UI. |
-| `DmToolsApp.Tests/`     | Tests unitaires xUnit, ne référencent que `DmToolsApp.Core` (net10.0 pur, sans workload MAUI). |
+| `Resonance/`           | Application MAUI : pages, vues, composants, services de plateforme, ressources. |
+| `Resonance.Core/`      | Logique pure partagée et testable (modèles, accès données SQLite, services d'import/export et de bibliothèque). Aucune dépendance MAUI UI. |
+| `Resonance.Tests/`     | Tests unitaires xUnit, ne référencent que `Resonance.Core` (net10.0 pur, sans workload MAUI). |
 | `Deploy/`               | Scripts de publication (`Build-Release.ps1`, `Build-Test.ps1`), script Inno Setup (`Installer.iss`), keystore Android (non commitée). |
 | `Website/`              | Site vitrine statique (FR/EN), déployé sur Netlify. |
 | `.github/workflows/`    | CI : tests unitaires à chaque push/PR, build iOS non signé sur demande. |
@@ -71,23 +71,23 @@ Site : <https://dmtools-app.netlify.app/> · Disponible sur **Windows** et **And
 
 ```bash
 # Restaurer
-dotnet restore DmTools.slnx
+dotnet restore Resonance.slnx
 
 # Lancer sur une plateforme donnée
-dotnet build DmToolsApp/DmToolsApp.csproj -f net10.0-windows10.0.19041.0
-dotnet build DmToolsApp/DmToolsApp.csproj -f net10.0-android -t:Run
+dotnet build Resonance/Resonance.csproj -f net10.0-windows10.0.19041.0
+dotnet build Resonance/Resonance.csproj -f net10.0-android -t:Run
 ```
 
-Sous Visual Studio, ouvrir `DmTools.slnx`, choisir `DmToolsApp` comme projet de
+Sous Visual Studio, ouvrir `Resonance.slnx`, choisir `Resonance` comme projet de
 démarrage et sélectionner la cible souhaitée.
 
 ## Tests
 
 ```bash
-dotnet test DmToolsApp.Tests/DmToolsApp.Tests.csproj -c Release
+dotnet test Resonance.Tests/Resonance.Tests.csproj -c Release
 ```
 
-Les tests ne dépendent que de `DmToolsApp.Core`, donc ils tournent sur Linux sans les
+Les tests ne dépendent que de `Resonance.Core`, donc ils tournent sur Linux sans les
 workloads MAUI (c'est ce que fait la CI).
 
 ## Publication
@@ -107,7 +107,7 @@ depuis `Build-Release.local.ps1.example`). Sans elle, la build retombe sur le
 ## Versionnage
 
 Le numéro de version est `AppVersionMajor.AppVersionMinor.<nombre de commits git>` :
-`major` / `minor` se règlent à la main dans `DmToolsApp/DmToolsApp.csproj`, le patch est
+`major` / `minor` se règlent à la main dans `Resonance/Resonance.csproj`, le patch est
 calculé au build (cible MSBuild `SetVersionFromGit`) et par les scripts de `Deploy/`, si
 bien que l'installeur, l'APK et l'écran *Réglages* de l'app affichent toujours le même
 numéro. L'app lit sa version au runtime via `AppInfo.Current.VersionString`.
@@ -128,5 +128,5 @@ canaux de distribution officiels.
 
 ## Soutenir le projet
 
-DM Tools est développé sur le temps libre, pour la communauté.
-[☕ Buy Me a Coffee](https://buymeacoffee.com/narfedome) · Support : dmtools.support@gmail.com
+Resonance est développé sur le temps libre, pour la communauté.
+[☕ Buy Me a Coffee](https://buymeacoffee.com/narfedome) · Support : narfedome.support@gmail.com

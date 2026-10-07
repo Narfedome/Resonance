@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Resonance.Features.Library"
+             xmlns:icons="clr-namespace:Resonance.Resources.Icons"
+             xmlns:loc="clr-namespace:Resonance.Extensions"
+             xmlns:components="clr-namespace:Resonance.Components"
+             x:Class="Resonance.Features.Library.CategoryListPage"
+             x:DataType="local:CategoryListViewModel"
+             Shell.NavBarIsVisible="False">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False"/>
+    </Shell.BackButtonBehavior>
+    <components:WatermarkedLayout>
+        <Grid RowDefinitions="auto,*">
+            <components:DetailPageHeaderView Grid.Row="0" x:Name="Header" Title="{loc:Loc CategoriesHeader}"
+                BackCommand="{Binding BackCommand}"/>
+
+
+            <Grid Grid.Row="1" Padding="10,0,10,10" RowSpacing="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+
+                <ActivityIndicator Grid.Row="1" Grid.RowSpan="2" IsRunning="{Binding Loading.IsLoading}"
+                           IsVisible="{Binding Loading.IsLoading}"
+                           VerticalOptions="Center" HorizontalOptions="Center"
+                           WidthRequest="80" HeightRequest="80"/>
+
+                <!-- SelectionMode="None" (pas de sélection native) : sur Android, le fond de sélection
+                     natif du CollectionView reste teinté par colorAccent quel que soit le style posé
+                     dessus (seul un fond opaque/translucide le masque, ce qui empêchait le simple
+                     "fond transparent + liseré qui devient bleu" voulu ici). SelectedCategory est donc
+                     géré à la main via un TapGestureRecognizer par ligne (cf. ItemTemplate) plutôt que
+                     SelectedItem. -->
+                <CollectionView Grid.Row="1" x:Name="CategoryCollection"
+                        ItemsSource="{Binding CategoryNames}"
+                        SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="local:CategoryRowItem">
+                            <!-- Padding sur ce Grid englobant (pas Margin sur le Border racine) : même bug
+                         Windows que CampaignPage (cf. son commentaire sur SessionTemplate/CampaignTemplate)
+                         - le Margin de la racine d'un DataTemplate de CollectionView n'est pas fiable
+                         sur Windows, la ligne suivante n'était donc jamais réellement espacée. -->
+                            <Grid Padding="0,0,0,8">
+                                <Border Style="{StaticResource RowBorderStyle}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type local:CategoryListViewModel}}, Path=SelectCategoryCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="Stroke" Value="LightSkyBlue"/>
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label Text="{Binding Name}" FontSize="{DynamicResource AppFontSizeSectionTitle}" VerticalOptions="Center" Style="{StaticResource TruncatedLabelStyle}"/>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <HorizontalStackLayout Grid.Row="2" Spacing="10" HorizontalOptions="Center" Margin="0,8">
+                    <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Plus}"
+                                         Command="{Binding CreateCommand}"
+                                         Tooltip="{loc:Loc LibAdd}"/>
+                    <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Pen}"
+                                         Command="{Binding RenameCommand}"
+                                         Tooltip="{loc:Loc BtnRename}"
+                                         IsEnabled="{Binding CanModifySelectedCategory}"/>
+                    <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Trash}"
+                                         Command="{Binding DeleteCommand}"
+                                         Tooltip="{loc:Loc BtnDelete}"
+                                         IsEnabled="{Binding CanModifySelectedCategory}"/>
+                </HorizontalStackLayout>
+        </Grid>
+        </Grid>
+    </components:WatermarkedLayout>
+</ContentPage>

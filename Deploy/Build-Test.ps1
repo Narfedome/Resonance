@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Publie DmToolsApp (Windows + Android) et genere l'installeur Inno Setup, sans rien publier
+    Publie Resonance (Windows + Android) et genere l'installeur Inno Setup, sans rien publier
     (pas de GitHub Release, pas de redeploiement Netlify) : uniquement pour tester une build en
     local avant une vraie release.
 
@@ -15,7 +15,7 @@
     AppVersionMajor.AppVersionMinor.<nombre de commits git> - lu ici depuis le csproj pour
     ne jamais s'en ecarter silencieusement.
     Les deux artefacts finissent sous Website\downloads\ (a la racine du depot), avec un nom de
-    fichier fixe (DmToolsInstaller.exe / DmTools.apk) - meme dossier que Build-Release.ps1, donc
+    fichier fixe (ResonanceInstaller.exe / Resonance.apk) - meme dossier que Build-Release.ps1, donc
     une vraie release ecrasera ces fichiers de test au prochain lancement. La signature Android
     vient de la keystore de release partagee si Deploy\dmtools-release.keystore est present
     (recupere depuis le Drive partage, jamais commite) et que Deploy\Build-Release.local.ps1
@@ -50,7 +50,7 @@ $ErrorActionPreference = "Stop"
 try {
     $releaseDir       = $PSScriptRoot
     $repoRoot         = Split-Path -Parent $releaseDir
-    $csprojPath       = Join-Path $repoRoot "DmToolsApp\DmToolsApp.csproj"
+    $csprojPath       = Join-Path $repoRoot "Resonance\Resonance.csproj"
     $issPath          = Join-Path $releaseDir "Installer.iss"
     $isccPath         = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
     # Meme dossier de sortie que Build-Release.ps1 : index.html (FR/EN) y pointe deja, pratique
@@ -92,10 +92,10 @@ try {
         Write-Host "=== Windows : compilation de l'installeur ===" -ForegroundColor Cyan
         # /O et /F surchargent OutputDir/OutputBaseFilename du .iss : nom de fichier fixe (sans version)
         # pour que le lien de telechargement public n'ait jamais besoin de changer.
-        & $isccPath "/DMyAppVersion=$version" "/O$outputDirWindows" "/FDmToolsInstaller" $issPath
+        & $isccPath "/DMyAppVersion=$version" "/O$outputDirWindows" "/FResonanceInstaller" $issPath
         if ($LASTEXITCODE -ne 0) { throw "ISCC a echoue (code $LASTEXITCODE)." }
 
-        Write-Host "Installeur : $outputDirWindows\DmToolsInstaller.exe" -ForegroundColor Green
+        Write-Host "Installeur : $outputDirWindows\ResonanceInstaller.exe" -ForegroundColor Green
     }
 
     # --- Android : publish. Le csproj gere le format (AndroidPackageFormat=apk force en config
@@ -132,9 +132,9 @@ try {
 
         # Copie sous un nom fixe (sans version) a cote de l'installeur Windows : meme raison que
         # pour l'exe, le lien de telechargement public n'a jamais besoin de changer.
-        $publishedApk = Join-Path $repoRoot "DmToolsApp\bin\Release\net10.0-android\publish\com.narfedome.dmtoolsapp-Signed.apk"
+        $publishedApk = Join-Path $repoRoot "Resonance\bin\Release\net10.0-android\publish\com.narfedome.resonance-Signed.apk"
         if (-not (Test-Path $publishedApk)) { throw "APK signe introuvable a '$publishedApk'." }
-        $apkPath = Join-Path $outputDirAndroid "DmTools.apk"
+        $apkPath = Join-Path $outputDirAndroid "Resonance.apk"
         Copy-Item -Path $publishedApk -Destination $apkPath -Force
 
         Write-Host "APK : $apkPath" -ForegroundColor Green

@@ -14,15 +14,15 @@ const https = require("https");
 const fs = require("fs");
 const path = require("path");
 
-const REPO = "Narfedome/DmTools";
-const ASSETS = ["DmToolsInstaller.exe", "DmTools.apk"];
+const REPO = "Narfedome/Resonance";
+const ASSETS = ["ResonanceInstaller.exe", "Resonance.apk"];
 const OUT_DIR = path.join(__dirname, "..", "downloads");
 const GITHUB_TOKEN = process.env.DMTOOLS_GITHUB_TOKEN;
 
 function get(url, headers) {
   return new Promise((resolve, reject) => {
     https
-      .get(url, { headers: { "User-Agent": "dmtools-netlify-build", ...headers } }, (res) => {
+      .get(url, { headers: { "User-Agent": "resonance-netlify-build", ...headers } }, (res) => {
         // GitHub redirige les assets de release vers un stockage temporaire signé (S3/Azure) : il
         // faut suivre la redirection nous-mêmes, https.get() ne le fait pas automatiquement. On ne
         // renvoie PAS nos headers (notamment Authorization) sur cette redirection : l'URL cible est
