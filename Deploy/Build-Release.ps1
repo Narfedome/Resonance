@@ -15,10 +15,13 @@
     La version suit le meme schema que la cible SetVersionFromGit du csproj :
     AppVersionMajor.AppVersionMinor.<nombre de commits git> - lu ici depuis le csproj pour
     ne jamais s'en ecarter silencieusement.
-    Les deux artefacts finissent sous Website\downloads\ (a la racine du depot), avec un nom de
-    fichier fixe (ResonanceInstaller.exe / Resonance.apk) : pas de numero de version dans le nom, pour
+    Android est distribue uniquement via le Play Store : la partie Android produit un AAB signe
+    sous Deploy\PlayStore\Resonance-<version>.aab, a uploader dans la Play Console, et n'apparait
+    ni dans la GitHub Release ni sur le site.
+    L'installeur Windows finit sous Website\downloads\ (a la racine du depot), avec un nom de
+    fichier fixe (ResonanceInstaller.exe) : pas de numero de version dans le nom, pour
     que le lien de telechargement du site n'ait jamais besoin de changer. Ce dossier est gitignore
-    - les binaires sont plutot attaches a une GitHub Release (v<version>), seule source que
+    - l'installeur est plutot attache a une GitHub Release (v<version>), seule source que
     Website/scripts/fetch-downloads.js va lire a chaque build Netlify du site, puis le Build Hook
     Netlify (Deploy/Build-Release.local.ps1) est appele pour redeployer immediatement. La
     signature Android vient de la keystore de release partagee si Deploy\dmtools-release.keystore
@@ -28,14 +31,14 @@
     d'un PC a l'autre.
 
 .PARAMETER SkipWindows
-    N'effectue que la publication Android.
+    N'effectue que la generation de l'AAB Android (ni GitHub Release ni redeploiement du site).
 
 .PARAMETER SkipAndroid
     N'effectue que la publication Windows + installeur.
 
 .EXAMPLE
     .\Build-Release.ps1
-    Genere l'installeur Windows ET l'APK Android, publie une GitHub Release et redeploie le site.
+    Genere l'installeur Windows ET l'AAB Android, publie une GitHub Release et redeploie le site.
     C'est la commande lancee par un clic droit > Executer avec PowerShell.
 
 .EXAMPLE
@@ -59,15 +62,16 @@ try {
     $csprojPath       = Join-Path $repoRoot "Resonance\Resonance.csproj"
     $issPath          = Join-Path $releaseDir "Installer.iss"
     $isccPath         = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
-    # Les deux artefacts finissent directement sous Website\downloads\, exactement là où
-    # index.html (FR/EN) les référence (downloads/ResonanceInstaller.exe, downloads/Resonance.apk) :
-    # un site republié après un build reflète tout de suite la dernière version, sans étape de
-    # copie manuelle.
-    $outputDir        = Join-Path $repoRoot "Website\downloads"
-    $outputDirWindows = $outputDir
-    $outputDirAndroid = $outputDir
+    # L'installeur finit directement sous Website\downloads\, exactement là où index.html (FR/EN)
+    # le référence (downloads/ResonanceInstaller.exe) : un site republié après un build reflète
+    # tout de suite la dernière version, sans étape de copie manuelle. L'AAB, lui, n'a rien à faire
+    # sur le site : il atterrit sous Deploy\PlayStore\ (gitignoré), versionné dans son nom pour
+    # garder une trace de chaque upload.
+    $outputDir          = Join-Path $repoRoot "Website\downloads"
+    $outputDirWindows   = $outputDir
+    $outputDirPlayStore = Join-Path $releaseDir "PlayStore"
 
-    New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
+    New-Item -ItemType Directory -Force -Path $outputDir, $outputDirPlayStore | Out-Null
 
     # --- Config locale (jamais commitee, cf. .gitignore) : chemin + mots de passe de la keystore de
     #     release, propres a chaque machine. Copier Build-Release.local.ps1.example -> Build-Release.local.ps1
@@ -78,7 +82,7 @@ try {
     }
 
     # --- Version : major.minor du csproj + patch = nombre de commits git (identique a la cible
-    #     SetVersionFromGit du csproj, pour que l'installeur, l'APK et l'appli affichent le meme numero) ---
+    #     SetVersionFromGit du csproj, pour que l'installeur, l'AAB et l'appli affichent le meme numero) ---
     [xml]$csproj = Get-Content $csprojPath
     $major = $csproj.Project.PropertyGroup.AppVersionMajor | Where-Object { $_ } | Select-Object -First 1
     $minor = $csproj.Project.PropertyGroup.AppVersionMinor | Where-Object { $_ } | Select-Object -First 1
@@ -106,8 +110,11 @@ try {
         Write-Host "Installeur : $outputDirWindows\ResonanceInstaller.exe" -ForegroundColor Green
     }
 
-    # --- Android : publish. Le csproj gere le format (AndroidPackageFormat=apk force en config
-    #     Release) ; la signature vient de la keystore de release partagee, attendue sous
+    # --- Android : publish en AAB (seul format accepte par le Play Store - le csproj force apk en
+    #     Release pour Build-Test.ps1, d'ou la surcharge -p:AndroidPackageFormat=aab ci-dessous).
+    #     L'AAB n'est pas attache a la GitHub Release ni propose sur le site : il s'uploade dans la
+    #     Play Console, Android etant distribue uniquement via le Play Store. La keystore de release
+    #     sert de cle d'upload (Play App Signing re-signe avec la cle de Google). Elle est attendue sous
     #     Deploy\dmtools-release.keystore (gitignoree - cf. .gitignore) : recuperer le fichier
     #     depuis le Drive partage et le deposer dans ce dossier suffit, aucun chemin a configurer.
     #     Sans ce fichier, dotnet publish retombe sur le debug.keystore auto-genere par machine, ce
@@ -135,17 +142,15 @@ try {
             Write-Warning "Deploy\dmtools-release.keystore absent (ou identifiants manquants dans Build-Release.local.ps1) : signature avec le debug.keystore local (differente d'un PC a l'autre, a eviter pour une release distribuee)."
         }
 
-        dotnet publish $csprojPath -f net10.0-android -c Release @signingArgs
+        dotnet publish $csprojPath -f net10.0-android -c Release -p:AndroidPackageFormat=aab @signingArgs
         if ($LASTEXITCODE -ne 0) { throw "dotnet publish (Android) a echoue (code $LASTEXITCODE)." }
 
-        # Copie sous un nom fixe (sans version) a cote de l'installeur Windows : meme raison que
-        # pour l'exe, le lien de telechargement public n'a jamais besoin de changer.
-        $publishedApk = Join-Path $repoRoot "Resonance\bin\Release\net10.0-android\publish\com.narfedome.resonance-Signed.apk"
-        if (-not (Test-Path $publishedApk)) { throw "APK signe introuvable a '$publishedApk'." }
-        $apkPath = Join-Path $outputDirAndroid "Resonance.apk"
-        Copy-Item -Path $publishedApk -Destination $apkPath -Force
+        $publishedAab = Join-Path $repoRoot "Resonance\bin\Release\net10.0-android\publish\com.narfedome.resonance-Signed.aab"
+        if (-not (Test-Path $publishedAab)) { throw "AAB signe introuvable a '$publishedAab'." }
+        $aabPath = Join-Path $outputDirPlayStore "Resonance-$version.aab"
+        Copy-Item -Path $publishedAab -Destination $aabPath -Force
 
-        Write-Host "APK : $apkPath" -ForegroundColor Green
+        Write-Host "AAB : $aabPath (a uploader dans la Play Console)" -ForegroundColor Green
     }
 
     # --- Publication GitHub Release : seule source des binaires pour le site (jamais commites,
@@ -161,11 +166,11 @@ try {
 
     $assets = @(
         Join-Path $outputDirWindows "ResonanceInstaller.exe"
-        Join-Path $outputDirAndroid "Resonance.apk"
     ) | Where-Object { Test-Path $_ }
 
-    if ($assets.Count -eq 0) {
-        throw "Aucun artefact a publier (exe/apk introuvables sous $outputDir)."
+    if ($SkipWindows -or $assets.Count -eq 0) {
+        Write-Host "Pas d'installeur Windows : ni GitHub Release ni redeploiement du site (l'AAB passe par la Play Console)." -ForegroundColor Yellow
+        exit 0
     }
 
     gh release create "v$version" @assets --title "v$version" --notes "Build automatise depuis Build-Release.ps1."
