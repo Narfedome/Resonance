@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 ; Non-commercial use only
 
-#define MyAppName "DmTools"
+#define MyAppName "Resonance"
 ; Passée en ligne de commande par Build-Installer.ps1 (calquée sur ApplicationDisplayVersion du
 ; csproj : major.minor à la main + patch = nombre de commits git). Valeur de repli si le script
 ; n'est pas utilisé (compilation manuelle depuis l'IDE Inno Setup).
@@ -10,7 +10,7 @@
   #define MyAppVersion "0.2.0"
 #endif
 #define MyAppPublisher "Narfedome"
-#define MyAppExeName "DmToolsApp.exe"
+#define MyAppExeName "Resonance.exe"
 #define MyAppAssocName MyAppName + " File"
 #define MyAppAssocExt ".myp"
 #define MyAppAssocKey StringChange(MyAppAssocName, " ", "") + MyAppAssocExt
@@ -39,13 +39,13 @@ AllowNoIcons=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
 ; Le .iss vit dans Deploy\ (a cote de Build-Release.ps1, cf. centralisation des outils de release),
-; pas dans DmToolsApp\ ou ses binaires de build sont produits - d'ou le "..\DmToolsApp\" dans les
+; pas dans Resonance\ ou ses binaires de build sont produits - d'ou le "..\Resonance\" dans les
 ; chemins ci-dessous. Ces chemins restent relatifs a {#SourcePath} (dossier de ce .iss) plutot qu'en
 ; dur : le repo a deja bouge une fois (D:\Dev\DmTools -> D:\Dev\perso\DmTools) et avait casse la
 ; compil silencieusement.
 OutputDir={#SourcePath}..\Website\downloads
-OutputBaseFilename=DmToolsInstaller-{#MyAppVersion}
-SetupIconFile={#SourcePath}..\DmToolsApp\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\appicon.ico
+OutputBaseFilename=ResonanceInstaller-{#MyAppVersion}
+SetupIconFile={#SourcePath}..\Resonance\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\appicon.ico
 SolidCompression=yes
 WizardStyle=modern dynamic
 
@@ -57,8 +57,8 @@ Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "{#SourcePath}..\DmToolsApp\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}..\DmToolsApp\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SourcePath}..\Resonance\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}..\Resonance\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]

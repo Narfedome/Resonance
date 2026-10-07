@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Resonance.Features.ImportExport"
+             xmlns:loc="clr-namespace:Resonance.Extensions"
+             xmlns:components="clr-namespace:Resonance.Components"
+             x:Class="Resonance.Features.ImportExport.ImportExportPage"
+             x:DataType="local:ImportExportViewModel"
+             Shell.NavBarIsVisible="False">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False"/>
+    </Shell.BackButtonBehavior>
+
+    <components:WatermarkedLayout>
+    <Grid RowDefinitions="auto,*">
+        <components:DetailPageHeaderView Grid.Row="0" x:Name="Header" Title="{loc:Loc ImportExportTitle}"
+                                         BackCommand="{Binding BackCommand}"/>
+
+    <ScrollView Grid.Row="1">
+        <VerticalStackLayout x:Name="ContentStack" Padding="20,0,20,20" Spacing="16">
+
+            <!-- Export -->
+            <Border Style="{StaticResource SectionCardBorderStyle}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="{loc:Loc ImportExportSectionExport}" FontSize="{DynamicResource AppFontSizeSectionTitle}" FontAttributes="Bold"/>
+
+                    <!-- auto,* (pas *,auto) : le libellé fixe garde toute sa place, la valeur (qui peut
+                         être un titre de campagne arbitrairement long) prend le reste et tronque au lieu
+                         de pousser le libellé à se réduire jusqu'à ne plus afficher qu'une lettre par
+                         ligne. -->
+                    <Grid ColumnDefinitions="auto,*">
+                        <Label Grid.Column="0" Text="{loc:Loc ImportExportLevelLabel}" VerticalOptions="Center" FontSize="{OnIdiom Default=15, Desktop=13}" Margin="0,0,8,0"/>
+                        <Button Grid.Column="1"
+                                Text="{Binding SelectedLevelLabel}"
+                                Command="{Binding SelectLevelCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{DynamicResource AppAccent}"
+                                Style="{StaticResource TruncatedButtonStyle}"
+                                HorizontalOptions="End"
+                                Padding="8,4"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="auto,*" IsVisible="{Binding RequiresCampaignSelection}">
+                        <Label Grid.Column="0" Text="{loc:Loc ImportExportCampaignLabel}" VerticalOptions="Center" FontSize="{OnIdiom Default=15, Desktop=13}" Margin="0,0,8,0"/>
+                        <Button Grid.Column="1"
+                                Text="{Binding SelectedCampaign.Title}"
+                                Command="{Binding SelectCampaignCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{DynamicResource AppAccent}"
+                                LineBreakMode="TailTruncation"
+                                HorizontalOptions="End"
+                                Padding="8,4"/>
+                    </Grid>
+
+                    <Button Text="{loc:Loc ImportExportExportButton}"
+                            Command="{Binding ExportCommand}"
+                            HorizontalOptions="{OnPlatform Default=Fill, WinUI=Center}"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Import -->
+            <Border Style="{StaticResource SectionCardBorderStyle}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="{loc:Loc ImportExportSectionImport}" FontSize="{DynamicResource AppFontSizeSectionTitle}" FontAttributes="Bold"/>
+                    <Button Text="{loc:Loc ImportExportImportButton}"
+                            Command="{Binding ImportCommand}"
+                            HorizontalOptions="{OnPlatform Default=Fill, WinUI=Center}"/>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+    </Grid>
+    </components:WatermarkedLayout>
+</ContentPage>

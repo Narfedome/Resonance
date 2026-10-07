@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<!-- allowBackup désactivé : la sauvegarde auto Google (quota ~25 Mo) restaurerait la base de
-	     données SANS les fichiers audio (trop volumineux), laissant une bibliothèque pleine de
-	     pistes mortes. Mieux vaut repartir proprement après une réinstallation. -->
-	<application android:allowBackup="false" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true" android:label="DM Tools"></application>
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-	<uses-permission android:name="android.permission.INTERNET" />
-</manifest>

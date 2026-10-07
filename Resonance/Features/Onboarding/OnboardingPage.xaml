@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Resonance.Features.Onboarding"
+             xmlns:loc="clr-namespace:Resonance.Extensions"
+             xmlns:components="clr-namespace:Resonance.Components"
+             x:Class="Resonance.Features.Onboarding.OnboardingPage"
+             x:DataType="local:OnboardingViewModel"
+             NavigationPage.HasNavigationBar="False">
+
+    <components:WatermarkedLayout>
+    <ScrollView>
+        <VerticalStackLayout Padding="32,48,32,32" Spacing="28" VerticalOptions="Center">
+
+            <!-- Title -->
+            <Label Text="{loc:Loc OnboardingTitle}"
+                   FontSize="{OnIdiom Default=28, Desktop=24}" FontAttributes="Bold"
+                   TextColor="{DynamicResource AppAccent}"
+                   HorizontalTextAlignment="Center"/>
+
+            <!-- Description -->
+            <Label Text="{loc:Loc OnboardingDesc}"
+                   FontSize="{OnIdiom Default=15, Desktop=13}"
+                   TextColor="{DynamicResource AppTextMuted}"
+                   HorizontalTextAlignment="Center"
+                   LineHeight="1.5"/>
+
+            <!-- Palette picker -->
+            <VerticalStackLayout Spacing="12">
+                <Label Text="{loc:Loc OnboardingPalette}"
+                       FontSize="{DynamicResource AppFontSizeSectionTitle}" FontAttributes="Bold"
+                       HorizontalTextAlignment="Center"/>
+                <components:PalettePickerView
+                    SelectedPalette="{Binding SelectedPalette, Mode=TwoWay}"/>
+            </VerticalStackLayout>
+
+            <!-- Language -->
+            <Border Style="{StaticResource SectionCardBorderStyle}">
+                <Grid ColumnDefinitions="*,auto">
+                    <Label Grid.Column="0"
+                           Text="{loc:Loc OnboardingLanguage}"
+                           VerticalOptions="Center" FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
+                    <Button Grid.Column="1"
+                            Text="{Binding SelectedLanguageLabel}"
+                            Command="{Binding SelectLanguageCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{DynamicResource AppAccent}"
+                            FontSize="{OnIdiom Default=15, Desktop=13}"
+                            Padding="8,4"/>
+                </Grid>
+            </Border>
+
+            <!-- Start button -->
+            <Button Text="{loc:Loc OnboardingStart}"
+                    Command="{Binding StartCommand}"
+                    FontSize="{DynamicResource AppFontSizeSectionTitle}"
+                    Margin="0,8,0,0"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+    </components:WatermarkedLayout>
+</ContentPage>

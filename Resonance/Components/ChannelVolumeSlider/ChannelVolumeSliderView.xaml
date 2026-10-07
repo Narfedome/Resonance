@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Resonance.Components.ChannelVolumeSliderView"
+             x:Name="root"
+             VerticalOptions="Fill">
+
+    <!-- Retour au Slider natif MAUI (perf native, style natif gratuit via le Style global
+         TargetType="Slider" - cf. Styles.xaml) plutôt qu'un GraphicsView dessiné à la main : ce
+         dernier coûtait trop cher à l'initialisation sur Android dès qu'il y avait plusieurs
+         channel strips. Le compromis : Rotation ne change pas le layout, donc InnerSlider a
+         besoin qu'on lui donne sa longueur (avant rotation) explicitement - TrackHost.SizeChanged
+         (code-behind) la lui fournit dynamiquement à partir de l'espace réellement alloué par la
+         ligne "*" du Grid parent. -->
+    <Grid RowDefinitions="Auto,*"
+          WidthRequest="{Binding Source={x:Reference root}, Path=Thickness}">
+        <Label Grid.Row="0"
+               Text="{Binding Source={x:Reference root}, Path=ValueText}"
+               TextColor="{Binding Source={x:Reference root}, Path=TextColor}"
+               FontSize="{Binding Source={x:Reference root}, Path=FontSize}"
+               HorizontalOptions="Center" />
+
+        <Grid x:Name="TrackHost" Grid.Row="1">
+            <Slider x:Name="InnerSlider"
+                    StyleId="ChannelVolumeSliderTrack"
+                    Minimum="{Binding Source={x:Reference root}, Path=Minimum}"
+                    Maximum="{Binding Source={x:Reference root}, Path=Maximum}"
+                    Value="{Binding Source={x:Reference root}, Path=Value, Mode=TwoWay}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    Rotation="{Binding Source={x:Reference root}, Path=RotationAngle}" />
+        </Grid>
+    </Grid>
+</ContentView>

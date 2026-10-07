@@ -1,13 +1,13 @@
 <#
 .SYNOPSIS
-    Publie DmToolsApp (Windows + Android), genere l'installeur Inno Setup, et diffuse la release
+    Publie Resonance (Windows + Android), genere l'installeur Inno Setup, et diffuse la release
     (GitHub + redeploiement du site), avec le meme numero de version que celui affiche dans
     l'application (Reglages > version).
 
 .DESCRIPTION
     Tout ce dont a besoin une release vit dans ce dossier Deploy\ (ce script, sa config locale,
     Installer.iss, la keystore de signature Android) plutot que d'etre eparpille a la racine du
-    depot et dans DmToolsApp\ : plus simple a retrouver, et surtout ce script se lance tel quel en
+    depot et dans Resonance\ : plus simple a retrouver, et surtout ce script se lance tel quel en
     clic droit > Executer avec PowerShell, sans avoir besoin d'ouvrir un terminal pour lui passer
     un parametre - la publication (GitHub Release + redeploiement Netlify) se fait donc toujours,
     dans tous les cas.
@@ -16,7 +16,7 @@
     AppVersionMajor.AppVersionMinor.<nombre de commits git> - lu ici depuis le csproj pour
     ne jamais s'en ecarter silencieusement.
     Les deux artefacts finissent sous Website\downloads\ (a la racine du depot), avec un nom de
-    fichier fixe (DmToolsInstaller.exe / DmTools.apk) : pas de numero de version dans le nom, pour
+    fichier fixe (ResonanceInstaller.exe / Resonance.apk) : pas de numero de version dans le nom, pour
     que le lien de telechargement du site n'ait jamais besoin de changer. Ce dossier est gitignore
     - les binaires sont plutot attaches a une GitHub Release (v<version>), seule source que
     Website/scripts/fetch-downloads.js va lire a chaque build Netlify du site, puis le Build Hook
@@ -56,11 +56,11 @@ $ErrorActionPreference = "Stop"
 try {
     $releaseDir       = $PSScriptRoot
     $repoRoot         = Split-Path -Parent $releaseDir
-    $csprojPath       = Join-Path $repoRoot "DmToolsApp\DmToolsApp.csproj"
+    $csprojPath       = Join-Path $repoRoot "Resonance\Resonance.csproj"
     $issPath          = Join-Path $releaseDir "Installer.iss"
     $isccPath         = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
     # Les deux artefacts finissent directement sous Website\downloads\, exactement là où
-    # index.html (FR/EN) les référence (downloads/DmToolsInstaller.exe, downloads/DmTools.apk) :
+    # index.html (FR/EN) les référence (downloads/ResonanceInstaller.exe, downloads/Resonance.apk) :
     # un site republié après un build reflète tout de suite la dernière version, sans étape de
     # copie manuelle.
     $outputDir        = Join-Path $repoRoot "Website\downloads"
@@ -100,10 +100,10 @@ try {
         Write-Host "=== Windows : compilation de l'installeur ===" -ForegroundColor Cyan
         # /O et /F surchargent OutputDir/OutputBaseFilename du .iss : nom de fichier fixe (sans version)
         # pour que le lien de telechargement public n'ait jamais besoin de changer.
-        & $isccPath "/DMyAppVersion=$version" "/O$outputDirWindows" "/FDmToolsInstaller" $issPath
+        & $isccPath "/DMyAppVersion=$version" "/O$outputDirWindows" "/FResonanceInstaller" $issPath
         if ($LASTEXITCODE -ne 0) { throw "ISCC a echoue (code $LASTEXITCODE)." }
 
-        Write-Host "Installeur : $outputDirWindows\DmToolsInstaller.exe" -ForegroundColor Green
+        Write-Host "Installeur : $outputDirWindows\ResonanceInstaller.exe" -ForegroundColor Green
     }
 
     # --- Android : publish. Le csproj gere le format (AndroidPackageFormat=apk force en config
@@ -140,9 +140,9 @@ try {
 
         # Copie sous un nom fixe (sans version) a cote de l'installeur Windows : meme raison que
         # pour l'exe, le lien de telechargement public n'a jamais besoin de changer.
-        $publishedApk = Join-Path $repoRoot "DmToolsApp\bin\Release\net10.0-android\publish\com.narfedome.dmtoolsapp-Signed.apk"
+        $publishedApk = Join-Path $repoRoot "Resonance\bin\Release\net10.0-android\publish\com.narfedome.resonance-Signed.apk"
         if (-not (Test-Path $publishedApk)) { throw "APK signe introuvable a '$publishedApk'." }
-        $apkPath = Join-Path $outputDirAndroid "DmTools.apk"
+        $apkPath = Join-Path $outputDirAndroid "Resonance.apk"
         Copy-Item -Path $publishedApk -Destination $apkPath -Force
 
         Write-Host "APK : $apkPath" -ForegroundColor Green
@@ -160,8 +160,8 @@ try {
     }
 
     $assets = @(
-        Join-Path $outputDirWindows "DmToolsInstaller.exe"
-        Join-Path $outputDirAndroid "DmTools.apk"
+        Join-Path $outputDirWindows "ResonanceInstaller.exe"
+        Join-Path $outputDirAndroid "Resonance.apk"
     ) | Where-Object { Test-Path $_ }
 
     if ($assets.Count -eq 0) {

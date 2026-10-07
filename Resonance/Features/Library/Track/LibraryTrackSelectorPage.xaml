@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Resonance.Features.Library.LibraryTrackSelectorPage"
+             xmlns:views="clr-namespace:Resonance.Features.Library"
+             xmlns:loc="clr-namespace:Resonance.Extensions"
+             xmlns:components="clr-namespace:Resonance.Components"
+             x:DataType="views:LibraryTrackViewModel"
+             Title="{loc:Loc LibSelect}">
+    <components:WatermarkedLayout>
+        <views:LibraryTrackView IsCrud="False" />
+    </components:WatermarkedLayout>
+</ContentPage>

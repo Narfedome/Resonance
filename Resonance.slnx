@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Resonance.Core/Resonance.Core.csproj" />
+  <Project Path="Resonance.Tests/Resonance.Tests.csproj" />
+  <Project Path="Resonance/Resonance.csproj" />
+</Solution>

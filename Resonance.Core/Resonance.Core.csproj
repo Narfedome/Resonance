@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- NU1603 : métadonnée buggée de Plugin.Maui.Audio 4.0.0 (dernière stable), qui déclare
+         dépendre de Microsoft.Maui.Controls >= 4.0.0 — version qui n'a jamais existé. NuGet
+         résout la plus ancienne réelle (8.0.3), sans conséquence : le projet appli référence
+         explicitement Controls 10.x. À réévaluer à la prochaine version stable du plugin. -->
+    <NoWarn>$(NoWarn);NU1603</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Plugin.Maui.Audio" Version="4.0.0" />
+    <!-- 1.11.285 embarque SQLitePCLRaw 3.x / SQLite 3.53 : corrige la CVE-2025-6965 qui
+         imposait auparavant un NoWarn NU1903 documenté ici. -->
+    <PackageReference Include="sqlite-net-pcl" Version="1.11.285" />
+    <PackageReference Include="TagLibSharp" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Resonance.Tests" />
+  </ItemGroup>
+
+</Project>

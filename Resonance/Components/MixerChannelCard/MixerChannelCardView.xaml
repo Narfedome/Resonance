@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:Resonance.Components"
+             xmlns:corevm="clr-namespace:Resonance.Components;assembly=Resonance.Core"
+             xmlns:icons="clr-namespace:Resonance.Resources.Icons"
+             xmlns:loc="clr-namespace:Resonance.Extensions"
+             xmlns:local="clr-namespace:Resonance.Features.AudioMixer"
+             x:Class="Resonance.Components.MixerChannelCardView"
+             x:DataType="corevm:ChannelStripViewModel">
+
+    <!-- Contenu pur de la carte (strip + boutons) : les repères visuels (remplissage par volume,
+         bandes de fade, badge autoplay) vivent dans AudioMixerPage.xaml au niveau du DataTemplate,
+         pas ici - ils doivent couvrir toute la carte (boutons compris) et rester au même niveau que
+         DragHighlightBorder, qui joue déjà un rôle décoratif similaire à cet endroit. -->
+
+    <!-- IsEnabled global : le strip et ses boutons (livre/gear/X) restent désactivés tant que
+         SON lecteur n'est pas prêt (IsLoading), sans dupliquer le binding sur chaque bouton. -->
+    <Grid Margin="10" IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <components:ChannelStripView Grid.Row="0"/>
+        <ActivityIndicator Grid.Row="0"
+                IsRunning="{Binding IsLoading}"
+                IsVisible="{Binding IsLoading}"
+                HorizontalOptions="Center" VerticalOptions="Center" />
+        <Grid Grid.Row="1" RowSpacing="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Book}"
+                                     Command="{Binding Source={RelativeSource AncestorType={x:Type local:AudioMixerViewModel}}, Path=PickLibraryItemCommand}"
+                                     CommandParameter="{Binding .}" Grid.Row="0"/>
+            <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Gear}"
+                                     Command="{Binding Source={RelativeSource AncestorType={x:Type local:AudioMixerViewModel}}, Path=OpenChannelSettingsCommand}"
+                                     CommandParameter="{Binding .}"
+                                     IsEnabled="{Binding HasSceneTrack}"
+                                     Tooltip="{loc:Loc ChannelSettings}" Grid.Row="1"/>
+            <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Xmark}"
+                                     Command="{Binding Source={RelativeSource AncestorType={x:Type local:AudioMixerViewModel}}, Path=RemoveChannelCommand}"
+                                     CommandParameter="{Binding .}" Grid.Row="2"/>
+
+            <!-- Poignée : seul point d'accroche du drag, sur toutes les plateformes (cf.
+                 AudioMixerPage.xaml : le Drop reste sur toute la carte, une cible facile à
+                 viser - sur Windows le drag souris démarre dès le mouvement, donc glisser depuis
+                 n'importe où sur la carte déclencherait le drag par erreur en scrollant la liste
+                 horizontale). -->
+            <Border Grid.Row="3" HorizontalOptions="Center"
+                    BackgroundColor="{DynamicResource AppSurface}"
+                    Stroke="{DynamicResource AppBorder}" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 6"
+                    Padding="6,4">
+                <Border.GestureRecognizers>
+                    <DragGestureRecognizer CanDrag="True" DragStarting="OnDragStarting" DropCompleted="OnDropCompleted"/>
+                </Border.GestureRecognizers>
+                <Label Text="{x:Static icons:SolidFont.Grip}"
+                       FontFamily="FontSolid" FontSize="{OnIdiom Default=13, Desktop=11}"
+                       TextColor="{DynamicResource AppTextMuted}"/>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentView>

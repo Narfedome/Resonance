@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:Resonance.Components"
+             xmlns:icons="clr-namespace:Resonance.Resources.Icons"
+             xmlns:loc="clr-namespace:Resonance.Extensions"
+             xmlns:local="clr-namespace:Resonance.Features.AudioMixer"
+             x:Class="Resonance.Components.MixerSceneSelectorView"
+             x:DataType="local:AudioMixerViewModel">
+
+    <!-- Barre de sélection de scène -->
+    <Border Padding="10"
+            IsEnabled="{Binding Loading.IsLoading, Converter={StaticResource InverseBoolConverter}}">
+        <!-- Grid sans lignes/colonnes déclarées : les deux enfants remplissent la même cellule
+             et se superposent - seul celui dont IsVisible est vrai est réellement affiché, donc
+             pas de chevauchement à l'écran. Évite de garder les 5 colonnes normales avec des
+             éléments juste masqués (les colonnes "auto"/"*" vides laisseraient un grand espace
+             mort autour du picker restant plutôt qu'un layout recentré proprement). -->
+        <Grid>
+
+            <!-- Mode normal (une vraie scène chargée) : chapitre + précédent/suivant + scène.
+                 Le bouton "sans scène" vit sur la ligne Global (cf. MixerGlobalControlsView) : il
+                 mangeait trop de place ici et forçait les noms de chapitre/scène à tronquer
+                 plus vite qu'avant son ajout. -->
+            <Grid ColumnSpacing="8" IsVisible="{Binding IsFreeformActive, Converter={StaticResource InverseBoolConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- TextMaximumWidth : sans borne (défaut = infini), un titre de session/scène long
+                     déborde de sa colonne "*" et chevauche son voisin au lieu d'être tronqué (le
+                     composant gère déjà LineBreakMode="TailTruncation" en interne, encore fallait-il
+                     lui donner une largeur à respecter). -->
+                <components:IconTextButton Grid.Column="0" HorizontalOptions="Center"
+                        Icon="{x:Static icons:SolidFont.Bookmark}" IconSize="13"
+                        Text="{Binding SelectedSessionLabel}"
+                        Command="{Binding SelectSessionCommand}"
+                        TextColor="{DynamicResource AppAccent}"
+                        TextMaximumWidth="{OnPlatform Default=100, WinUI=200}"
+/>
+
+                <!-- Style Ghost : un chevron de navigation est une action secondaire, il ne doit
+                     pas rivaliser visuellement avec les pickers (cf. même usage sur les chevrons
+                     de l'accordéon Campagnes). Masqué (Opacity=0 + InputTransparent) plutôt que
+                     grisé (IsEnabled) en bout de scène/chapitre : IsVisible collapse l'espace en
+                     MAUI (pas d'équivalent du Visibility.Hidden de WPF), ce qui ferait sauter les
+                     pickers voisins à chaque franchissement de limite. -->
+                <components:FaIconButtonView Grid.Column="1"
+                        Style="{StaticResource GhostIconButtonStyle}"
+                        Icon="{x:Static icons:SolidFont.ChevronLeft}"
+                        Command="{Binding PrevSceneCommand}"
+                        Opacity="{Binding CanGoPrevScene, Converter={StaticResource BoolToOpacityConverter}}"
+                        InputTransparent="{Binding CanGoPrevScene, Converter={StaticResource InverseBoolConverter}}"
+                        Tooltip="{loc:Loc MixerPrevScene}" />
+
+                <components:IconTextButton Grid.Column="2" HorizontalOptions="Center"
+                        Icon="{x:Static icons:SolidFont.MasksTheater}" IconSize="13"
+                        Text="{Binding SelectedSceneLabel}"
+                        Command="{Binding SelectSceneCommand}"
+                        TextColor="{DynamicResource AppAccent}"
+                        TextMaximumWidth="{OnPlatform Default=100, WinUI=200}"
+/>
+
+                <components:FaIconButtonView Grid.Column="3"
+                        Style="{StaticResource GhostIconButtonStyle}"
+                        Icon="{x:Static icons:SolidFont.ChevronRight}"
+                        Command="{Binding NextSceneCommand}"
+                        Opacity="{Binding CanGoNextScene, Converter={StaticResource BoolToOpacityConverter}}"
+                        InputTransparent="{Binding CanGoNextScene, Converter={StaticResource InverseBoolConverter}}"
+                        Tooltip="{loc:Loc MixerNextScene}" />
+            </Grid>
+
+            <!-- Mode "sans scène" : un seul picker centré (chapitre et scène déclenchent de
+                 toute façon la même chaîne de sélection tant qu'aucun chapitre n'est choisi, cf.
+                 AudioMixerViewModel.SelectScene), pas de flèches prev/next (rien à parcourir). -->
+            <components:IconTextButton HorizontalOptions="Center"
+                    Icon="{x:Static icons:SolidFont.Bolt}" IconSize="13"
+                    Text="{Binding SelectedSessionLabel}"
+                    Command="{Binding SelectSessionCommand}"
+                    TextColor="{DynamicResource AppAccent}"
+                    IsVisible="{Binding IsFreeformActive}" />
+        </Grid>
+    </Border>
+</ContentView>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Resonance.Components.RotatedLabelView"
+             x:Name="root">
+
+    <!-- Aucune taille figée ici : RootGrid.HeightRequest et InnerLabel.WidthRequest sont calculés
+         dynamiquement en code-behind (UpdateSize), à partir de la largeur naturelle du texte
+         mesurée sans contrainte, plafonnée à MaximumLength. Le label prend donc exactement la
+         place dont il a besoin (jusqu'au plafond) plutôt qu'une valeur fixe devinée à la main. -->
+    <Grid x:Name="RootGrid">
+        <Label x:Name="InnerLabel"
+               Text="{Binding Source={x:Reference root}, Path=Text}"
+               TextColor="{Binding Source={x:Reference root}, Path=TextColor}"
+               FontSize="{Binding Source={x:Reference root}, Path=FontSize}"
+               LineBreakMode="{Binding Source={x:Reference root}, Path=LineBreakMode}"
+               HorizontalTextAlignment="Center"
+               HorizontalOptions="Center"
+               VerticalOptions="Center"
+               Rotation="{Binding Source={x:Reference root}, Path=RotationAngle}" />
+    </Grid>
+</ContentView>

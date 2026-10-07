@@ -1,5 +1,0 @@
-<Solution>
-  <Project Path="DmToolsApp.Core/DmToolsApp.Core.csproj" />
-  <Project Path="DmToolsApp.Tests/DmToolsApp.Tests.csproj" />
-  <Project Path="DmToolsApp/DmToolsApp.csproj" />
-</Solution>

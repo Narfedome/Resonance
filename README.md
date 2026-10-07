@@ -1,16 +1,16 @@
-# DM Tools
+# Resonance: TTRPG Mixer
 
 *English · [Français](README.fr.md)*
 
 > Prep the sound of your tabletop RPG campaign, scene after scene.
 
-[![Unit Tests](https://github.com/Narfedome/DmTools/actions/workflows/tests.yml/badge.svg)](https://github.com/Narfedome/DmTools/actions/workflows/tests.yml)
+[![Unit Tests](https://github.com/Narfedome/Resonance/actions/workflows/tests.yml/badge.svg)](https://github.com/Narfedome/Resonance/actions/workflows/tests.yml)
 
-DM Tools is a community-made app for game masters: an audio mixer, a campaign manager
+Resonance is a community-made app for game masters: an audio mixer, a campaign manager
 and a track library, built for a session around the table. **100% offline** — no
 connection required, everything is stored locally on the device.
 
-Website: <https://dmtools-app.netlify.app/en/> · Available for **Windows** and **Android**.
+Website: <https://resonance-app.com/en/> · Available for **Windows** and **Android**.
 
 ## Features
 
@@ -49,9 +49,9 @@ Website: <https://dmtools-app.netlify.app/en/> · Available for **Windows** and 
 
 | Project / folder        | Role |
 |-------------------------|------|
-| `DmToolsApp/`           | MAUI app: pages, views, components, platform services, resources. |
-| `DmToolsApp.Core/`      | Shared, testable pure logic (models, SQLite data access, import/export and library services). No MAUI UI dependency. |
-| `DmToolsApp.Tests/`     | xUnit unit tests, referencing only `DmToolsApp.Core` (plain net10.0, no MAUI workload). |
+| `Resonance/`           | MAUI app: pages, views, components, platform services, resources. |
+| `Resonance.Core/`      | Shared, testable pure logic (models, SQLite data access, import/export and library services). No MAUI UI dependency. |
+| `Resonance.Tests/`     | xUnit unit tests, referencing only `Resonance.Core` (plain net10.0, no MAUI workload). |
 | `Deploy/`               | Publishing scripts (`Build-Release.ps1`, `Build-Test.ps1`), Inno Setup script (`Installer.iss`), Android keystore (never committed). |
 | `Website/`              | Static marketing site (FR/EN), deployed on Netlify. |
 | `.github/workflows/`    | CI: unit tests on every push/PR, unsigned iOS build on demand. |
@@ -70,23 +70,23 @@ Website: <https://dmtools-app.netlify.app/en/> · Available for **Windows** and 
 
 ```bash
 # Restore
-dotnet restore DmTools.slnx
+dotnet restore Resonance.slnx
 
 # Run on a given platform
-dotnet build DmToolsApp/DmToolsApp.csproj -f net10.0-windows10.0.19041.0
-dotnet build DmToolsApp/DmToolsApp.csproj -f net10.0-android -t:Run
+dotnet build Resonance/Resonance.csproj -f net10.0-windows10.0.19041.0
+dotnet build Resonance/Resonance.csproj -f net10.0-android -t:Run
 ```
 
-In Visual Studio, open `DmTools.slnx`, set `DmToolsApp` as the startup project and pick
+In Visual Studio, open `Resonance.slnx`, set `Resonance` as the startup project and pick
 the target you want.
 
 ## Tests
 
 ```bash
-dotnet test DmToolsApp.Tests/DmToolsApp.Tests.csproj -c Release
+dotnet test Resonance.Tests/Resonance.Tests.csproj -c Release
 ```
 
-Tests depend only on `DmToolsApp.Core`, so they run on Linux without the MAUI workloads
+Tests depend only on `Resonance.Core`, so they run on Linux without the MAUI workloads
 (that's what CI does).
 
 ## Publishing
@@ -106,7 +106,7 @@ credentials set in `Deploy/Build-Release.local.ps1` (created once per machine fr
 ## Versioning
 
 The version number is `AppVersionMajor.AppVersionMinor.<git commit count>`: `major` /
-`minor` are set by hand in `DmToolsApp/DmToolsApp.csproj`, the patch is computed at build
+`minor` are set by hand in `Resonance/Resonance.csproj`, the patch is computed at build
 time (the `SetVersionFromGit` MSBuild target) and by the `Deploy/` scripts, so the
 installer, the APK and the app's *Settings* screen always show the same number. The app
 reads its version at runtime via `AppInfo.Current.VersionString`.
@@ -126,5 +126,5 @@ compiled application stays free through official distribution channels.
 
 ## Support the project
 
-DM Tools is built in spare time, for the community.
-[☕ Buy Me a Coffee](https://buymeacoffee.com/narfedome) · Support: dmtools.support@gmail.com
+Resonance is built in spare time, for the community.
+[☕ Buy Me a Coffee](https://buymeacoffee.com/narfedome) · Support: narfedome.support@gmail.com
