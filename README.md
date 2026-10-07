@@ -95,10 +95,11 @@ The scripts in `Deploy/` run from a right-click → *Run with PowerShell*:
 
 - **`Build-Test.ps1`** — publishes Windows + Android and builds the installer, without
   releasing anything. For testing a build locally before a real release.
-- **`Build-Release.ps1`** — same build, then creates a *GitHub Release* `v<version>`
-  with the installer and the APK, and re-triggers the Netlify site deploy.
+- **`Build-Release.ps1`** — builds the installer and a signed Android App Bundle
+  (`Deploy/PlayStore/Resonance-<version>.aab`, to upload to the Play Console), creates a
+  *GitHub Release* `v<version>` with the installer, and re-triggers the Netlify site deploy.
 
-Android signing uses `Deploy/dmtools-release.keystore` (never committed) and the
+Android signing (the Play Store upload key) uses `Deploy/dmtools-release.keystore` (never committed) and the
 credentials set in `Deploy/Build-Release.local.ps1` (created once per machine from
 `Build-Release.local.ps1.example`). Without it, the build falls back to the local
 `debug.keystore`.
@@ -108,7 +109,9 @@ credentials set in `Deploy/Build-Release.local.ps1` (created once per machine fr
 The version number is `AppVersionMajor.AppVersionMinor.<git commit count>`: `major` /
 `minor` are set by hand in `Resonance/Resonance.csproj`, the patch is computed at build
 time (the `SetVersionFromGit` MSBuild target) and by the `Deploy/` scripts, so the
-installer, the APK and the app's *Settings* screen always show the same number. The app
+installer, the AAB and the app's *Settings* screen always show the same number. The same
+commit count is used as the Android `versionCode`, which the Play Store requires to increase
+with every upload. The app
 reads its version at runtime via `AppInfo.Current.VersionString`.
 
 ## Download
@@ -116,7 +119,7 @@ reads its version at runtime via `AppInfo.Current.VersionString`.
 Latest builds on the repository's *Releases* page, or from the website:
 
 - Windows: `.exe` installer (Windows 10 1809+)
-- Android: APK (Android 5.0+), installed outside the Play Store
+- Android: coming soon to Google Play (Android 5.0+)
 
 ## License
 

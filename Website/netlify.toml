@@ -1,6 +1,6 @@
 [build]
   publish = "."
-  # Recupere l'exe/l'APK de la derniere GitHub Release (cf. scripts/fetch-downloads.js) avant de
+  # Recupere l'installeur Windows de la derniere GitHub Release (cf. scripts/fetch-downloads.js) avant de
   # publier : ces binaires ne sont jamais commites dans le depot, pour ne pas faire gonfler
   # l'historique git a chaque nouvelle version (cf. Build-Release.ps1 -Publish).
   command = "node scripts/fetch-downloads.js"

@@ -374,3 +374,6 @@ FodyWeavers.xsd
 
 # Keystore de signature Android de release - recuperee depuis le Drive partage, jamais commitee.
 /Deploy/dmtools-release.keystore
+
+# AAB Android generes par Build-Release.ps1, a uploader dans la Play Console (jamais commites).
+/Deploy/PlayStore/
