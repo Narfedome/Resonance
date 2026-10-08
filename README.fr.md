@@ -94,8 +94,10 @@ workloads MAUI (c'est ce que fait la CI).
 
 Les scripts de `Deploy/` s'exécutent d'un clic droit → *Exécuter avec PowerShell* :
 
-- **`Build-Test.ps1`** — publie Windows + Android et génère l'installeur, sans rien
-  diffuser. Pour tester une build localement avant une vraie release.
+- **`Build-Test.ps1`** — publie Windows + Android et génère l'installeur, l'APK (pour les
+  tests sur appareil) et l'AAB du Play Store, sans rien diffuser (ni GitHub Release, ni
+  déploiement Netlify). Pour tester une build localement, ou l'uploader dans la Play Console,
+  avant une vraie release.
 - **`Build-Release.ps1`** — génère l'installeur et un Android App Bundle signé
   (`Deploy/PlayStore/Resonance-<version>.aab`, à uploader dans la Play Console), crée une
   *GitHub Release* `v<version>` avec l'installeur, et redéclenche le déploiement Netlify du site.

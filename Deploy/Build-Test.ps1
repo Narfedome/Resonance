@@ -16,25 +16,28 @@
     ne jamais s'en ecarter silencieusement.
     Les deux artefacts finissent sous Website\downloads\ (a la racine du depot), avec un nom de
     fichier fixe (ResonanceInstaller.exe / Resonance.apk) - meme dossier que Build-Release.ps1, donc
-    une vraie release ecrasera ces fichiers de test au prochain lancement. La signature Android
+    une vraie release ecrasera ces fichiers de test au prochain lancement.
+    La partie Android genere aussi l'AAB du Play Store sous Deploy\PlayStore\Resonance-<version>.aab
+    (meme fichier que Build-Release.ps1), pour pouvoir l'uploader dans la Play Console sans passer
+    par une vraie release. La signature Android
     vient de la keystore de release partagee si Deploy\dmtools-release.keystore est present
     (recupere depuis le Drive partage, jamais commite) et que Deploy\Build-Release.local.ps1
     definit ses identifiants ; sinon elle retombe sur le debug.keystore local, qui differe d'un
     PC a l'autre (sans consequence ici puisque rien n'est publie).
 
 .PARAMETER SkipWindows
-    N'effectue que la publication Android.
+    N'effectue que la publication Android (APK + AAB).
 
 .PARAMETER SkipAndroid
     N'effectue que la publication Windows + installeur.
 
 .EXAMPLE
     .\Build-Test.ps1
-    Genere l'installeur Windows ET l'APK Android, sans rien publier.
+    Genere l'installeur Windows, l'APK Android ET l'AAB du Play Store, sans rien publier.
 
 .EXAMPLE
     .\Build-Test.ps1 -SkipWindows
-    Ne genere que l'APK Android, pour l'installer sur un appareil de test.
+    Ne genere que l'APK Android (pour l'installer sur un appareil de test) et l'AAB.
 #>
 
 param(
@@ -58,8 +61,10 @@ try {
     $outputDir        = Join-Path $repoRoot "Website\downloads"
     $outputDirWindows = $outputDir
     $outputDirAndroid = $outputDir
+    # AAB du Play Store : meme dossier (gitignore) que Build-Release.ps1.
+    $outputDirPlayStore = Join-Path $releaseDir "PlayStore"
 
-    New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
+    New-Item -ItemType Directory -Force -Path $outputDir, $outputDirPlayStore | Out-Null
 
     # --- Config locale (jamais commitee, cf. .gitignore) : chemin + mots de passe de la keystore de
     #     release, propres a chaque machine. Copier Build-Release.local.ps1.example -> Build-Release.local.ps1
@@ -138,6 +143,23 @@ try {
         Copy-Item -Path $publishedApk -Destination $apkPath -Force
 
         Write-Host "APK : $apkPath" -ForegroundColor Green
+
+        # AAB pour la Play Console : une seconde passe, dotnet publish ne sortant qu'un format a la
+        # fois. Une cle de debug envoyee lors du premier upload deviendrait la cle d'upload du Play
+        # Store : on le signale bien en evidence plutot que de bloquer le test.
+        Write-Host "`n=== Android : AAB (Play Store) ===" -ForegroundColor Cyan
+        dotnet publish $csprojPath -f net10.0-android -c Release -p:AndroidPackageFormat=aab @signingArgs
+        if ($LASTEXITCODE -ne 0) { throw "dotnet publish (Android, AAB) a echoue (code $LASTEXITCODE)." }
+
+        $publishedAab = Join-Path $repoRoot "Resonance\bin\Release\net10.0-android\publish\com.narfedome.resonance-Signed.aab"
+        if (-not (Test-Path $publishedAab)) { throw "AAB signe introuvable a '$publishedAab'." }
+        $aabPath = Join-Path $outputDirPlayStore "Resonance-$version.aab"
+        Copy-Item -Path $publishedAab -Destination $aabPath -Force
+
+        Write-Host "AAB : $aabPath" -ForegroundColor Green
+        if ($signingArgs.Count -eq 0) {
+            Write-Warning "AAB signe avec le debug.keystore local : NE PAS l'uploader dans la Play Console (il faut Deploy\dmtools-release.keystore et ses identifiants)."
+        }
     }
 
     Write-Host "`nBuild de test terminee (rien publie : pas de GitHub Release, pas de redeploiement Netlify)." -ForegroundColor Green
