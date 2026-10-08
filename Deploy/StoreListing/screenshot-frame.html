@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<!--
+  Recadre une capture d'écran 1080x2400 (20:9) en 1350x2400 (9:16, format exigé par Google Play)
+  en ajoutant des bandes latérales de la couleur de fond, sans rien couper.
+  Paramètres : ?src=<chemin de la capture>&bg=<couleur hex sans #>.
+  Utilisé par Deploy/StoreListing/Build-StoreListing.ps1 (Chrome headless).
+-->
+<html>
+<head>
+<meta charset="UTF-8" />
+<style>
+  * { margin: 0; padding: 0; }
+  html, body { width: 1350px; height: 2400px; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center; }
+  img { width: 1080px; height: 2400px; display: block; }
+</style>
+</head>
+<body>
+  <img id="shot" alt="" />
+  <script>
+    const params = new URLSearchParams(location.search);
+    document.body.style.background = "#" + (params.get("bg") || "000000");
+    document.getElementById("shot").src = params.get("src");
+  </script>
+</body>
+</html>

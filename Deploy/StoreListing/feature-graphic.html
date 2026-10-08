@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!--
+  Image de présentation de la fiche Google Play (1024x500), même charte que
+  Website/assets/og-image.html. ?lang=en pour la variante anglaise.
+  Régénérée par Deploy/StoreListing/Build-StoreListing.ps1 (Chrome headless).
+-->
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Play Store - Resonance</title>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root { --bg: #1c1a2e; --accent: #c9a84c; --text: #f0ede0; --text-muted: #b9b4c9; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1024px; height: 500px; overflow: hidden; background: var(--bg); }
+  .stage {
+    width: 1024px; height: 500px; position: relative; background: var(--bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: 'Open Sans', sans-serif;
+  }
+  .stage::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% -10%, rgba(107, 93, 170, 0.35), transparent 60%);
+  }
+  .icon { width: 116px; height: 116px; border-radius: 21px; box-shadow: 0 8px 24px rgba(0,0,0,.45); margin-bottom: 22px; position: relative; }
+  h1 { font-family: 'Pirata One', serif; font-size: 66px; font-weight: 400; line-height: 1; color: var(--accent); position: relative; }
+  .subtitle { font-size: 17px; font-weight: 600; letter-spacing: .32em; text-transform: uppercase; color: var(--text-muted); margin: 10px 0 20px; position: relative; }
+  .tagline { font-size: 25px; color: var(--text); text-align: center; position: relative; }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <img class="icon" src="../../Website/assets/logo.svg" alt="" />
+    <h1>Resonance</h1>
+    <div class="subtitle">TTRPG Mixer</div>
+    <div class="tagline" data-en="Prepare the vibe of your tabletop RPG campaign.">Prépare l'ambiance de ta campagne de jeu de rôle.</div>
+  </div>
+  <script>
+    if (new URLSearchParams(location.search).get("lang") === "en") {
+      document.documentElement.lang = "en";
+      document.querySelectorAll("[data-en]").forEach(el => el.textContent = el.dataset.en);
+    }
+  </script>
+</body>
+</html>
