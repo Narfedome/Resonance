@@ -93,8 +93,10 @@ Tests depend only on `Resonance.Core`, so they run on Linux without the MAUI wor
 
 The scripts in `Deploy/` run from a right-click → *Run with PowerShell*:
 
-- **`Build-Test.ps1`** — publishes Windows + Android and builds the installer, without
-  releasing anything. For testing a build locally before a real release.
+- **`Build-Test.ps1`** — publishes Windows + Android and builds the installer, the APK (for
+  device testing) and the Play Store AAB, without releasing anything (no GitHub Release, no
+  Netlify deploy). For testing a build locally, or uploading to the Play Console, before a
+  real release.
 - **`Build-Release.ps1`** — builds the installer and a signed Android App Bundle
   (`Deploy/PlayStore/Resonance-<version>.aab`, to upload to the Play Console), creates a
   *GitHub Release* `v<version>` with the installer, and re-triggers the Netlify site deploy.
