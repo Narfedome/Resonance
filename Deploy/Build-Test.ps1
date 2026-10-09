@@ -64,7 +64,10 @@ try {
     # AAB du Play Store : meme dossier (gitignore) que Build-Release.ps1.
     $outputDirPlayStore = Join-Path $releaseDir "PlayStore"
 
-    New-Item -ItemType Directory -Force -Path $outputDir, $outputDirPlayStore | Out-Null
+    # MSIX du Microsoft Store : meme principe que l'AAB, dossier gitignore.
+    $outputDirMicrosoftStore = Join-Path $releaseDir "MicrosoftStore"
+
+    New-Item -ItemType Directory -Force -Path $outputDir, $outputDirPlayStore, $outputDirMicrosoftStore | Out-Null
 
     # --- Config locale (jamais commitee, cf. .gitignore) : chemin + mots de passe de la keystore de
     #     release, propres a chaque machine. Copier Build-Release.local.ps1.example -> Build-Release.local.ps1
@@ -101,6 +104,28 @@ try {
         if ($LASTEXITCODE -ne 0) { throw "ISCC a echoue (code $LASTEXITCODE)." }
 
         Write-Host "Installeur : $outputDirWindows\ResonanceInstaller.exe" -ForegroundColor Green
+
+        # --- MSIX pour le Microsoft Store : non signe (Partner Center le signe a la publication),
+        #     x64. Publication separee de l'installeur ci-dessus (WindowsPackageType=MSIX au lieu de
+        #     None). L'identite du package (Identity Name/Publisher, PublisherDisplayName) doit etre
+        #     celle reservee dans Partner Center, sinon le MSIX est refuse a l'upload. ---
+        Write-Host "=== Windows : MSIX (Microsoft Store) ===" -ForegroundColor Cyan
+        $msixBuildDir = Join-Path $outputDirMicrosoftStore "build"
+        Remove-Item $msixBuildDir -Recurse -Force -ErrorAction SilentlyContinue
+        dotnet publish $csprojPath -f net10.0-windows10.0.19041.0 -c Release -p:WindowsPackageType=MSIX -p:RuntimeIdentifierOverride=win-x64 -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false "-p:AppxPackageDir=$msixBuildDir/"
+        if ($LASTEXITCODE -ne 0) { throw "dotnet publish (Windows, MSIX) a echoue (code $LASTEXITCODE)." }
+
+        $builtMsix = Get-ChildItem $msixBuildDir -Recurse -Filter "*_x64.msix" | Where-Object { $_.FullName -notlike "*\Dependencies\*" } | Select-Object -First 1
+        if (-not $builtMsix) { throw "MSIX introuvable sous '$msixBuildDir'." }
+        $msixPath = Join-Path $outputDirMicrosoftStore "Resonance-$version.msix"
+        Copy-Item -Path $builtMsix.FullName -Destination $msixPath -Force
+        Remove-Item $msixBuildDir -Recurse -Force -ErrorAction SilentlyContinue
+
+        Write-Host "MSIX : $msixPath (a uploader dans Partner Center)" -ForegroundColor Green
+        [xml]$appxManifest = Get-Content (Join-Path $repoRoot "Resonance\Platforms\Windows\Package.appxmanifest")
+        if ($appxManifest.Package.Identity.Publisher -eq "CN=User Name") {
+            Write-Warning "Package.appxmanifest a encore l'identite par defaut (Publisher=CN=User Name) : renseigner celle reservee dans Partner Center avant d'uploader le MSIX."
+        }
     }
 
     # --- Android : publish. Le csproj gere le format (AndroidPackageFormat=apk force en config
