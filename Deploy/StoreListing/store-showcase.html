@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<!--
+  Capture d'écran paysage 3840x2160 pour le Microsoft Store : trois captures téléphone côte à côte
+  sur le fond de l'appli. Paramètres : ?shots=<url1>|<url2>|<url3>&bg=<hex>&glow=<rgba css>.
+  Utilisé par Build-StoreListing.ps1 (Chrome headless).
+-->
+<html>
+<head>
+<meta charset="UTF-8" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 3840px; height: 2160px; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center; gap: 150px; }
+  img { height: 1840px; width: auto; border-radius: 48px; box-shadow: 0 30px 90px rgba(0,0,0,.55); }
+</style>
+</head>
+<body>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const bg = "#" + (params.get("bg") || "000000");
+    const glow = params.get("glow") || "transparent";
+    document.body.style.background = `radial-gradient(ellipse at 50% -10%, ${glow}, transparent 60%), ${bg}`;
+    for (const src of (params.get("shots") || "").split("|").filter(Boolean)) {
+      const img = document.createElement("img");
+      img.src = src;
+      document.body.appendChild(img);
+    }
+  </script>
+</body>
+</html>
