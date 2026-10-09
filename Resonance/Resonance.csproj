@@ -248,7 +248,12 @@
 		<PropertyGroup Condition="'$(_AppPatch)' == '0'">
 			<ApplicationVersion>1</ApplicationVersion>
 		</PropertyGroup>
-		<Message Text="Version: $(ApplicationDisplayVersion) (versionCode $(ApplicationVersion))" Importance="high" />
+		<!-- Windows : ApplicationVersion devient le 4e segment de la version du package
+		     (Major.Minor.Build.Revision), que le Microsoft Store exige a 0 dans un MSIX. -->
+		<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+			<ApplicationVersion>0</ApplicationVersion>
+		</PropertyGroup>
+		<Message Text="Version: $(ApplicationDisplayVersion) (ApplicationVersion $(ApplicationVersion))" Importance="high" />
 
 		<!-- Le manifeste Android est régénéré par une cible incrémentale (_GenerateJavaStubs) qui ne
 		     surveille pas cette propriété : sans supprimer son stamp, la version packagée peut rester

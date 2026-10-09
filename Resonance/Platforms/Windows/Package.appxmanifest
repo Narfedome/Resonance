@@ -6,13 +6,13 @@
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="uap rescap">
 
-  <Identity Name="maui-package-name-placeholder" Publisher="CN=User Name" Version="0.0.0.0" />
+  <Identity Name="Narfdme.ResonanceTTRPGMixer" Publisher="CN=3FC03E5B-A10B-4BC4-9642-1DADA2985E4A" Version="0.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="0C56E21E-8A55-4703-BC68-35433CC33946" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>$placeholder$</DisplayName>
-    <PublisherDisplayName>User Name</PublisherDisplayName>
+    <PublisherDisplayName>Narfédôme</PublisherDisplayName>
     <Logo>$placeholder$.png</Logo>
   </Properties>
 

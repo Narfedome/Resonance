@@ -377,3 +377,6 @@ FodyWeavers.xsd
 
 # AAB Android generes par Build-Release.ps1, a uploader dans la Play Console (jamais commites).
 /Deploy/PlayStore/
+
+# MSIX generes par Build-Test.ps1 / Build-Release.ps1, a uploader dans Partner Center (jamais commites).
+/Deploy/MicrosoftStore/
