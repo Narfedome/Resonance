@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!--
+  Images de la fiche Microsoft Store, même charte que feature-graphic.html :
+  ?format=poster -> image d'affiche 9:16 (1440x2160), ?format=box -> image de zone 1:1 (2160x2160).
+  ?lang=en pour la variante anglaise. Régénérées par Build-StoreListing.ps1 (Chrome headless).
+-->
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Microsoft Store - Resonance</title>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root { --bg: #1c1a2e; --accent: #c9a84c; --text: #f0ede0; --text-muted: #b9b4c9; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow: hidden; background: var(--bg); }
+  .stage {
+    position: relative; background: var(--bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: 'Open Sans', sans-serif; text-align: center;
+  }
+  .stage::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% -10%, rgba(107, 93, 170, 0.35), transparent 60%);
+  }
+  .stage > * { position: relative; }
+  .icon { border-radius: 18%; box-shadow: 0 16px 48px rgba(0,0,0,.45); }
+  h1 { font-family: 'Pirata One', serif; font-weight: 400; line-height: 1; color: var(--accent); }
+  .subtitle { font-weight: 600; letter-spacing: .32em; text-transform: uppercase; color: var(--text-muted); }
+  .tagline { color: var(--text); line-height: 1.35; }
+  /* Image d'affiche 9:16 */
+  .poster { width: 1440px; height: 2160px; padding: 0 140px; }
+  .poster .icon { width: 520px; height: 520px; margin-bottom: 90px; }
+  .poster h1 { font-size: 230px; }
+  .poster .subtitle { font-size: 54px; margin: 40px 0 110px; }
+  .poster .tagline { font-size: 76px; }
+  /* Image de zone 1:1 */
+  .box { width: 2160px; height: 2160px; }
+  .box .icon { width: 900px; height: 900px; margin-bottom: 110px; }
+  .box h1 { font-size: 300px; }
+  .box .subtitle { font-size: 72px; margin-top: 50px; }
+  .box .tagline { display: none; }
+</style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <img class="icon" src="../../Website/assets/logo.svg" alt="" />
+    <h1>Resonance</h1>
+    <div class="subtitle">TTRPG Mixer</div>
+    <div class="tagline" data-en="Prepare the vibe of your tabletop RPG campaign.">Prépare l'ambiance de ta campagne de jeu de rôle.</div>
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    document.getElementById("stage").classList.add(params.get("format") === "box" ? "box" : "poster");
+    if (params.get("lang") === "en") {
+      document.documentElement.lang = "en";
+      document.querySelectorAll("[data-en]").forEach(el => el.textContent = el.dataset.en);
+    }
+  </script>
+</body>
+</html>

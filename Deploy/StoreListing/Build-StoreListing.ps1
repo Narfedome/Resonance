@@ -1,7 +1,9 @@
 <#
 .SYNOPSIS
-    Genere les elements graphiques de la fiche Google Play sous Deploy\StoreListing\output\ :
-    icone 512x512, image de presentation 1024x500 (FR + EN) et captures telephone en 9:16.
+    Genere les elements graphiques des fiches Google Play (Deploy\StoreListing\output\ : icone
+    512x512, image de presentation 1024x500 FR + EN, captures telephone en 9:16) et Microsoft Store
+    (Deploy\StoreListing\output\microsoft-store\ : captures 3840x2160, image d'affiche 9:16,
+    image de zone 1:1, icones de vignette 300/150/71).
 
 .DESCRIPTION
     - Icone : export PNG de Resonance\Resources\AppIcon\appicon.svg via Inkscape.
@@ -71,7 +73,39 @@ try {
         Invoke-ChromeScreenshot "$frameUrl`?src=$src&bg=$background" 1350 2400 (Join-Path $outputDir "phone-$($shot.BaseName).png")
     }
 
-    Write-Host "`nElements de la fiche Play Store generes dans $outputDir" -ForegroundColor Green
+    # --- Microsoft Store ---
+    $msStoreDir = Join-Path $outputDir "microsoft-store"
+    New-Item -ItemType Directory -Force -Path $msStoreDir | Out-Null
+
+    Write-Host "=== Microsoft Store : icones de vignette ===" -ForegroundColor Cyan
+    foreach ($size in 300, 150, 71) {
+        $tilePng = Join-Path $msStoreDir "tile-$size.png"
+        & $inkscape $iconSvg --export-type=png "--export-width=$size" "--export-height=$size" "--export-filename=$tilePng" 2>$null | Out-Null
+        if (-not (Test-Path $tilePng)) { throw "Export Inkscape de l'icone $size px echoue." }
+        Write-Host "  $tilePng" -ForegroundColor Green
+    }
+
+    Write-Host "=== Microsoft Store : image d'affiche 9:16 et image de zone 1:1 ===" -ForegroundColor Cyan
+    $artUrl = ConvertTo-FileUrl (Join-Path $listingDir "microsoft-store-art.html")
+    foreach ($lang in "fr", "en") {
+        Invoke-ChromeScreenshot "$artUrl`?format=poster&lang=$lang" 1440 2160 (Join-Path $msStoreDir "poster-9x16-$lang.png")
+    }
+    Invoke-ChromeScreenshot "$artUrl`?format=box" 2160 2160 (Join-Path $msStoreDir "box-1x1.png")
+
+    # Captures : pas de captures de la version Windows, on presente les captures telephone par trois
+    # sur le fond de l'appli (le Store accepte paysage et portrait, 1366x768 minimum recommande).
+    Write-Host "=== Microsoft Store : captures 3840x2160 ===" -ForegroundColor Cyan
+    $showcaseUrl = ConvertTo-FileUrl (Join-Path $listingDir "store-showcase.html")
+    $shots = @(Get-ChildItem $shotsDir -Filter *.png | Sort-Object Name)
+    $glow = [System.Uri]::EscapeDataString("rgba(107, 93, 170, 0.35)")
+    for ($i = 0; $i -lt $shots.Count; $i += 3) {
+        $group = $shots[$i..([Math]::Min($i + 2, $shots.Count - 1))]
+        $sources = ($group | ForEach-Object { ConvertTo-FileUrl $_.FullName }) -join "|"
+        $index = [int]($i / 3) + 1
+        Invoke-ChromeScreenshot "$showcaseUrl`?shots=$([System.Uri]::EscapeDataString($sources))&bg=$background&glow=$glow" 3840 2160 (Join-Path $msStoreDir "screenshot-$index.png")
+    }
+
+    Write-Host "`nElements des fiches Play Store et Microsoft Store generes dans $outputDir" -ForegroundColor Green
 }
 catch {
     Write-Host "`nECHEC : $($_.Exception.Message)" -ForegroundColor Red
