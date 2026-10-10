@@ -2,6 +2,9 @@
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Release' and $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
 		<AndroidPackageFormat>apk</AndroidPackageFormat>
+		<!-- R8 : reduit et obscurcit le code Java (bindings AndroidX/MAUI) que le Play Store mesure
+		     (« optimisation du code DEX », seuil de 25 % d'obscurcissement), cf. EnableR8Obfuscation. -->
+		<AndroidLinkTool>r8</AndroidLinkTool>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -269,6 +272,50 @@
 		</ItemGroup>
 
 		<Delete Files="@(_StampToDelete)" Condition="'@(_StampToDelete)' != ''" />
+	</Target>
+
+	<!-- Le SDK .NET Android impose -dontobfuscate dans le proguard_xamarin.cfg qu'il genere : R8 reduit
+	     alors le code sans l'obscurcir, et le Play Store continue de signaler un obscurcissement < 25 %.
+	     On lui substitue une copie identique sans cette directive (Platforms/Android/
+	     proguard_xamarin_obfuscate.cfg). Les types Java appeles depuis le code .NET restent conserves
+	     tels quels par les regles generees (proguard_project_references.cfg / _primary.cfg), seul le
+	     code Java interne (AndroidX, Material...) est renomme. Le mapping.txt produit a cote de l'AAB
+	     sert a desobscurcir les traces de plantage dans la Play Console. -->
+
+	<!-- Declare en ProguardConfiguration (item public) plutot qu'ajoute a _ProguardConfiguration dans la
+	     cible : le SDK l'inclut alors de lui-meme, et surtout l'ajoute aux entrees de _CompileToDalvik -
+	     sans ca, modifier le .cfg ne relancait pas R8 en build incremental. -->
+	<ItemGroup Condition="'$(AndroidLinkTool)' == 'r8' and '$(SkipR8Obfuscation)' != 'true'">
+		<ProguardConfiguration Include="Platforms\Android\proguard_xamarin_obfuscate.cfg" />
+	</ItemGroup>
+
+	<Target Name="EnableR8Obfuscation" AfterTargets="_CalculateProguardConfigurationFiles" Condition="'$(AndroidLinkTool)' == 'r8' and '$(SkipR8Obfuscation)' != 'true'">
+		<PropertyGroup>
+			<_R8MappingConfig>$(IntermediateOutputPath)proguard\proguard_mapping.cfg</_R8MappingConfig>
+		</PropertyGroup>
+		<WriteLinesToFile File="$(_R8MappingConfig)" Lines="-printmapping &quot;$(MSBuildProjectDirectory)\$(OutputPath)mapping.txt&quot;" Overwrite="true" />
+
+		<!-- proguard_project_references.cfg (genere par le SDK depuis les bindings conserves apres ILLink)
+		     ne conserve que les classes et leurs methodes, jamais les champs : le code .NET lit pourtant
+		     certains champs Java par leur nom via JNI (constantes d'enum, ex. Lifecycle$State.DESTROYED ->
+		     NoSuchFieldError au demarrage une fois obscurci). On conserve donc aussi les champs de chacune
+		     de ces classes. -->
+		<PropertyGroup>
+			<_R8FieldsConfig>$(IntermediateOutputPath)proguard\proguard_binding_fields.cfg</_R8FieldsConfig>
+		</PropertyGroup>
+		<ReadLinesFromFile File="$(_ProguardProjectConfiguration)" Condition="Exists('$(_ProguardProjectConfiguration)')">
+			<Output TaskParameter="Lines" ItemName="_R8ReferenceLine" />
+		</ReadLinesFromFile>
+		<ItemGroup>
+			<_R8KeptClass Include="@(_R8ReferenceLine)" Condition="$([System.String]::Copy('%(Identity)').StartsWith('-keep class '))" />
+			<_R8FieldKeepLine Include="@(_R8KeptClass->'%(Identity) { &lt;fields&gt;%3B }')" />
+		</ItemGroup>
+		<WriteLinesToFile File="$(_R8FieldsConfig)" Lines="@(_R8FieldKeepLine)" Overwrite="true" />
+
+		<ItemGroup>
+			<_ProguardConfiguration Remove="$(IntermediateOutputPath)proguard\proguard_xamarin.cfg" />
+			<_ProguardConfiguration Include="$(_R8MappingConfig);$(_R8FieldsConfig)" />
+		</ItemGroup>
 	</Target>
 
 </Project>
