@@ -14,9 +14,11 @@
     La version suit le meme schema que la cible SetVersionFromGit du csproj :
     AppVersionMajor.AppVersionMinor.<nombre de commits git> - lu ici depuis le csproj pour
     ne jamais s'en ecarter silencieusement.
-    Les deux artefacts finissent sous Website\downloads\ (a la racine du depot), avec un nom de
-    fichier fixe (ResonanceInstaller.exe / Resonance.apk) - meme dossier que Build-Release.ps1, donc
-    une vraie release ecrasera ces fichiers de test au prochain lancement.
+    L'installeur finit sous Website\downloads\ (a la racine du depot), avec un nom de fichier fixe
+    (ResonanceInstaller.exe) - meme dossier que Build-Release.ps1, donc une vraie release ecrasera
+    ce fichier de test au prochain lancement.
+    L'APK, reserve aux tests en local (Android est distribue via le Play Store), finit sous
+    Deploy\Telephone\Resonance-<version>.apk (gitignore), a installer sur un telephone de test.
     La partie Android genere aussi l'AAB du Play Store sous Deploy\PlayStore\Resonance-<version>.aab
     (meme fichier que Build-Release.ps1), pour pouvoir l'uploader dans la Play Console sans passer
     par une vraie release. La signature Android
@@ -60,14 +62,19 @@ try {
     # pour tester le site en local (Website\serve.ps1) avec une vraie build.
     $outputDir        = Join-Path $repoRoot "Website\downloads"
     $outputDirWindows = $outputDir
-    $outputDirAndroid = $outputDir
+    # APK de test, a installer sur un telephone (gitignore) : Android est distribue via le Play Store,
+    # l'APK n'a donc rien a faire sous Website\downloads\.
+    $outputDirAndroid = Join-Path $releaseDir "Telephone"
     # AAB du Play Store : meme dossier (gitignore) que Build-Release.ps1.
     $outputDirPlayStore = Join-Path $releaseDir "PlayStore"
 
     # MSIX du Microsoft Store : meme principe que l'AAB, dossier gitignore.
     $outputDirMicrosoftStore = Join-Path $releaseDir "MicrosoftStore"
+    # Archive versionnee de l'installeur Windows (gitignore) : Website\downloads\ n'en garde que la
+    # derniere version, sous un nom fixe pour le lien du site.
+    $outputDirInstaller = Join-Path $releaseDir "Installer"
 
-    New-Item -ItemType Directory -Force -Path $outputDir, $outputDirPlayStore, $outputDirMicrosoftStore | Out-Null
+    New-Item -ItemType Directory -Force -Path $outputDir, $outputDirAndroid, $outputDirPlayStore, $outputDirMicrosoftStore, $outputDirInstaller | Out-Null
 
     # --- Config locale (jamais commitee, cf. .gitignore) : chemin + mots de passe de la keystore de
     #     release, propres a chaque machine. Copier Build-Release.local.ps1.example -> Build-Release.local.ps1
@@ -87,14 +94,22 @@ try {
 
     Write-Host "Version (test) : $version" -ForegroundColor Cyan
 
-    # --- Windows : publish (unpackaged, cf. WindowsPackageType=None du csproj) + installeur Inno Setup ---
+    # --- Windows : publish (unpackaged, cf. WindowsPackageType=None du csproj) + installeur Inno Setup.
+    #     Autonome (SelfContained + WindowsAppSDKSelfContained) : runtime .NET et Windows App SDK
+    #     embarques, l'appli demarre sur un PC sans rien installer d'autre. Le dossier publish est vide
+    #     avant, pour ne pas embarquer dans l'installeur des restes d'une publication precedente. ---
     if (-not $SkipWindows) {
         if (-not (Test-Path $isccPath)) {
             throw "Inno Setup Compiler introuvable a '$isccPath'. Installe Inno Setup 6 ou ajuste `$isccPath dans ce script."
         }
 
         Write-Host "`n=== Windows : publication ===" -ForegroundColor Cyan
-        dotnet publish $csprojPath -f net10.0-windows10.0.19041.0 -c Release -p:WindowsPackageType=None
+        # Installeur (Windows App SDK embarque) et MSIX (Windows App SDK fourni par le Store) partagent
+        # le meme dossier obj : sans le vider, l'etat laisse par l'un fait planter l'autre au demarrage
+        # (REGDB_E_CLASSNOTREG sur le Windows App Runtime).
+        Remove-Item (Join-Path $repoRoot "Resonance\obj\Release\net10.0-windows10.0.19041.0"), (Join-Path $repoRoot "Resonance\obj\x64") -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item (Join-Path $repoRoot "Resonance\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish") -Recurse -Force -ErrorAction SilentlyContinue
+        dotnet publish $csprojPath -f net10.0-windows10.0.19041.0 -c Release -p:WindowsPackageType=None -p:RuntimeIdentifierOverride=win-x64 -p:SelfContained=true -p:WindowsAppSDKSelfContained=true
         if ($LASTEXITCODE -ne 0) { throw "dotnet publish (Windows) a echoue (code $LASTEXITCODE)." }
 
         Write-Host "=== Windows : compilation de l'installeur ===" -ForegroundColor Cyan
@@ -104,15 +119,21 @@ try {
         if ($LASTEXITCODE -ne 0) { throw "ISCC a echoue (code $LASTEXITCODE)." }
 
         Write-Host "Installeur : $outputDirWindows\ResonanceInstaller.exe" -ForegroundColor Green
+        $installerArchive = Join-Path $outputDirInstaller "ResonanceInstaller-$version.exe"
+        Copy-Item -Path (Join-Path $outputDirWindows "ResonanceInstaller.exe") -Destination $installerArchive -Force
+        Write-Host "Installeur (archive) : $installerArchive" -ForegroundColor Green
 
         # --- MSIX pour le Microsoft Store : non signe (Partner Center le signe a la publication),
-        #     x64. Publication separee de l'installeur ci-dessus (WindowsPackageType=MSIX au lieu de
+        #     x64 et autonome (SelfContained : runtime .NET embarque, sinon le Store exige de declarer la
+        #     dependance au .NET Desktop Runtime en tete de la description).
+        #     Publication separee de l'installeur ci-dessus (WindowsPackageType=MSIX au lieu de
         #     None). L'identite du package (Identity Name/Publisher, PublisherDisplayName) doit etre
         #     celle reservee dans Partner Center, sinon le MSIX est refuse a l'upload. ---
         Write-Host "=== Windows : MSIX (Microsoft Store) ===" -ForegroundColor Cyan
         $msixBuildDir = Join-Path $outputDirMicrosoftStore "build"
+        Remove-Item (Join-Path $repoRoot "Resonance\obj\Release\net10.0-windows10.0.19041.0"), (Join-Path $repoRoot "Resonance\obj\x64") -Recurse -Force -ErrorAction SilentlyContinue
         Remove-Item $msixBuildDir -Recurse -Force -ErrorAction SilentlyContinue
-        dotnet publish $csprojPath -f net10.0-windows10.0.19041.0 -c Release -p:WindowsPackageType=MSIX -p:RuntimeIdentifierOverride=win-x64 -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false "-p:AppxPackageDir=$msixBuildDir/"
+        dotnet publish $csprojPath -f net10.0-windows10.0.19041.0 -c Release -p:WindowsPackageType=MSIX -p:RuntimeIdentifierOverride=win-x64 -p:SelfContained=true -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false "-p:AppxPackageDir=$msixBuildDir/" "-p:PublishDir=$msixBuildDir/publish/"
         if ($LASTEXITCODE -ne 0) { throw "dotnet publish (Windows, MSIX) a echoue (code $LASTEXITCODE)." }
 
         $builtMsix = Get-ChildItem $msixBuildDir -Recurse -Filter "*_x64.msix" | Where-Object { $_.FullName -notlike "*\Dependencies\*" } | Select-Object -First 1
@@ -160,11 +181,9 @@ try {
         dotnet publish $csprojPath -f net10.0-android -c Release @signingArgs
         if ($LASTEXITCODE -ne 0) { throw "dotnet publish (Android) a echoue (code $LASTEXITCODE)." }
 
-        # Copie sous un nom fixe (sans version) a cote de l'installeur Windows : meme raison que
-        # pour l'exe, le lien de telechargement public n'a jamais besoin de changer.
         $publishedApk = Join-Path $repoRoot "Resonance\bin\Release\net10.0-android\publish\com.narfedome.resonance-Signed.apk"
         if (-not (Test-Path $publishedApk)) { throw "APK signe introuvable a '$publishedApk'." }
-        $apkPath = Join-Path $outputDirAndroid "Resonance.apk"
+        $apkPath = Join-Path $outputDirAndroid "Resonance-$version.apk"
         Copy-Item -Path $publishedApk -Destination $apkPath -Force
 
         Write-Host "APK : $apkPath" -ForegroundColor Green
