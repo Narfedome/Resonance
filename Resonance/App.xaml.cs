@@ -40,7 +40,7 @@ namespace Resonance
             {
                 // Nom affiché dans la barre de titre Windows, Alt+Tab et la barre des tâches : sans lui,
                 // MAUI le laisse vide.
-                Title = "Resonance",
+                Title = "Resonance : TTRPG Mixer",
                 Width = 600,
                 Height = 800,
 #if !WINDOWS
