@@ -14,9 +14,11 @@
     La version suit le meme schema que la cible SetVersionFromGit du csproj :
     AppVersionMajor.AppVersionMinor.<nombre de commits git> - lu ici depuis le csproj pour
     ne jamais s'en ecarter silencieusement.
-    Les deux artefacts finissent sous Website\downloads\ (a la racine du depot), avec un nom de
-    fichier fixe (ResonanceInstaller.exe / Resonance.apk) - meme dossier que Build-Release.ps1, donc
-    une vraie release ecrasera ces fichiers de test au prochain lancement.
+    L'installeur finit sous Website\downloads\ (a la racine du depot), avec un nom de fichier fixe
+    (ResonanceInstaller.exe) - meme dossier que Build-Release.ps1, donc une vraie release ecrasera
+    ce fichier de test au prochain lancement.
+    L'APK, reserve aux tests en local (Android est distribue via le Play Store), finit sous
+    Deploy\Telephone\Resonance-<version>.apk (gitignore), a installer sur un telephone de test.
     La partie Android genere aussi l'AAB du Play Store sous Deploy\PlayStore\Resonance-<version>.aab
     (meme fichier que Build-Release.ps1), pour pouvoir l'uploader dans la Play Console sans passer
     par une vraie release. La signature Android
@@ -60,7 +62,9 @@ try {
     # pour tester le site en local (Website\serve.ps1) avec une vraie build.
     $outputDir        = Join-Path $repoRoot "Website\downloads"
     $outputDirWindows = $outputDir
-    $outputDirAndroid = $outputDir
+    # APK de test, a installer sur un telephone (gitignore) : Android est distribue via le Play Store,
+    # l'APK n'a donc rien a faire sous Website\downloads\.
+    $outputDirAndroid = Join-Path $releaseDir "Telephone"
     # AAB du Play Store : meme dossier (gitignore) que Build-Release.ps1.
     $outputDirPlayStore = Join-Path $releaseDir "PlayStore"
 
@@ -70,7 +74,7 @@ try {
     # derniere version, sous un nom fixe pour le lien du site.
     $outputDirInstaller = Join-Path $releaseDir "Installer"
 
-    New-Item -ItemType Directory -Force -Path $outputDir, $outputDirPlayStore, $outputDirMicrosoftStore, $outputDirInstaller | Out-Null
+    New-Item -ItemType Directory -Force -Path $outputDir, $outputDirAndroid, $outputDirPlayStore, $outputDirMicrosoftStore, $outputDirInstaller | Out-Null
 
     # --- Config locale (jamais commitee, cf. .gitignore) : chemin + mots de passe de la keystore de
     #     release, propres a chaque machine. Copier Build-Release.local.ps1.example -> Build-Release.local.ps1
@@ -177,11 +181,9 @@ try {
         dotnet publish $csprojPath -f net10.0-android -c Release @signingArgs
         if ($LASTEXITCODE -ne 0) { throw "dotnet publish (Android) a echoue (code $LASTEXITCODE)." }
 
-        # Copie sous un nom fixe (sans version) a cote de l'installeur Windows : meme raison que
-        # pour l'exe, le lien de telechargement public n'a jamais besoin de changer.
         $publishedApk = Join-Path $repoRoot "Resonance\bin\Release\net10.0-android\publish\com.narfedome.resonance-Signed.apk"
         if (-not (Test-Path $publishedApk)) { throw "APK signe introuvable a '$publishedApk'." }
-        $apkPath = Join-Path $outputDirAndroid "Resonance.apk"
+        $apkPath = Join-Path $outputDirAndroid "Resonance-$version.apk"
         Copy-Item -Path $publishedApk -Destination $apkPath -Force
 
         Write-Host "APK : $apkPath" -ForegroundColor Green

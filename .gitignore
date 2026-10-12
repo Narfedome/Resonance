@@ -383,3 +383,6 @@ FodyWeavers.xsd
 
 # Archives versionnees de l'installeur Windows (Build-Test.ps1 / Build-Release.ps1), jamais commitees.
 /Deploy/Installer/
+
+# APK de test generes par Build-Test.ps1, a installer sur un telephone (jamais commites).
+/Deploy/Telephone/
