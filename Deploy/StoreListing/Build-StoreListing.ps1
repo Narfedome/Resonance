@@ -2,7 +2,7 @@
 .SYNOPSIS
     Genere les elements graphiques des fiches Google Play (Deploy\StoreListing\output\ : icone
     512x512, image de presentation 1024x500 FR + EN, captures telephone en 9:16) et Microsoft Store
-    (Deploy\StoreListing\output\microsoft-store\ : captures Windows recopiees depuis windows-screenshots\,
+    (Deploy\StoreListing\output\microsoft-store\ : captures Windows 1920x1080 depuis windows-screenshots\,
     image d'affiche 9:16, image de zone 1:1, icones de vignette 300/150/71).
 
 .DESCRIPTION
@@ -93,28 +93,24 @@ try {
     Invoke-ChromeScreenshot "$artUrl`?format=box" 2160 2160 (Join-Path $msStoreDir "box-1x1.png")
 
     # Captures : le Microsoft Store refuse les captures d'une autre plateforme (Android) - il faut des
-    # captures de l'appli Windows, deposees a la main dans Deploy\StoreListing\windows-screenshots\
-    # (PNG, 1366x768 minimum recommande, 3840x2160 max). Elles sont recopiees telles quelles, dans
-    # l'ordre alphabetique, en screenshot-1.png, screenshot-2.png...
-    Write-Host "=== Microsoft Store : captures Windows ===" -ForegroundColor Cyan
+    # captures de la fenetre de l'appli Windows, deposees a la main dans
+    # Deploy\StoreListing\windows-screenshots\ (PNG). Chacune est centree et agrandie dans une image
+    # paysage 1920x1080 (au-dessus des 1366x768 recommandes) sur le fond de l'appli, via
+    # windows-screenshot-frame.html, dans l'ordre alphabetique : screenshot-1.png, screenshot-2.png...
+    Write-Host "=== Microsoft Store : captures Windows 1920x1080 ===" -ForegroundColor Cyan
     Get-ChildItem $msStoreDir -Filter "screenshot-*.png" | Remove-Item -Force
     $windowsShotsDir = Join-Path $listingDir "windows-screenshots"
     $windowsShots = @(Get-ChildItem $windowsShotsDir -Filter *.png -ErrorAction SilentlyContinue | Sort-Object Name)
     if ($windowsShots.Count -eq 0) {
         Write-Warning "Aucune capture Windows dans $windowsShotsDir : la fiche Microsoft Store en exige au moins une (4 recommandees)."
     }
-    Add-Type -AssemblyName System.Drawing
+    $windowsFrameUrl = ConvertTo-FileUrl (Join-Path $listingDir "windows-screenshot-frame.html")
+    $glow = [System.Uri]::EscapeDataString("rgba(107, 93, 170, 0.35)")
     $index = 0
     foreach ($shot in $windowsShots) {
         $index++
-        $image = [System.Drawing.Image]::FromFile($shot.FullName)
-        $size = "$($image.Width)x$($image.Height)"
-        $tooSmall = [Math]::Max($image.Width, $image.Height) -lt 1366 -or [Math]::Min($image.Width, $image.Height) -lt 768
-        $image.Dispose()
-        $target = Join-Path $msStoreDir "screenshot-$index.png"
-        Copy-Item -Path $shot.FullName -Destination $target -Force
-        Write-Host "  $target ($size, depuis $($shot.Name))" -ForegroundColor Green
-        if ($tooSmall) { Write-Warning "$($shot.Name) ($size) est sous les 1366x768 recommandes par le Microsoft Store." }
+        $src = [System.Uri]::EscapeDataString((ConvertTo-FileUrl $shot.FullName))
+        Invoke-ChromeScreenshot "$windowsFrameUrl`?src=$src&bg=$background&glow=$glow" 1920 1080 (Join-Path $msStoreDir "screenshot-$index.png")
     }
 
     Write-Host "`nElements des fiches Play Store et Microsoft Store generes dans $outputDir" -ForegroundColor Green
