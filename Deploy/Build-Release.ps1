@@ -73,8 +73,11 @@ try {
 
     # MSIX du Microsoft Store : meme principe que l'AAB, dossier gitignore.
     $outputDirMicrosoftStore = Join-Path $releaseDir "MicrosoftStore"
+    # Archive versionnee de l'installeur Windows (gitignore) : Website\downloads\ n'en garde que la
+    # derniere version, sous un nom fixe pour le lien du site.
+    $outputDirInstaller = Join-Path $releaseDir "Installer"
 
-    New-Item -ItemType Directory -Force -Path $outputDir, $outputDirPlayStore, $outputDirMicrosoftStore | Out-Null
+    New-Item -ItemType Directory -Force -Path $outputDir, $outputDirPlayStore, $outputDirMicrosoftStore, $outputDirInstaller | Out-Null
 
     # --- Config locale (jamais commitee, cf. .gitignore) : chemin + mots de passe de la keystore de
     #     release, propres a chaque machine. Copier Build-Release.local.ps1.example -> Build-Release.local.ps1
@@ -111,15 +114,20 @@ try {
         if ($LASTEXITCODE -ne 0) { throw "ISCC a echoue (code $LASTEXITCODE)." }
 
         Write-Host "Installeur : $outputDirWindows\ResonanceInstaller.exe" -ForegroundColor Green
+        $installerArchive = Join-Path $outputDirInstaller "ResonanceInstaller-$version.exe"
+        Copy-Item -Path (Join-Path $outputDirWindows "ResonanceInstaller.exe") -Destination $installerArchive -Force
+        Write-Host "Installeur (archive) : $installerArchive" -ForegroundColor Green
 
         # --- MSIX pour le Microsoft Store : non signe (Partner Center le signe a la publication),
-        #     x64. Publication separee de l'installeur ci-dessus (WindowsPackageType=MSIX au lieu de
+        #     x64 et autonome (SelfContained : runtime .NET embarque, sinon le Store exige de declarer la
+        #     dependance au .NET Desktop Runtime en tete de la description).
+        #     Publication separee de l'installeur ci-dessus (WindowsPackageType=MSIX au lieu de
         #     None). L'identite du package (Identity Name/Publisher, PublisherDisplayName) doit etre
         #     celle reservee dans Partner Center, sinon le MSIX est refuse a l'upload. ---
         Write-Host "=== Windows : MSIX (Microsoft Store) ===" -ForegroundColor Cyan
         $msixBuildDir = Join-Path $outputDirMicrosoftStore "build"
         Remove-Item $msixBuildDir -Recurse -Force -ErrorAction SilentlyContinue
-        dotnet publish $csprojPath -f net10.0-windows10.0.19041.0 -c Release -p:WindowsPackageType=MSIX -p:RuntimeIdentifierOverride=win-x64 -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false "-p:AppxPackageDir=$msixBuildDir/"
+        dotnet publish $csprojPath -f net10.0-windows10.0.19041.0 -c Release -p:WindowsPackageType=MSIX -p:RuntimeIdentifierOverride=win-x64 -p:SelfContained=true -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false "-p:AppxPackageDir=$msixBuildDir/"
         if ($LASTEXITCODE -ne 0) { throw "dotnet publish (Windows, MSIX) a echoue (code $LASTEXITCODE)." }
 
         $builtMsix = Get-ChildItem $msixBuildDir -Recurse -Filter "*_x64.msix" | Where-Object { $_.FullName -notlike "*\Dependencies\*" } | Select-Object -First 1
