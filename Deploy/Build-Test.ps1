@@ -90,14 +90,22 @@ try {
 
     Write-Host "Version (test) : $version" -ForegroundColor Cyan
 
-    # --- Windows : publish (unpackaged, cf. WindowsPackageType=None du csproj) + installeur Inno Setup ---
+    # --- Windows : publish (unpackaged, cf. WindowsPackageType=None du csproj) + installeur Inno Setup.
+    #     Autonome (SelfContained + WindowsAppSDKSelfContained) : runtime .NET et Windows App SDK
+    #     embarques, l'appli demarre sur un PC sans rien installer d'autre. Le dossier publish est vide
+    #     avant, pour ne pas embarquer dans l'installeur des restes d'une publication precedente. ---
     if (-not $SkipWindows) {
         if (-not (Test-Path $isccPath)) {
             throw "Inno Setup Compiler introuvable a '$isccPath'. Installe Inno Setup 6 ou ajuste `$isccPath dans ce script."
         }
 
         Write-Host "`n=== Windows : publication ===" -ForegroundColor Cyan
-        dotnet publish $csprojPath -f net10.0-windows10.0.19041.0 -c Release -p:WindowsPackageType=None
+        # Installeur (Windows App SDK embarque) et MSIX (Windows App SDK fourni par le Store) partagent
+        # le meme dossier obj : sans le vider, l'etat laisse par l'un fait planter l'autre au demarrage
+        # (REGDB_E_CLASSNOTREG sur le Windows App Runtime).
+        Remove-Item (Join-Path $repoRoot "Resonance\obj\Release\net10.0-windows10.0.19041.0"), (Join-Path $repoRoot "Resonance\obj\x64") -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item (Join-Path $repoRoot "Resonance\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish") -Recurse -Force -ErrorAction SilentlyContinue
+        dotnet publish $csprojPath -f net10.0-windows10.0.19041.0 -c Release -p:WindowsPackageType=None -p:RuntimeIdentifierOverride=win-x64 -p:SelfContained=true -p:WindowsAppSDKSelfContained=true
         if ($LASTEXITCODE -ne 0) { throw "dotnet publish (Windows) a echoue (code $LASTEXITCODE)." }
 
         Write-Host "=== Windows : compilation de l'installeur ===" -ForegroundColor Cyan
@@ -119,8 +127,9 @@ try {
         #     celle reservee dans Partner Center, sinon le MSIX est refuse a l'upload. ---
         Write-Host "=== Windows : MSIX (Microsoft Store) ===" -ForegroundColor Cyan
         $msixBuildDir = Join-Path $outputDirMicrosoftStore "build"
+        Remove-Item (Join-Path $repoRoot "Resonance\obj\Release\net10.0-windows10.0.19041.0"), (Join-Path $repoRoot "Resonance\obj\x64") -Recurse -Force -ErrorAction SilentlyContinue
         Remove-Item $msixBuildDir -Recurse -Force -ErrorAction SilentlyContinue
-        dotnet publish $csprojPath -f net10.0-windows10.0.19041.0 -c Release -p:WindowsPackageType=MSIX -p:RuntimeIdentifierOverride=win-x64 -p:SelfContained=true -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false "-p:AppxPackageDir=$msixBuildDir/"
+        dotnet publish $csprojPath -f net10.0-windows10.0.19041.0 -c Release -p:WindowsPackageType=MSIX -p:RuntimeIdentifierOverride=win-x64 -p:SelfContained=true -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false "-p:AppxPackageDir=$msixBuildDir/" "-p:PublishDir=$msixBuildDir/publish/"
         if ($LASTEXITCODE -ne 0) { throw "dotnet publish (Windows, MSIX) a echoue (code $LASTEXITCODE)." }
 
         $builtMsix = Get-ChildItem $msixBuildDir -Recurse -Filter "*_x64.msix" | Where-Object { $_.FullName -notlike "*\Dependencies\*" } | Select-Object -First 1
