@@ -128,12 +128,15 @@ try {
         #     dependance au .NET Desktop Runtime en tete de la description).
         #     Publication separee de l'installeur ci-dessus (WindowsPackageType=MSIX au lieu de
         #     None). L'identite du package (Identity Name/Publisher, PublisherDisplayName) doit etre
-        #     celle reservee dans Partner Center, sinon le MSIX est refuse a l'upload. ---
+        #     celle reservee dans Partner Center, sinon le MSIX est refuse a l'upload.
+        #     Sans .pdb (DebugType=none) : inutiles dans le package, et leur seule presence declenche la
+        #     generation d'un package de symboles qui exige mspdbcmf.exe (charge de travail C++ de Visual
+        #     Studio), d'ou un avertissement a chaque build. ---
         Write-Host "=== Windows : MSIX (Microsoft Store) ===" -ForegroundColor Cyan
         $msixBuildDir = Join-Path $outputDirMicrosoftStore "build"
         Remove-Item (Join-Path $repoRoot "Resonance\obj\Release\net10.0-windows10.0.19041.0"), (Join-Path $repoRoot "Resonance\obj\x64") -Recurse -Force -ErrorAction SilentlyContinue
         Remove-Item $msixBuildDir -Recurse -Force -ErrorAction SilentlyContinue
-        dotnet publish $csprojPath -f net10.0-windows10.0.19041.0 -c Release -p:WindowsPackageType=MSIX -p:RuntimeIdentifierOverride=win-x64 -p:SelfContained=true -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false "-p:AppxPackageDir=$msixBuildDir/" "-p:PublishDir=$msixBuildDir/publish/"
+        dotnet publish $csprojPath -f net10.0-windows10.0.19041.0 -c Release -p:WindowsPackageType=MSIX -p:RuntimeIdentifierOverride=win-x64 -p:SelfContained=true -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false -p:DebugType=none "-p:AppxPackageDir=$msixBuildDir/" "-p:PublishDir=$msixBuildDir/publish/"
         if ($LASTEXITCODE -ne 0) { throw "dotnet publish (Windows, MSIX) a echoue (code $LASTEXITCODE)." }
 
         $builtMsix = Get-ChildItem $msixBuildDir -Recurse -Filter "*_x64.msix" | Where-Object { $_.FullName -notlike "*\Dependencies\*" } | Select-Object -First 1

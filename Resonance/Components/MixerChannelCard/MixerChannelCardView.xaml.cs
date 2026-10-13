@@ -17,7 +17,7 @@ public partial class MixerChannelCardView : ContentView
     // Cf. SceneDataService.ReorderSceneTracksAsync : AudioMixerPage.OnChannelDrop ne stocke que
     // l'item glissé (pas un index), pour rester valide même si l'ordre a changé entre le début du
     // drag et le drop.
-    private void OnDragStarting(object sender, DragStartingEventArgs e)
+    private void OnDragStarting(object? sender, DragStartingEventArgs e)
     {
         if (BindingContext is not ChannelStripViewModel channel) return;
 
@@ -28,7 +28,7 @@ public partial class MixerChannelCardView : ContentView
         TranslationX = 10;
     }
 
-    private void OnDropCompleted(object sender, DropCompletedEventArgs e) => ResetDraggingCard();
+    private void OnDropCompleted(object? sender, DropCompletedEventArgs e) => ResetDraggingCard();
 
     /// <summary>
     /// Remet la carte en cours de glissement (s'il y en a une) à son état normal. Appelée en

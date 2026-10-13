@@ -55,7 +55,7 @@ public partial class AudioMixerPage : ContentPage
         border.BackgroundColor = background;
     }
 
-    private void OnChannelDragOver(object sender, DragEventArgs e)
+    private void OnChannelDragOver(object? sender, DragEventArgs e)
     {
         if (sender is not VisualElement { BindingContext: ChannelStripViewModel hovered } element)
             return;
@@ -64,7 +64,7 @@ public partial class AudioMixerPage : ContentPage
         UpdateAutoScroll(e, hovered);
     }
 
-    private void OnChannelDragLeave(object sender, DragEventArgs e)
+    private void OnChannelDragLeave(object? sender, DragEventArgs e)
     {
         if (sender is VisualElement element)
             SetHighlightBorder(element, Colors.Transparent, Colors.Transparent);
@@ -73,7 +73,7 @@ public partial class AudioMixerPage : ContentPage
         // ferait repartir la progression de zéro à chaque item traversé.
     }
 
-    private async void OnChannelDrop(object sender, DropEventArgs e)
+    private async void OnChannelDrop(object? sender, DropEventArgs e)
     {
         if (sender is VisualElement targetElement)
             SetHighlightBorder(targetElement, Colors.Transparent, Colors.Transparent);

@@ -40,7 +40,7 @@ public partial class CampaignPage : ContentPage
 
     // Cf. SceneDataService.ReorderAsync : ne stocke que l'item glissé, pas un index, pour rester
     // valide même si l'ordre a changé entre le début du drag et le drop.
-    private void OnRowDragStarting(object sender, DragStartingEventArgs e)
+    private void OnRowDragStarting(object? sender, DragStartingEventArgs e)
     {
         if (sender is not VisualElement { BindingContext: ExplorerRow row } grip)
             return;
@@ -80,21 +80,21 @@ public partial class CampaignPage : ContentPage
         border.BackgroundColor = background;
     }
 
-    private void OnRowDropCompleted(object sender, DropCompletedEventArgs e) => ResetDraggingState();
+    private void OnRowDropCompleted(object? sender, DropCompletedEventArgs e) => ResetDraggingState();
 
-    private void OnRowDragOver(object sender, DragEventArgs e)
+    private void OnRowDragOver(object? sender, DragEventArgs e)
     {
         if (sender is VisualElement element)
             SetHighlightBorder(element, AccentColor, HighlightBackgroundColor);
     }
 
-    private void OnRowDragLeave(object sender, DragEventArgs e)
+    private void OnRowDragLeave(object? sender, DragEventArgs e)
     {
         if (sender is VisualElement element)
             SetHighlightBorder(element, Colors.Transparent, Colors.Transparent);
     }
 
-    private async void OnRowDrop(object sender, DropEventArgs e)
+    private async void OnRowDrop(object? sender, DropEventArgs e)
     {
         if (sender is VisualElement targetElement)
             SetHighlightBorder(targetElement, Colors.Transparent, Colors.Transparent);
