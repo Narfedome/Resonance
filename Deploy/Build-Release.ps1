@@ -145,10 +145,36 @@ try {
         Copy-Item -Path $builtMsix.FullName -Destination $msixPath -Force
         Remove-Item $msixBuildDir -Recurse -Force -ErrorAction SilentlyContinue
 
-        Write-Host "MSIX : $msixPath (a uploader dans Partner Center)" -ForegroundColor Green
+        Write-Host "MSIX : $msixPath" -ForegroundColor Green
         [xml]$appxManifest = Get-Content (Join-Path $repoRoot "Resonance\Platforms\Windows\Package.appxmanifest")
         if ($appxManifest.Package.Identity.Publisher -eq "CN=User Name") {
             Write-Warning "Package.appxmanifest a encore l'identite par defaut (Publisher=CN=User Name) : renseigner celle reservee dans Partner Center avant d'uploader le MSIX."
+        }
+
+        # --- Soumission Microsoft Store via le Microsoft Store Developer CLI (msstore) : cree une
+        #     nouvelle soumission a partir de la derniere publiee (fiche, prix, captures inchanges),
+        #     n'y remplace que le package, puis l'envoie en certification. Identifiants : appli
+        #     Entra ID associee au compte Partner Center (role Manager), cf. Build-Release.local.ps1.example.
+        #     Non bloquant comme le Build Hook Netlify : un echec ici ne doit pas empecher la GitHub
+        #     Release, le MSIX reste disponible pour un upload manuel. ---
+        $storeProductId = $env:DMTOOLS_MSSTORE_PRODUCT_ID
+        if (-not $storeProductId) {
+            Write-Warning "DMTOOLS_MSSTORE_PRODUCT_ID non defini dans Deploy\Build-Release.local.ps1 : MSIX a uploader a la main dans Partner Center."
+        } elseif (-not (Get-Command msstore -ErrorAction SilentlyContinue)) {
+            Write-Warning "Microsoft Store Developer CLI (msstore) introuvable (winget install `"Microsoft Store Developer CLI`") : MSIX a uploader a la main dans Partner Center."
+        } else {
+            Write-Host "=== Windows : soumission Microsoft Store ===" -ForegroundColor Cyan
+            try {
+                msstore reconfigure --tenantId $env:DMTOOLS_MSSTORE_TENANT_ID --sellerId $env:DMTOOLS_MSSTORE_SELLER_ID --clientId $env:DMTOOLS_MSSTORE_CLIENT_ID --clientSecret $env:DMTOOLS_MSSTORE_CLIENT_SECRET | Out-Null
+                if ($LASTEXITCODE -ne 0) { throw "msstore reconfigure a echoue (code $LASTEXITCODE)." }
+
+                msstore publish (Join-Path $repoRoot "Resonance") --inputFile $msixPath --appId $storeProductId
+                if ($LASTEXITCODE -ne 0) { throw "msstore publish a echoue (code $LASTEXITCODE)." }
+
+                Write-Host "Soumission Microsoft Store envoyee en certification (v$version)." -ForegroundColor Green
+            } catch {
+                Write-Warning "Echec de la soumission Microsoft Store : $($_.Exception.Message) MSIX a uploader a la main dans Partner Center."
+            }
         }
     }
 

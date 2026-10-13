@@ -20,3 +20,17 @@ $env:DMTOOLS_KEYSTORE_KEYPASS   = "mot-de-passe-cle"
 # Avec ca, Build-Release.ps1 redeploie le site automatiquement juste apres avoir publie la
 # GitHub Release - sans, le site attend le prochain push sur master pour se mettre a jour.
 $env:DMTOOLS_NETLIFY_BUILD_HOOK = "https://api.netlify.com/build_hooks/xxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Optionnel : soumission automatique du MSIX au Microsoft Store (necessite le Microsoft Store
+# Developer CLI : winget install "Microsoft Store Developer CLI"). Sans PRODUCT_ID, le MSIX reste
+# sous Deploy\MicrosoftStore\ pour un upload manuel.
+# - PRODUCT_ID : Partner Center > l'appli > Gestion des produits > Identite du produit (Store ID, 9N...).
+# - SELLER_ID  : Partner Center > Parametres du compte > Informations legales > Developpeur (Seller ID).
+# - TENANT_ID / CLIENT_ID / CLIENT_SECRET : Partner Center > Parametres du compte > Gestion des
+#   utilisateurs > Applications Microsoft Entra : creer une appli avec le role Manager, puis
+#   "Ajouter une cle" pour obtenir le secret.
+$env:DMTOOLS_MSSTORE_PRODUCT_ID    = "9NXXXXXXXXXX"
+$env:DMTOOLS_MSSTORE_SELLER_ID     = "00000000"
+$env:DMTOOLS_MSSTORE_TENANT_ID     = "00000000-0000-0000-0000-000000000000"
+$env:DMTOOLS_MSSTORE_CLIENT_ID     = "00000000-0000-0000-0000-000000000000"
+$env:DMTOOLS_MSSTORE_CLIENT_SECRET = "secret-de-l-appli-entra"
