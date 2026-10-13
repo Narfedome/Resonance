@@ -53,6 +53,11 @@
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
 
+		<!-- Seules les ressources satellites "en" (AppStrings.en.resx) sont embarquées : la langue neutre
+		     est le français, et les traductions internes de MAUI/CommunityToolkit dans une dizaine d'autres
+		     langues déclenchaient PRI263 à l'empaquetage Windows (pas de ressource neutre correspondante). -->
+		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
