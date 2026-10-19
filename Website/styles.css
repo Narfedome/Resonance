@@ -418,6 +418,70 @@ section > .container > p.section-intro {
   gap: 20px;
 }
 
+.store-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.store-badges img {
+  display: block;
+  height: 56px;
+  width: auto;
+}
+
+.badge-soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 56px;
+  box-sizing: border-box;
+  padding: 0 18px;
+  background: #000;
+  border: 1px solid #a6a6a6;
+  border-radius: 8px;
+  color: #fff;
+  text-align: left;
+  opacity: 0.45;
+}
+
+.badge-soon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.badge-soon span {
+  font-size: 1.15rem;
+  line-height: 1.15;
+}
+
+.badge-soon small {
+  display: block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.store-alt {
+  text-align: center;
+  margin: 18px 0 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.store-alt a {
+  color: var(--accent);
+}
+
+.store-req {
+  text-align: center;
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
 .platform-card {
   background: var(--bg);
   border: 1px solid var(--border);
@@ -450,6 +514,7 @@ section > .container > p.section-intro {
 .platform-card .btn {
   margin-top: 14px;
 }
+
 
 .platform-card .disclaimer {
   display: block;
