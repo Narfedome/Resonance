@@ -63,7 +63,9 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#1C1A2E" />
+		<!-- Android : fond uni + symbole réduit à la zone sûre de l'icône adaptative, premier plan transparent pour les icônes à thème -->
+		<MauiIcon Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'" Include="Resources\AppIcon\Android\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#1C1A2E" />
+		<MauiIcon Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'android'" Include="Resources\AppIcon\appicon.svg" Color="#1C1A2E" />
 
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#1C1A2E" BaseSize="128,128" />
