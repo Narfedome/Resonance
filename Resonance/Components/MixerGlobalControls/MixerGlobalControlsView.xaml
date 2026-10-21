@@ -5,6 +5,8 @@
              xmlns:icons="clr-namespace:Resonance.Resources.Icons"
              xmlns:loc="clr-namespace:Resonance.Extensions"
              xmlns:local="clr-namespace:Resonance.Features.AudioMixer"
+             xmlns:services="clr-namespace:Resonance.Services"
+             xmlns:onboarding="clr-namespace:Plugin.Maui.Onboarding"
              x:Class="Resonance.Components.MixerGlobalControlsView"
              x:DataType="local:AudioMixerViewModel">
 
@@ -17,6 +19,9 @@
             <ColumnDefinition Width="auto"/>
         </Grid.ColumnDefinitions>
         <Border Grid.Column="0">
+            <Border.Behaviors>
+                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerGlobalKey}"/>
+            </Border.Behaviors>
             <HorizontalStackLayout Spacing="10" Margin="10">
                 <Label Text="{loc:Loc MixerGlobal}" VerticalOptions="Center"/>
                 <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Play}"
@@ -41,12 +46,20 @@
                  Icon="{x:Static icons:SolidFont.Bolt}"
                  Command="{Binding SelectFreeformSceneCommand}"
                  IsVisible="{Binding IsFreeformActive, Converter={StaticResource InverseBoolConverter}}"
-                 Tooltip="{loc:Loc MixerFreeform}" />
+                 Tooltip="{loc:Loc MixerFreeform}" >
+            <components:FaIconButtonView.Behaviors>
+                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerFreeformKey}"/>
+            </components:FaIconButtonView.Behaviors>
+        </components:FaIconButtonView>
 
         <components:FaIconButtonView Grid.Column="2"
                  Icon="{x:Static icons:SolidFont.Plus}"
                  Command="{Binding AddChannelCommand}"
                  IsEnabled="{Binding HasActiveScene}"
-                 Tooltip="{loc:Loc BtnAddChannel}" />
+                 Tooltip="{loc:Loc BtnAddChannel}">
+            <components:FaIconButtonView.Behaviors>
+                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerAddChannelKey}"/>
+            </components:FaIconButtonView.Behaviors>
+        </components:FaIconButtonView>
     </Grid>
 </ContentView>

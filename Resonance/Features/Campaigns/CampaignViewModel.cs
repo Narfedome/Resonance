@@ -21,13 +21,16 @@ namespace Resonance.Features.Campaigns
     {
         private readonly ISceneDataService _sceneDataService;
         private readonly AudioMixerViewModel _audioMixerViewModel;
+        private readonly AppTourService _tourService;
 
         public CampaignViewModel(
             ISceneDataService sceneDataService,
-            AudioMixerViewModel audioMixerViewModel)
+            AudioMixerViewModel audioMixerViewModel,
+            AppTourService tourService)
         {
             _sceneDataService = sceneDataService;
             _audioMixerViewModel = audioMixerViewModel;
+            _tourService = tourService;
 
             // Les mutations normales (Create/Edit/Delete) patchent Rows directement, sans jamais
             // recharger depuis la base — mais un import ajoute des campagnes par un chemin qui ne
@@ -516,6 +519,20 @@ namespace Resonance.Features.Campaigns
             _audioMixerViewModel.SuppressNextFreeformAutoLoad = true;
             await Shell.Current.GoToAsync("//AudioMixerPage");
             await _audioMixerViewModel.LoadFromPlayAsync(sceneRow.ParentCampaign, sceneRow.ParentSession, sceneRow.Scene);
+
+            // Visite du mixeur au premier lancement d'une scène (pas en scène libre), une fois ses canaux
+            // chargés : son contenu dépend de la présence de canaux (cf. AppTourService).
+            if (_tourService.IsMixerTourPending)
+            {
+                try
+                {
+                    await _tourService.StartMixerTourAsync(_audioMixerViewModel.CurrentChannels.Count > 0);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[Tour] {ex}");
+                }
+            }
         }
     }
 }

@@ -1,13 +1,17 @@
 using CommunityToolkit.Maui.Extensions;
+using Resonance.Services;
 
 namespace Resonance.Features.Library;
 
 public partial class LibraryTrackPage : ContentPage
 {
-	public LibraryTrackPage(LibraryTrackViewModel vm)
+    private readonly AppTourService _tourService;
+
+	public LibraryTrackPage(LibraryTrackViewModel vm, AppTourService tourService)
     {
         InitializeComponent();
         BindingContext = vm;
+        _tourService = tourService;
     }
 
     protected override async void OnNavigatedTo(NavigatedToEventArgs args)
@@ -22,6 +26,19 @@ public partial class LibraryTrackPage : ContentPage
 
         if (BindingContext is LibraryTrackViewModel vm)
             await vm.InitializeAsync();
+
+        // Visite de cet écran, la première fois qu'on y arrive (cf. AppTourService).
+        if (_tourService.IsLibraryTourPending)
+        {
+            try
+            {
+                await _tourService.StartLibraryTourAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Tour] {ex}");
+            }
+        }
     }
 
     protected override void OnDisappearing()

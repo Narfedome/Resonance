@@ -24,12 +24,20 @@
                     TextColor="{DynamicResource AppAccent}"
                     FontSize="{OnIdiom Default=15, Desktop=13}"
                     HorizontalOptions="Start"
-                    Padding="8,4"/>
+                    Padding="8,4">
+                <Button.Behaviors>
+                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryCategoryKey}"/>
+                </Button.Behaviors>
+            </Button>
             <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Tags}"
                                          Command="{Binding ManageCategoriesCommand}"
                                          Tooltip="{loc:Loc LibManageCategories}"
                                          IsVisible="{Binding Source={x:Reference root}, Path=IsCrud}"
-                                         Grid.Column="1"/>
+                                         Grid.Column="1">
+                <components:FaIconButtonView.Behaviors>
+                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryManageCategoriesKey}"/>
+                </components:FaIconButtonView.Behaviors>
+            </components:FaIconButtonView>
         </Grid>
 
         <ActivityIndicator Grid.Row="1" IsRunning="{Binding Loading.IsLoading}" IsVisible="{Binding Loading.IsLoading}"

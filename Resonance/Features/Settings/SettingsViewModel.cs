@@ -181,11 +181,12 @@ namespace Resonance.Features.Settings
             }
         }
 
-        // Lancée par CampaignPage à son prochain affichage (cf. AppTourService).
+        // Fait revenir les visites de chaque écran ; celle des Campagnes démarre tout de suite (cf.
+        // CampaignPage), les autres à la prochaine arrivée sur leur écran.
         [RelayCommand]
         public async Task StartTour()
         {
-            _tourService.Request();
+            _tourService.ResetAll();
             await Shell.Current.GoToAsync("//CampaignPage");
         }
 

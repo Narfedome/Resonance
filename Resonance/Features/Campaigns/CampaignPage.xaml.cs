@@ -43,14 +43,15 @@ public partial class CampaignPage : ContentPage
             await _vm.InitializeAsync();
         }
 
-        // Visite guidée demandée en fin d'accueil ou depuis les Réglages : lancée ici, une fois la liste
-        // chargée, pour pouvoir d'abord déplier la campagne d'exemple.
-        if (_tourService.ConsumeRequest())
+        // Visite de cet écran, la première fois qu'on y arrive avec au moins une campagne (cf.
+        // AppTourService) : lancée une fois la liste chargée, pour d'abord déplier la plus récente - la
+        // campagne d'exemple quand elle vient d'être chargée.
+        if (_tourService.IsCampaignsTourPending && _vm.HasCampaigns)
         {
             try
             {
                 var hasScene = await _vm.ExpandLatestCampaignForTourAsync();
-                await _tourService.StartAsync(hasScene);
+                await _tourService.StartCampaignsTourAsync(hasScene);
             }
             catch (Exception ex)
             {

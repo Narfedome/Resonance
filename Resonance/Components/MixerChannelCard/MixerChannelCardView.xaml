@@ -6,6 +6,8 @@
              xmlns:icons="clr-namespace:Resonance.Resources.Icons"
              xmlns:loc="clr-namespace:Resonance.Extensions"
              xmlns:local="clr-namespace:Resonance.Features.AudioMixer"
+             xmlns:services="clr-namespace:Resonance.Services"
+             xmlns:onboarding="clr-namespace:Plugin.Maui.Onboarding"
              x:Class="Resonance.Components.MixerChannelCardView"
              x:DataType="corevm:ChannelStripViewModel">
 
@@ -21,12 +23,19 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <components:ChannelStripView Grid.Row="0"/>
+        <components:ChannelStripView Grid.Row="0">
+            <components:ChannelStripView.Behaviors>
+                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelKey}"/>
+            </components:ChannelStripView.Behaviors>
+        </components:ChannelStripView>
         <ActivityIndicator Grid.Row="0"
                 IsRunning="{Binding IsLoading}"
                 IsVisible="{Binding IsLoading}"
                 HorizontalOptions="Center" VerticalOptions="Center" />
         <Grid Grid.Row="1" RowSpacing="5">
+            <Grid.Behaviors>
+                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelActionsKey}"/>
+            </Grid.Behaviors>
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>

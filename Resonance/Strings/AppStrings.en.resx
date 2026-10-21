@@ -496,7 +496,7 @@
     <value>Skip</value>
   </data>
   <data name="TourCampaignTitle" xml:space="preserve">
-    <value>Your sample campaign</value>
+    <value>Campaigns, chapters, and scenes</value>
   </data>
   <data name="TourCampaignBody" xml:space="preserve">
     <value>A campaign is split into chapters, and each chapter into scenes. Tap a row to expand it.</value>
@@ -514,16 +514,70 @@
     <value>Add a campaign, chapter, or scene, then rename or delete the selected row.</value>
   </data>
   <data name="TourLibraryTitle" xml:space="preserve">
-    <value>Your sounds</value>
+    <value>Add your sounds</value>
   </data>
   <data name="TourLibraryBody" xml:space="preserve">
-    <value>Import your music and ambiences here, one at a time or a whole folder, to use them in your scenes.</value>
+    <value>Add a track, edit or delete the selection, or import a whole folder at once.</value>
+  </data>
+  <data name="TourLibraryCategoryTitle" xml:space="preserve">
+    <value>Filter by category</value>
+  </data>
+  <data name="TourLibraryCategoryBody" xml:space="preserve">
+    <value>Show all your tracks, or only one category: music, ambience, sound effects.</value>
+  </data>
+  <data name="TourLibraryManageTitle" xml:space="preserve">
+    <value>Manage categories</value>
+  </data>
+  <data name="TourLibraryManageBody" xml:space="preserve">
+    <value>Create, rename, or delete your categories.</value>
+  </data>
+  <data name="TourMixerSceneTitle" xml:space="preserve">
+    <value>Move between scenes</value>
+  </data>
+  <data name="TourMixerSceneBody" xml:space="preserve">
+    <value>Switch chapter or scene, or step to the previous and next one with the arrows.</value>
+  </data>
+  <data name="TourMixerGlobalTitle" xml:space="preserve">
+    <value>Global controls</value>
+  </data>
+  <data name="TourMixerGlobalBody" xml:space="preserve">
+    <value>Play every channel, fade them all out, or stop everything at once.</value>
+  </data>
+  <data name="TourMixerFreeformTitle" xml:space="preserve">
+    <value>Free scene</value>
+  </data>
+  <data name="TourMixerFreeformBody" xml:space="preserve">
+    <value>Switch to a free scene, outside any campaign, to improvise a soundscape. It keeps its channels from one use to the next.</value>
+  </data>
+  <data name="TourMixerAddTitle" xml:space="preserve">
+    <value>Add a channel</value>
+  </data>
+  <data name="TourMixerAddBody" xml:space="preserve">
+    <value>Each channel plays one track: add more to layer music and ambiences.</value>
+  </data>
+  <data name="TourMixerAddEmptySceneBody" xml:space="preserve">
+    <value>This scene is empty: add a channel, then pick its track from the Library.</value>
+  </data>
+  <data name="TourMixerAddNoTracksBody" xml:space="preserve">
+    <value>Your Library is empty: first import your sounds from the Library tab, then add a channel here.</value>
+  </data>
+  <data name="TourMixerChannelTitle" xml:space="preserve">
+    <value>A channel</value>
+  </data>
+  <data name="TourMixerChannelBody" xml:space="preserve">
+    <value>Play, pause, or stop the track and set its volume. The card lights up while it plays.</value>
+  </data>
+  <data name="TourMixerChannelActionsTitle" xml:space="preserve">
+    <value>Channel settings</value>
+  </data>
+  <data name="TourMixerChannelActionsBody" xml:space="preserve">
+    <value>Change the track, set looping, fades, and autoplay, remove the channel, or drag it by its handle to move it.</value>
   </data>
   <data name="SettingsTourDesc" xml:space="preserve">
-    <value>Guided tour</value>
+    <value>Guided tours</value>
   </data>
   <data name="SettingsTourButton" xml:space="preserve">
-    <value>Start</value>
+    <value>Replay</value>
   </data>
   <data name="ErrorTitle" xml:space="preserve">
     <value>Error</value>

@@ -496,7 +496,7 @@
     <value>Passer</value>
   </data>
   <data name="TourCampaignTitle" xml:space="preserve">
-    <value>Votre campagne d'exemple</value>
+    <value>Campagnes, chapitres et scènes</value>
   </data>
   <data name="TourCampaignBody" xml:space="preserve">
     <value>Une campagne se découpe en chapitres, et chaque chapitre en scènes. Touchez une ligne pour la déplier.</value>
@@ -514,16 +514,70 @@
     <value>Ajoutez une campagne, un chapitre ou une scène, puis renommez ou supprimez la ligne sélectionnée.</value>
   </data>
   <data name="TourLibraryTitle" xml:space="preserve">
-    <value>Vos sons</value>
+    <value>Ajouter vos sons</value>
   </data>
   <data name="TourLibraryBody" xml:space="preserve">
-    <value>Importez ici vos musiques et ambiances, une par une ou tout un dossier, pour les utiliser dans vos scènes.</value>
+    <value>Ajoutez une piste, modifiez ou supprimez la sélection, ou importez tout un dossier d'un coup.</value>
+  </data>
+  <data name="TourLibraryCategoryTitle" xml:space="preserve">
+    <value>Filtrer par catégorie</value>
+  </data>
+  <data name="TourLibraryCategoryBody" xml:space="preserve">
+    <value>Affichez toutes vos pistes, ou seulement une catégorie : musiques, ambiances, effets sonores.</value>
+  </data>
+  <data name="TourLibraryManageTitle" xml:space="preserve">
+    <value>Gérer les catégories</value>
+  </data>
+  <data name="TourLibraryManageBody" xml:space="preserve">
+    <value>Créez, renommez ou supprimez vos catégories.</value>
+  </data>
+  <data name="TourMixerSceneTitle" xml:space="preserve">
+    <value>Naviguer entre les scènes</value>
+  </data>
+  <data name="TourMixerSceneBody" xml:space="preserve">
+    <value>Changez de chapitre ou de scène, ou passez à la précédente et à la suivante avec les flèches.</value>
+  </data>
+  <data name="TourMixerGlobalTitle" xml:space="preserve">
+    <value>Commandes globales</value>
+  </data>
+  <data name="TourMixerGlobalBody" xml:space="preserve">
+    <value>Lancez tous les canaux, coupez-les en fondu ou arrêtez tout d'un coup.</value>
+  </data>
+  <data name="TourMixerFreeformTitle" xml:space="preserve">
+    <value>Scène libre</value>
+  </data>
+  <data name="TourMixerFreeformBody" xml:space="preserve">
+    <value>Passez sur une scène libre, hors de toute campagne, pour improviser une ambiance. Elle garde ses canaux d'une fois sur l'autre.</value>
+  </data>
+  <data name="TourMixerAddTitle" xml:space="preserve">
+    <value>Ajouter un canal</value>
+  </data>
+  <data name="TourMixerAddBody" xml:space="preserve">
+    <value>Chaque canal joue une piste : ajoutez-en pour superposer musique et ambiances.</value>
+  </data>
+  <data name="TourMixerAddEmptySceneBody" xml:space="preserve">
+    <value>Cette scène est vide : ajoutez un canal, puis choisissez sa piste dans la Bibliothèque.</value>
+  </data>
+  <data name="TourMixerAddNoTracksBody" xml:space="preserve">
+    <value>Votre Bibliothèque est vide : importez d'abord vos sons depuis l'onglet Bibliothèque, puis ajoutez un canal ici.</value>
+  </data>
+  <data name="TourMixerChannelTitle" xml:space="preserve">
+    <value>Un canal</value>
+  </data>
+  <data name="TourMixerChannelBody" xml:space="preserve">
+    <value>Lancez, mettez en pause ou arrêtez la piste, et réglez son volume. La carte s'éclaire pendant la lecture.</value>
+  </data>
+  <data name="TourMixerChannelActionsTitle" xml:space="preserve">
+    <value>Réglages du canal</value>
+  </data>
+  <data name="TourMixerChannelActionsBody" xml:space="preserve">
+    <value>Changez de piste, réglez la boucle, les fondus et la lecture automatique, retirez le canal, ou faites-le glisser par sa poignée pour le déplacer.</value>
   </data>
   <data name="SettingsTourDesc" xml:space="preserve">
-    <value>Visite guidée</value>
+    <value>Visites guidées</value>
   </data>
   <data name="SettingsTourButton" xml:space="preserve">
-    <value>Démarrer</value>
+    <value>Revoir</value>
   </data>
   <data name="ErrorTitle" xml:space="preserve">
     <value>Erreur</value>

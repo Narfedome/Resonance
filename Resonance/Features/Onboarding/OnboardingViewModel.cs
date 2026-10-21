@@ -13,7 +13,6 @@ namespace Resonance.Features.Onboarding
         private readonly ThemeService _theme = ThemeService.Instance;
         private readonly AppShell _shell;
         private readonly SamplePackService _samplePackService;
-        private readonly AppTourService _tourService;
 
         public string SelectedLanguageLabel =>
             LocalizationService.SupportedLanguages.TryGetValue(SelectedLanguage ?? "", out var label) ? label : SelectedLanguage ?? "";
@@ -39,11 +38,10 @@ namespace Resonance.Features.Onboarding
         [ObservableProperty]
         private bool isImportingSample;
 
-        public OnboardingViewModel(AppShell shell, SamplePackService samplePackService, AppTourService tourService)
+        public OnboardingViewModel(AppShell shell, SamplePackService samplePackService)
         {
             _shell = shell;
             _samplePackService = samplePackService;
-            _tourService = tourService;
             selectedLanguage = Loc.Language;
             selectedPalette  = _theme.Palette;
         }
@@ -95,9 +93,6 @@ namespace Resonance.Features.Onboarding
             try
             {
                 await _samplePackService.ImportAsync(Application.Current!.Windows[0].Page!);
-
-                // La visite s'appuie sur la campagne d'exemple : seulement si elle a bien été chargée.
-                _tourService.Request();
             }
             catch (Exception ex)
             {
@@ -121,9 +116,9 @@ namespace Resonance.Features.Onboarding
             Preferences.Default.Set("has_launched", true);
             Application.Current!.Windows[0].Page = _shell;
 
-            // Accueil revu depuis les Réglages : l'AppShell reprend sur l'onglet Réglages, où la visite
-            // (lancée par CampaignPage) ne se déclencherait jamais. Au premier lancement, les Campagnes
-            // sont déjà l'onglet affiché et cette navigation ne change rien.
+            // Accueil revu depuis les Réglages : l'AppShell reprend sur l'onglet Réglages, alors que la
+            // suite logique (campagne d'exemple, visite des Campagnes) est sur l'onglet Campagnes. Au
+            // premier lancement, c'est déjà l'onglet affiché et cette navigation ne change rien.
             try
             {
                 await _shell.GoToAsync("//CampaignPage");
