@@ -558,6 +558,12 @@
   <data name="TourMixerChannelBackgroundBody" xml:space="preserve">
     <value>It lights up during playback and follows the actual volume: it rises during a fade-in and drops during a fade-out. The bands at the top and bottom show that a fade-out or fade-in is set.</value>
   </data>
+  <data name="TourSettingsIntroTitle" xml:space="preserve">
+    <value>Channel settings</value>
+  </data>
+  <data name="TourSettingsIntroBody" xml:space="preserve">
+    <value>These settings apply to this channel in this scene. “Save” keeps them, “Cancel” leaves everything as it was.</value>
+  </data>
   <data name="TourSettingsVolumeTitle" xml:space="preserve">
     <value>Volume</value>
   </data>
@@ -598,19 +604,19 @@
     <value>What to export</value>
   </data>
   <data name="TourExportLevelBody" xml:space="preserve">
-    <value>Structure only (campaign, chapters, scenes), structure with its channels and their audio, audio library only, or a full backup of everything.</value>
+    <value>Structure only: the campaign, its chapters, and its scenes, without sound. Structure + channels: the same with each scene's channels and the audio they use. Audio library only: all your tracks, without campaigns. Full backup: everything.</value>
   </data>
   <data name="TourExportCampaignTitle" xml:space="preserve">
     <value>Which campaign</value>
   </data>
   <data name="TourExportCampaignBody" xml:space="preserve">
-    <value>For the first two levels, pick the campaign to export.</value>
+    <value>For “Structure only” and “Structure + channels”, pick the campaign to export. The other two levels cover the whole app, so this row disappears.</value>
   </data>
   <data name="TourExportTitle" xml:space="preserve">
     <value>Export</value>
   </data>
   <data name="TourExportBody" xml:space="preserve">
-    <value>Creates the .dmpack file and lets you choose where to save it.</value>
+    <value>Creates a .dmpack file with the content chosen just below, then lets you choose where to save it.</value>
   </data>
   <data name="TourImportTitle" xml:space="preserve">
     <value>Import</value>
@@ -763,7 +769,7 @@
     <value>Channel settings</value>
   </data>
   <data name="TourMixerChannelSettingsBody" xml:space="preserve">
-    <value>Opens the channel settings, detailed next.</value>
+    <value>Opens the channel settings: volume, looping, fades, and autoplay.</value>
   </data>
   <data name="TourMixerChannelRemoveTitle" xml:space="preserve">
     <value>Remove the channel</value>
@@ -866,6 +872,18 @@
   </data>
   <data name="ImportExportTitle" xml:space="preserve">
     <value>Import / Export</value>
+  </data>
+  <data name="ImportExportInfoTitle" xml:space="preserve">
+    <value>Back up and share</value>
+  </data>
+  <data name="ImportExportInfoBody" xml:space="preserve">
+    <value>A .dmpack file carries your campaigns, your sounds, or both. Use it to back up your work, find it on another device, or share it with other GMs.</value>
+  </data>
+  <data name="ImportExportInfoExport" xml:space="preserve">
+    <value>Export: choose what goes in the file, from a single campaign (without audio, or with its channels and their audio) to the audio library or a full backup.</value>
+  </data>
+  <data name="ImportExportInfoImport" xml:space="preserve">
+    <value>Import: the file's content is added to yours, without replacing anything. Tracks already in your Library aren't copied twice.</value>
   </data>
   <data name="ImportExportSettingsDesc" xml:space="preserve">
     <value>Export or import your campaigns and library</value>

@@ -11,7 +11,8 @@ namespace Resonance.Services
     /// ensemble, puis met ses contrôles en lumière un par un. Elles ne font qu'expliquer, sans demander de
     /// créer quoi que ce soit : une première tentative (branche archive/first-run-tutorial) qui faisait
     /// agir l'utilisateur à chaque étape s'était révélée trop fragile. Chaque page déclenche la sienne
-    /// (cf. CampaignPage, LibraryTrackPage, ImportExportPage, CampaignViewModel.Launch pour le mixeur) ;
+    /// (cf. CampaignPage, LibraryTrackPage, ImportExportPage, ChannelSettingsDialog, CampaignViewModel.Launch
+    /// pour le mixeur) ;
     /// une visite passée ou terminée ne revient plus, sauf via « Revoir » dans les Réglages.
     /// </summary>
     public class AppTourService
@@ -59,15 +60,17 @@ namespace Resonance.Services
         public const string ChannelSettingsFadeOutKey = "Tour.ChannelSettingsFadeOut";
         public const string ChannelSettingsAutoPlayKey = "Tour.ChannelSettingsAutoPlay";
 
+        public const string ImportExportInfoKey = "Tour.ImportExportInfo";
+        public const string ImportExportExportKey = "Tour.ImportExportExport";
         public const string ImportExportLevelKey = "Tour.ImportExportLevel";
         public const string ImportExportCampaignKey = "Tour.ImportExportCampaign";
-        public const string ImportExportExportKey = "Tour.ImportExportExport";
         public const string ImportExportImportKey = "Tour.ImportExportImport";
 
         private const string CampaignsTourKey = "resonance-campaigns";
         private const string LibraryTourKey = "resonance-library";
         private const string MixerTourKey = "resonance-mixer";
         private const string ImportExportTourKey = "resonance-import-export";
+        private const string ChannelSettingsTourKey = "resonance-channel-settings";
 
         // Seules plateformes où le plugin sait lire la position d'un contrôle à l'écran (cf.
         // OnboardingBoundsExtensions) : ailleurs, chaque étape attendrait 10 s pour rien.
@@ -80,14 +83,9 @@ namespace Resonance.Services
         private readonly OnboardingCoordinator _coordinator = new();
         private readonly ILibraryDataService _libraryDataService;
 
-        // Action à défaire si la visite s'arrête pendant qu'un dialogue ouvert par elle est affiché
-        // (Passer, ou fin de visite) - cf. StartMixerTourAsync.
-        private Func<Task>? _pendingCleanup;
-
         public AppTourService(ILibraryDataService libraryDataService)
         {
             _libraryDataService = libraryDataService;
-            _coordinator.TourEnded += async (_, _) => await RunPendingCleanupAsync();
         }
 
         private static LocalizationService Loc => LocalizationService.Instance;
@@ -96,11 +94,12 @@ namespace Resonance.Services
         public bool IsLibraryTourPending => IsPending(LibraryTourKey);
         public bool IsMixerTourPending => IsPending(MixerTourKey);
         public bool IsImportExportTourPending => IsPending(ImportExportTourKey);
+        public bool IsChannelSettingsTourPending => IsPending(ChannelSettingsTourKey);
 
         /// <summary>Fait revenir toutes les visites, chacune à la prochaine arrivée sur son écran.</summary>
         public void ResetAll()
         {
-            foreach (var key in new[] { CampaignsTourKey, LibraryTourKey, MixerTourKey, ImportExportTourKey })
+            foreach (var key in new[] { CampaignsTourKey, LibraryTourKey, MixerTourKey, ImportExportTourKey, ChannelSettingsTourKey })
                 OnboardingCompletionStore.SetCompleted(key, false);
         }
 
@@ -153,13 +152,11 @@ namespace Resonance.Services
 
         /// <summary>
         /// Visite du mixeur, adaptée au contenu de la scène lancée : avec des canaux, elle montre la
-        /// tranche entière d'un canal, son fond, chacun de ses contrôles, puis ouvre le dialogue de
-        /// réglages du canal pour en détailler les options ; sans canal, l'étape « Ajouter un canal »
-        /// explique quoi faire selon que la Bibliothèque contient déjà des pistes ou non.
+        /// tranche entière d'un canal, son fond, puis chacun de ses contrôles (le dialogue de réglages a
+        /// sa propre visite, à sa première ouverture) ; sans canal, l'étape « Ajouter un canal » explique
+        /// quoi faire selon que la Bibliothèque contient déjà des pistes ou non.
         /// </summary>
-        /// <param name="openChannelSettings">Ouvre le dialogue de réglages d'un canal (sans l'attendre).</param>
-        /// <param name="closeChannelSettings">Referme ce dialogue, sans enregistrer.</param>
-        public async Task StartMixerTourAsync(bool hasChannels, Func<Task> openChannelSettings, Func<Task> closeChannelSettings)
+        public async Task StartMixerTourAsync(bool hasChannels)
         {
             var libraryHasTracks = hasChannels
                 || (await _libraryDataService.GetItemIdsAsync(typeof(Models.Library.Track), null)).Count > 0;
@@ -182,45 +179,32 @@ namespace Resonance.Services
                     .AddStep(Step(MixerChannelVolumeKey, "TourMixerChannelVolumeTitle", "TourMixerChannelVolumeBody"))
                     .AddStep(Step(MixerChannelTrackKey, "TourMixerChannelTrackTitle", "TourMixerChannelTrackBody"))
                     .AddStep(Step(MixerChannelSettingsKey, "TourMixerChannelSettingsTitle", "TourMixerChannelSettingsBody"))
-                    .AddStep(Step(ChannelSettingsVolumeKey, "TourSettingsVolumeTitle", "TourSettingsVolumeBody") with
-                    {
-                        BeforeShow = async () =>
-                        {
-                            await openChannelSettings();
-                            _pendingCleanup = closeChannelSettings;
-                        }
-                    })
-                    .AddStep(Step(ChannelSettingsLoopKey, "TourSettingsLoopTitle", "TourSettingsLoopBody"))
-                    .AddStep(Step(ChannelSettingsFadeInKey, "TourSettingsFadeInTitle", "TourSettingsFadeInBody"))
-                    .AddStep(Step(ChannelSettingsFadeOutKey, "TourSettingsFadeOutTitle", "TourSettingsFadeOutBody"))
-                    .AddStep(Step(ChannelSettingsAutoPlayKey, "TourSettingsAutoPlayTitle", "TourSettingsAutoPlayBody"))
-                    .AddStep(Step(MixerChannelRemoveKey, "TourMixerChannelRemoveTitle", "TourMixerChannelRemoveBody") with
-                    {
-                        BeforeShow = RunPendingCleanupAsync
-                    })
+                    .AddStep(Step(MixerChannelRemoveKey, "TourMixerChannelRemoveTitle", "TourMixerChannelRemoveBody"))
                     .AddStep(Step(MixerChannelHandleKey, "TourMixerChannelHandleTitle", "TourMixerChannelHandleBody"));
             }
 
             await StartAsync(builder.Build());
         }
 
+        // Ici, la présentation met en lumière la carte récapitulative plutôt qu'une bulle centrée : elle
+        // reste visible en haut de l'écran après la visite. Chaque bloc est ensuite montré en entier,
+        // avec un détour par les deux sélections de l'export.
         public Task StartImportExportTourAsync() => StartAsync(OnboardingTourBuilder.Create(ImportExportTourKey)
-            .AddStep(Intro("TourImportExportIntroTitle", "TourImportExportIntroBody"))
+            .AddStep(Step(ImportExportInfoKey, "TourImportExportIntroTitle", "TourImportExportIntroBody"))
+            .AddStep(Step(ImportExportExportKey, "TourExportTitle", "TourExportBody"))
             .AddStep(Step(ImportExportLevelKey, "TourExportLevelTitle", "TourExportLevelBody"))
             .AddStep(Step(ImportExportCampaignKey, "TourExportCampaignTitle", "TourExportCampaignBody"))
-            .AddStep(Step(ImportExportExportKey, "TourExportTitle", "TourExportBody"))
             .AddStep(Step(ImportExportImportKey, "TourImportTitle", "TourImportBody"))
             .Build());
 
-        private async Task RunPendingCleanupAsync()
-        {
-            var cleanup = _pendingCleanup;
-            _pendingCleanup = null;
-            if (cleanup == null) return;
-
-            try { await cleanup(); }
-            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[Tour] {ex}"); }
-        }
+        public Task StartChannelSettingsTourAsync() => StartAsync(OnboardingTourBuilder.Create(ChannelSettingsTourKey)
+            .AddStep(Intro("TourSettingsIntroTitle", "TourSettingsIntroBody"))
+            .AddStep(Step(ChannelSettingsVolumeKey, "TourSettingsVolumeTitle", "TourSettingsVolumeBody"))
+            .AddStep(Step(ChannelSettingsLoopKey, "TourSettingsLoopTitle", "TourSettingsLoopBody"))
+            .AddStep(Step(ChannelSettingsFadeInKey, "TourSettingsFadeInTitle", "TourSettingsFadeInBody"))
+            .AddStep(Step(ChannelSettingsFadeOutKey, "TourSettingsFadeOutTitle", "TourSettingsFadeOutBody"))
+            .AddStep(Step(ChannelSettingsAutoPlayKey, "TourSettingsAutoPlayTitle", "TourSettingsAutoPlayBody"))
+            .Build());
 
         private static bool IsPending(string tourKey) => IsSupported && !OnboardingCompletionStore.IsCompleted(tourKey);
 

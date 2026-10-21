@@ -21,8 +21,28 @@
     <ScrollView Grid.Row="1">
         <VerticalStackLayout x:Name="ContentStack" Padding="20,0,20,20" Spacing="16">
 
+            <!-- Récapitulatif permanent (en plus de la visite guidée, qui ne passe qu'une fois) : à quoi
+                 sert un .dmpack, ce que contient chaque niveau d'export, et ce que fait un import. -->
+            <Border Style="{StaticResource SectionCardBorderStyle}">
+                <Border.Behaviors>
+                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ImportExportInfoKey}"/>
+                </Border.Behaviors>
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{loc:Loc ImportExportInfoTitle}" FontSize="{DynamicResource AppFontSizeSectionTitle}" FontAttributes="Bold"/>
+                    <Label Text="{loc:Loc ImportExportInfoBody}" TextColor="{DynamicResource AppTextMuted}"
+                           FontSize="{OnIdiom Default=14, Desktop=12}" LineHeight="1.3"/>
+                    <Label Text="{loc:Loc ImportExportInfoExport}" TextColor="{DynamicResource AppTextMuted}"
+                           FontSize="{OnIdiom Default=14, Desktop=12}" LineHeight="1.3"/>
+                    <Label Text="{loc:Loc ImportExportInfoImport}" TextColor="{DynamicResource AppTextMuted}"
+                           FontSize="{OnIdiom Default=14, Desktop=12}" LineHeight="1.3"/>
+                </VerticalStackLayout>
+            </Border>
+
             <!-- Export -->
             <Border Style="{StaticResource SectionCardBorderStyle}">
+                <Border.Behaviors>
+                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ImportExportExportKey}"/>
+                </Border.Behaviors>
                 <VerticalStackLayout Spacing="12">
                     <Label Text="{loc:Loc ImportExportSectionExport}" FontSize="{DynamicResource AppFontSizeSectionTitle}" FontAttributes="Bold"/>
 
@@ -31,6 +51,9 @@
                          de pousser le libellé à se réduire jusqu'à ne plus afficher qu'une lettre par
                          ligne. -->
                     <Grid ColumnDefinitions="auto,*">
+                        <Grid.Behaviors>
+                            <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ImportExportLevelKey}"/>
+                        </Grid.Behaviors>
                         <Label Grid.Column="0" Text="{loc:Loc ImportExportLevelLabel}" VerticalOptions="Center" FontSize="{OnIdiom Default=15, Desktop=13}" Margin="0,0,8,0"/>
                         <Button Grid.Column="1"
                                 Text="{Binding SelectedLevelLabel}"
@@ -39,14 +62,13 @@
                                 TextColor="{DynamicResource AppAccent}"
                                 Style="{StaticResource TruncatedButtonStyle}"
                                 HorizontalOptions="End"
-                                Padding="8,4">
-                            <Button.Behaviors>
-                                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ImportExportLevelKey}"/>
-                            </Button.Behaviors>
-                        </Button>
+                                Padding="8,4"/>
                     </Grid>
 
                     <Grid ColumnDefinitions="auto,*" IsVisible="{Binding RequiresCampaignSelection}">
+                        <Grid.Behaviors>
+                            <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ImportExportCampaignKey}"/>
+                        </Grid.Behaviors>
                         <Label Grid.Column="0" Text="{loc:Loc ImportExportCampaignLabel}" VerticalOptions="Center" FontSize="{OnIdiom Default=15, Desktop=13}" Margin="0,0,8,0"/>
                         <Button Grid.Column="1"
                                 Text="{Binding SelectedCampaign.Title}"
@@ -55,34 +77,25 @@
                                 TextColor="{DynamicResource AppAccent}"
                                 LineBreakMode="TailTruncation"
                                 HorizontalOptions="End"
-                                Padding="8,4">
-                            <Button.Behaviors>
-                                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ImportExportCampaignKey}"/>
-                            </Button.Behaviors>
-                        </Button>
+                                Padding="8,4"/>
                     </Grid>
 
                     <Button Text="{loc:Loc ImportExportExportButton}"
                             Command="{Binding ExportCommand}"
-                            HorizontalOptions="{OnPlatform Default=Fill, WinUI=Center}">
-                        <Button.Behaviors>
-                            <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ImportExportExportKey}"/>
-                        </Button.Behaviors>
-                    </Button>
+                            HorizontalOptions="{OnPlatform Default=Fill, WinUI=Center}"/>
                 </VerticalStackLayout>
             </Border>
 
             <!-- Import -->
             <Border Style="{StaticResource SectionCardBorderStyle}">
+                <Border.Behaviors>
+                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ImportExportImportKey}"/>
+                </Border.Behaviors>
                 <VerticalStackLayout Spacing="12">
                     <Label Text="{loc:Loc ImportExportSectionImport}" FontSize="{DynamicResource AppFontSizeSectionTitle}" FontAttributes="Bold"/>
                     <Button Text="{loc:Loc ImportExportImportButton}"
                             Command="{Binding ImportCommand}"
-                            HorizontalOptions="{OnPlatform Default=Fill, WinUI=Center}">
-                        <Button.Behaviors>
-                            <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ImportExportImportKey}"/>
-                        </Button.Behaviors>
-                    </Button>
+                            HorizontalOptions="{OnPlatform Default=Fill, WinUI=Center}"/>
                 </VerticalStackLayout>
             </Border>
 

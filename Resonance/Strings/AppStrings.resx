@@ -558,6 +558,12 @@
   <data name="TourMixerChannelBackgroundBody" xml:space="preserve">
     <value>Il s'éclaire pendant la lecture et suit le volume réel : il monte pendant un fondu d'entrée et descend pendant un fondu de sortie. Les bandes en haut et en bas signalent qu'un fondu de sortie ou d'entrée est réglé.</value>
   </data>
+  <data name="TourSettingsIntroTitle" xml:space="preserve">
+    <value>Réglages du canal</value>
+  </data>
+  <data name="TourSettingsIntroBody" xml:space="preserve">
+    <value>Ces réglages s'appliquent à ce canal dans cette scène. « Enregistrer » les garde, « Annuler » laisse tout tel quel.</value>
+  </data>
   <data name="TourSettingsVolumeTitle" xml:space="preserve">
     <value>Volume</value>
   </data>
@@ -598,19 +604,19 @@
     <value>Quoi exporter</value>
   </data>
   <data name="TourExportLevelBody" xml:space="preserve">
-    <value>Structure seule (campagne, chapitres, scènes), structure avec ses canaux et leur audio, bibliothèque audio seule, ou sauvegarde complète de tout.</value>
+    <value>Structure seule : la campagne, ses chapitres et ses scènes, sans le son. Structure + canaux : la même chose avec les canaux de chaque scène et l'audio qu'ils utilisent. Bibliothèque audio seule : toutes vos pistes, sans campagne. Sauvegarde complète : tout.</value>
   </data>
   <data name="TourExportCampaignTitle" xml:space="preserve">
     <value>Quelle campagne</value>
   </data>
   <data name="TourExportCampaignBody" xml:space="preserve">
-    <value>Pour les deux premiers niveaux, choisissez la campagne à exporter.</value>
+    <value>Pour « Structure seule » et « Structure + canaux », choisissez la campagne à exporter. Les deux autres niveaux portent sur toute l'appli : cette ligne disparaît alors.</value>
   </data>
   <data name="TourExportTitle" xml:space="preserve">
     <value>Exporter</value>
   </data>
   <data name="TourExportBody" xml:space="preserve">
-    <value>Crée le fichier .dmpack et vous laisse choisir où l'enregistrer.</value>
+    <value>Crée un fichier .dmpack avec le contenu choisi juste en dessous, puis vous laisse choisir où l'enregistrer.</value>
   </data>
   <data name="TourImportTitle" xml:space="preserve">
     <value>Importer</value>
@@ -763,7 +769,7 @@
     <value>Réglages du canal</value>
   </data>
   <data name="TourMixerChannelSettingsBody" xml:space="preserve">
-    <value>Ouvre les réglages du canal, détaillés juste après.</value>
+    <value>Ouvre les réglages du canal : volume, boucle, fondus et lecture automatique.</value>
   </data>
   <data name="TourMixerChannelRemoveTitle" xml:space="preserve">
     <value>Retirer le canal</value>
@@ -866,6 +872,18 @@
   </data>
   <data name="ImportExportTitle" xml:space="preserve">
     <value>Import / Export</value>
+  </data>
+  <data name="ImportExportInfoTitle" xml:space="preserve">
+    <value>Sauvegarder et partager</value>
+  </data>
+  <data name="ImportExportInfoBody" xml:space="preserve">
+    <value>Un fichier .dmpack emporte vos campagnes, vos sons, ou les deux. Servez-vous-en pour sauvegarder votre travail, le retrouver sur un autre appareil ou le partager avec d'autres MJ.</value>
+  </data>
+  <data name="ImportExportInfoExport" xml:space="preserve">
+    <value>Exporter : choisissez ce que contient le fichier, d'une campagne seule (sans l'audio, ou avec ses canaux et leur audio) à la bibliothèque audio ou à une sauvegarde complète.</value>
+  </data>
+  <data name="ImportExportInfoImport" xml:space="preserve">
+    <value>Importer : le contenu du fichier s'ajoute au vôtre, sans rien remplacer. Les pistes déjà présentes dans votre Bibliothèque ne sont pas copiées en double.</value>
   </data>
   <data name="ImportExportSettingsDesc" xml:space="preserve">
     <value>Exportez ou importez vos campagnes et votre bibliothèque</value>
