@@ -1,5 +1,0 @@
-tavern_ambience.opus
-- Original: "Medieval: The Old Tower Inn" (The_Old_Tower_Inn.mp3)
-- Author: RandomMind
-- License: CC0 (Public Domain) - https://opengameart.org/content/medieval-the-old-tower-inn
-- Converted from MP3 to Opus 128kbps for size.
