@@ -1,6 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:services="clr-namespace:Resonance.Services"
+             xmlns:onboarding="clr-namespace:Plugin.Maui.Onboarding"
              xmlns:local="clr-namespace:Resonance.Features.ImportExport"
              xmlns:loc="clr-namespace:Resonance.Extensions"
              xmlns:components="clr-namespace:Resonance.Components"
@@ -37,7 +39,11 @@
                                 TextColor="{DynamicResource AppAccent}"
                                 Style="{StaticResource TruncatedButtonStyle}"
                                 HorizontalOptions="End"
-                                Padding="8,4"/>
+                                Padding="8,4">
+                            <Button.Behaviors>
+                                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ImportExportLevelKey}"/>
+                            </Button.Behaviors>
+                        </Button>
                     </Grid>
 
                     <Grid ColumnDefinitions="auto,*" IsVisible="{Binding RequiresCampaignSelection}">
@@ -49,12 +55,20 @@
                                 TextColor="{DynamicResource AppAccent}"
                                 LineBreakMode="TailTruncation"
                                 HorizontalOptions="End"
-                                Padding="8,4"/>
+                                Padding="8,4">
+                            <Button.Behaviors>
+                                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ImportExportCampaignKey}"/>
+                            </Button.Behaviors>
+                        </Button>
                     </Grid>
 
                     <Button Text="{loc:Loc ImportExportExportButton}"
                             Command="{Binding ExportCommand}"
-                            HorizontalOptions="{OnPlatform Default=Fill, WinUI=Center}"/>
+                            HorizontalOptions="{OnPlatform Default=Fill, WinUI=Center}">
+                        <Button.Behaviors>
+                            <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ImportExportExportKey}"/>
+                        </Button.Behaviors>
+                    </Button>
                 </VerticalStackLayout>
             </Border>
 
@@ -64,7 +78,11 @@
                     <Label Text="{loc:Loc ImportExportSectionImport}" FontSize="{DynamicResource AppFontSizeSectionTitle}" FontAttributes="Bold"/>
                     <Button Text="{loc:Loc ImportExportImportButton}"
                             Command="{Binding ImportCommand}"
-                            HorizontalOptions="{OnPlatform Default=Fill, WinUI=Center}"/>
+                            HorizontalOptions="{OnPlatform Default=Fill, WinUI=Center}">
+                        <Button.Behaviors>
+                            <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ImportExportImportKey}"/>
+                        </Button.Behaviors>
+                    </Button>
                 </VerticalStackLayout>
             </Border>
 

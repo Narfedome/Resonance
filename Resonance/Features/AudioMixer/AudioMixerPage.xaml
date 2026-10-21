@@ -1,6 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:services="clr-namespace:Resonance.Services"
+             xmlns:onboarding="clr-namespace:Plugin.Maui.Onboarding"
              xmlns:local="clr-namespace:Resonance.Features.AudioMixer"
              xmlns:components="clr-namespace:Resonance.Components"
              xmlns:corevm="clr-namespace:Resonance.Components;assembly=Resonance.Core"
@@ -67,6 +69,9 @@
                                  joue un rôle décoratif similaire. -->
                                 <Border Grid.Column="0" StrokeThickness="1" StrokeShape="Rectangle"
                                     Stroke="{DynamicResource AppBorder}">
+                                    <Border.Behaviors>
+                                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelBackgroundKey}"/>
+                                    </Border.Behaviors>
                                 <Grid>
                                     <!-- LiveVolume (pas Volume) : suit le volume RÉEL du player, qui
                                          rampe pendant un fade in/out (par piste, "Fade Out All", ou

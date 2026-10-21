@@ -1,3 +1,4 @@
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -512,6 +513,17 @@ namespace Resonance.Features.Campaigns
         // AudioMixerPage (visible une fois la navigation faite), au lieu de travailler en
         // silence sur la page Campagnes pendant que l'utilisateur ne voit toujours rien bouger.
         [RelayCommand]
+        // Ouvre le dialogue de réglages du dernier canal de la scène, pour que la visite du mixeur en
+        // détaille les options - sans attendre sa fermeture (la visite le referme elle-même, ce qui
+        // revient à Annuler : rien n'est enregistré).
+        private Task OpenChannelSettingsForTourAsync()
+        {
+            var channel = _audioMixerViewModel.CurrentChannels.LastOrDefault(c => c.SceneTrackId > 0);
+            if (channel != null)
+                _ = _audioMixerViewModel.OpenChannelSettingsCommand.ExecuteAsync(channel);
+            return Task.CompletedTask;
+        }
+
         public async Task Launch(SceneRow sceneRow)
         {
             // Avant de naviguer : empêche AudioMixerPage.OnAppearing de charger la scène orpheline
@@ -526,7 +538,10 @@ namespace Resonance.Features.Campaigns
             {
                 try
                 {
-                    await _tourService.StartMixerTourAsync(_audioMixerViewModel.CurrentChannels.Count > 0);
+                    await _tourService.StartMixerTourAsync(
+                        _audioMixerViewModel.CurrentChannels.Count > 0,
+                        OpenChannelSettingsForTourAsync,
+                        () => Shell.Current.ClosePopupAsync());
                 }
                 catch (Exception ex)
                 {

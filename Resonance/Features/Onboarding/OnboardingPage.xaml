@@ -130,7 +130,18 @@
                     <Label Text="{loc:Loc OnboardingPlayBody}" Style="{StaticResource StepBodyStyle}"/>
                 </VerticalStackLayout>
 
-                <!-- 4. Palette, puis campagne d'exemple ou install vide. -->
+                <!-- 4. Sauvegarde et partage : présente l'écran Import / Export des Réglages. -->
+                <VerticalStackLayout Spacing="28" IsVisible="{Binding IsShareStep}">
+                    <HorizontalStackLayout Spacing="16" HorizontalOptions="Center">
+                        <Label Text="{x:Static icons:SolidFont.FileExport}" Style="{StaticResource StepIconStyle}"/>
+                        <Label Text="{x:Static icons:SolidFont.ArrowRightArrowLeft}" Style="{StaticResource StepArrowStyle}"/>
+                        <Label Text="{x:Static icons:SolidFont.FileImport}" Style="{StaticResource StepIconStyle}"/>
+                    </HorizontalStackLayout>
+                    <Label Text="{loc:Loc OnboardingShareTitle}" Style="{StaticResource StepTitleStyle}"/>
+                    <Label Text="{loc:Loc OnboardingShareBody}" Style="{StaticResource StepBodyStyle}"/>
+                </VerticalStackLayout>
+
+                <!-- 5. Palette, puis campagne d'exemple ou install vide. -->
                 <VerticalStackLayout Spacing="24" IsVisible="{Binding IsReadyStep}">
                     <Label Text="{loc:Loc OnboardingReadyTitle}" Style="{StaticResource StepTitleStyle}"/>
                     <VerticalStackLayout Spacing="12">
@@ -182,6 +193,13 @@
                 <BoxView Style="{StaticResource StepDotStyle}">
                     <BoxView.Triggers>
                         <DataTrigger TargetType="BoxView" Binding="{Binding IsPlayStep}" Value="True">
+                            <Setter Property="Opacity" Value="1"/>
+                        </DataTrigger>
+                    </BoxView.Triggers>
+                </BoxView>
+                <BoxView Style="{StaticResource StepDotStyle}">
+                    <BoxView.Triggers>
+                        <DataTrigger TargetType="BoxView" Binding="{Binding IsShareStep}" Value="True">
                             <Setter Property="Opacity" Value="1"/>
                         </DataTrigger>
                     </BoxView.Triggers>

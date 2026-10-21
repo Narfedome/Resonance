@@ -7,11 +7,12 @@ namespace Resonance.Services
     /// <summary>
     /// Visites guidées courtes (projecteur + bulle, cf. ThirdParty/PluginMauiOnboarding), une par écran,
     /// affichées la première fois qu'on y arrive plutôt qu'en un seul parcours au démarrage, pour ne pas
-    /// submerger l'utilisateur. Elles ne font qu'expliquer, sans demander de créer quoi que ce soit : une
-    /// première tentative (branche archive/first-run-tutorial) qui faisait agir l'utilisateur à chaque
-    /// étape s'était révélée trop fragile. Chaque page déclenche la sienne (cf. CampaignPage,
-    /// LibraryTrackPage, CampaignViewModel.Launch pour le mixeur) ; une visite passée ou terminée ne
-    /// revient plus, sauf via « Revoir » dans les Réglages.
+    /// submerger l'utilisateur. Chacune commence par une bulle centrée qui présente l'écran dans son
+    /// ensemble, puis met ses contrôles en lumière un par un. Elles ne font qu'expliquer, sans demander de
+    /// créer quoi que ce soit : une première tentative (branche archive/first-run-tutorial) qui faisait
+    /// agir l'utilisateur à chaque étape s'était révélée trop fragile. Chaque page déclenche la sienne
+    /// (cf. CampaignPage, LibraryTrackPage, ImportExportPage, CampaignViewModel.Launch pour le mixeur) ;
+    /// une visite passée ou terminée ne revient plus, sauf via « Revoir » dans les Réglages.
     /// </summary>
     public class AppTourService
     {
@@ -19,8 +20,15 @@ namespace Resonance.Services
         // clé est portée par plusieurs éléments (gabarit de ligne, vue réutilisée), le registre du plugin
         // retient le dernier affiché sur la page courante.
         public const string CampaignRowKey = "Tour.CampaignRow";
+        public const string CampaignChevronKey = "Tour.CampaignChevron";
+        public const string CampaignHandleKey = "Tour.CampaignHandle";
+        public const string SessionRowKey = "Tour.SessionRow";
+        public const string SceneRowKey = "Tour.SceneRow";
         public const string SceneLaunchKey = "Tour.SceneLaunch";
-        public const string CampaignActionsKey = "Tour.CampaignActions";
+        public const string CampaignCreateKey = "Tour.CampaignCreate";
+        public const string CampaignEditKey = "Tour.CampaignEdit";
+        public const string CampaignDeleteKey = "Tour.CampaignDelete";
+
         public const string LibraryCategoryKey = "Tour.LibraryCategory";
         public const string LibraryManageCategoriesKey = "Tour.LibraryManageCategories";
         public const string LibraryTrackTileKey = "Tour.LibraryTrackTile";
@@ -31,11 +39,13 @@ namespace Resonance.Services
         public const string LibraryEditKey = "Tour.LibraryEdit";
         public const string LibraryDeleteKey = "Tour.LibraryDelete";
         public const string LibraryImportKey = "Tour.LibraryImport";
+
         public const string MixerSceneSelectorKey = "Tour.MixerSceneSelector";
         public const string MixerGlobalKey = "Tour.MixerGlobal";
         public const string MixerFreeformKey = "Tour.MixerFreeform";
         public const string MixerAddChannelKey = "Tour.MixerAddChannel";
         public const string MixerChannelKey = "Tour.MixerChannel";
+        public const string MixerChannelBackgroundKey = "Tour.MixerChannelBackground";
         public const string MixerChannelPlayKey = "Tour.MixerChannelPlay";
         public const string MixerChannelStopKey = "Tour.MixerChannelStop";
         public const string MixerChannelVolumeKey = "Tour.MixerChannelVolume";
@@ -43,10 +53,21 @@ namespace Resonance.Services
         public const string MixerChannelSettingsKey = "Tour.MixerChannelSettings";
         public const string MixerChannelRemoveKey = "Tour.MixerChannelRemove";
         public const string MixerChannelHandleKey = "Tour.MixerChannelHandle";
+        public const string ChannelSettingsVolumeKey = "Tour.ChannelSettingsVolume";
+        public const string ChannelSettingsLoopKey = "Tour.ChannelSettingsLoop";
+        public const string ChannelSettingsFadeInKey = "Tour.ChannelSettingsFadeIn";
+        public const string ChannelSettingsFadeOutKey = "Tour.ChannelSettingsFadeOut";
+        public const string ChannelSettingsAutoPlayKey = "Tour.ChannelSettingsAutoPlay";
+
+        public const string ImportExportLevelKey = "Tour.ImportExportLevel";
+        public const string ImportExportCampaignKey = "Tour.ImportExportCampaign";
+        public const string ImportExportExportKey = "Tour.ImportExportExport";
+        public const string ImportExportImportKey = "Tour.ImportExportImport";
 
         private const string CampaignsTourKey = "resonance-campaigns";
         private const string LibraryTourKey = "resonance-library";
         private const string MixerTourKey = "resonance-mixer";
+        private const string ImportExportTourKey = "resonance-import-export";
 
         // Seules plateformes où le plugin sait lire la position d'un contrôle à l'écran (cf.
         // OnboardingBoundsExtensions) : ailleurs, chaque étape attendrait 10 s pour rien.
@@ -59,9 +80,14 @@ namespace Resonance.Services
         private readonly OnboardingCoordinator _coordinator = new();
         private readonly ILibraryDataService _libraryDataService;
 
+        // Action à défaire si la visite s'arrête pendant qu'un dialogue ouvert par elle est affiché
+        // (Passer, ou fin de visite) - cf. StartMixerTourAsync.
+        private Func<Task>? _pendingCleanup;
+
         public AppTourService(ILibraryDataService libraryDataService)
         {
             _libraryDataService = libraryDataService;
+            _coordinator.TourEnded += async (_, _) => await RunPendingCleanupAsync();
         }
 
         private static LocalizationService Loc => LocalizationService.Instance;
@@ -69,25 +95,36 @@ namespace Resonance.Services
         public bool IsCampaignsTourPending => IsPending(CampaignsTourKey);
         public bool IsLibraryTourPending => IsPending(LibraryTourKey);
         public bool IsMixerTourPending => IsPending(MixerTourKey);
+        public bool IsImportExportTourPending => IsPending(ImportExportTourKey);
 
         /// <summary>Fait revenir toutes les visites, chacune à la prochaine arrivée sur son écran.</summary>
         public void ResetAll()
         {
-            foreach (var key in new[] { CampaignsTourKey, LibraryTourKey, MixerTourKey })
+            foreach (var key in new[] { CampaignsTourKey, LibraryTourKey, MixerTourKey, ImportExportTourKey })
                 OnboardingCompletionStore.SetCompleted(key, false);
         }
 
-        /// <param name="includeSceneStep">Faux si aucune scène n'a pu être dépliée : le plugin
-        /// attendrait sinon 10 s une cible absente avant d'afficher quoi que ce soit.</param>
-        public Task StartCampaignsTourAsync(bool includeSceneStep)
+        /// <param name="hasScene">Faux si aucune scène n'a pu être dépliée : les étapes chapitre, scène
+        /// et Lancer sont alors sautées (le plugin attendrait sinon 10 s une cible absente).</param>
+        public Task StartCampaignsTourAsync(bool hasScene)
         {
             var builder = OnboardingTourBuilder.Create(CampaignsTourKey)
-                .AddStep(Step(CampaignRowKey, "TourCampaignTitle", "TourCampaignBody"));
-            if (includeSceneStep)
-                builder.AddStep(Step(SceneLaunchKey, "TourLaunchTitle", "TourLaunchBody"));
-            builder.AddStep(Step(CampaignActionsKey, "TourActionsTitle", "TourActionsBody"));
+                .AddStep(Intro("TourCampaignIntroTitle", "TourCampaignIntroBody"))
+                .AddStep(Step(CampaignRowKey, "TourCampaignTitle", "TourCampaignBody"))
+                .AddStep(Step(CampaignChevronKey, "TourChevronTitle", "TourChevronBody"))
+                .AddStep(Step(CampaignHandleKey, "TourCampaignHandleTitle", "TourCampaignHandleBody"));
+            if (hasScene)
+            {
+                builder.AddStep(Step(SessionRowKey, "TourSessionTitle", "TourSessionBody"))
+                    .AddStep(Step(SceneRowKey, "TourSceneTitle", "TourSceneBody"))
+                    .AddStep(Step(SceneLaunchKey, "TourLaunchTitle", "TourLaunchBody"));
+            }
 
-            return StartAsync(builder.Build());
+            return StartAsync(builder
+                .AddStep(Step(CampaignCreateKey, "TourCreateTitle", "TourCreateBody"))
+                .AddStep(Step(CampaignEditKey, "TourEditTitle", "TourEditBody"))
+                .AddStep(Step(CampaignDeleteKey, "TourDeleteTitle", "TourDeleteBody"))
+                .Build());
         }
 
         /// <param name="hasTracks">Faux sur une Bibliothèque vide : les étapes sur la tuile d'une piste
@@ -95,6 +132,7 @@ namespace Resonance.Services
         public Task StartLibraryTourAsync(bool hasTracks)
         {
             var builder = OnboardingTourBuilder.Create(LibraryTourKey)
+                .AddStep(Intro("TourLibraryIntroTitle", "TourLibraryIntroBody"))
                 .AddStep(Step(LibraryCategoryKey, "TourLibraryCategoryTitle", "TourLibraryCategoryBody"))
                 .AddStep(Step(LibraryManageCategoriesKey, "TourLibraryManageTitle", "TourLibraryManageBody"));
             if (hasTracks)
@@ -115,10 +153,13 @@ namespace Resonance.Services
 
         /// <summary>
         /// Visite du mixeur, adaptée au contenu de la scène lancée : avec des canaux, elle montre la
-        /// tranche entière d'un canal puis chacun de ses contrôles ; sans canal, l'étape « Ajouter un canal » explique quoi faire selon que la
-        /// Bibliothèque contient déjà des pistes ou non.
+        /// tranche entière d'un canal, son fond, chacun de ses contrôles, puis ouvre le dialogue de
+        /// réglages du canal pour en détailler les options ; sans canal, l'étape « Ajouter un canal »
+        /// explique quoi faire selon que la Bibliothèque contient déjà des pistes ou non.
         /// </summary>
-        public async Task StartMixerTourAsync(bool hasChannels)
+        /// <param name="openChannelSettings">Ouvre le dialogue de réglages d'un canal (sans l'attendre).</param>
+        /// <param name="closeChannelSettings">Referme ce dialogue, sans enregistrer.</param>
+        public async Task StartMixerTourAsync(bool hasChannels, Func<Task> openChannelSettings, Func<Task> closeChannelSettings)
         {
             var libraryHasTracks = hasChannels
                 || (await _libraryDataService.GetItemIdsAsync(typeof(Models.Library.Track), null)).Count > 0;
@@ -127,6 +168,7 @@ namespace Resonance.Services
                 : "TourMixerAddNoTracksBody";
 
             var builder = OnboardingTourBuilder.Create(MixerTourKey)
+                .AddStep(Intro("TourMixerIntroTitle", "TourMixerIntroBody"))
                 .AddStep(Step(MixerSceneSelectorKey, "TourMixerSceneTitle", "TourMixerSceneBody"))
                 .AddStep(Step(MixerGlobalKey, "TourMixerGlobalTitle", "TourMixerGlobalBody"))
                 .AddStep(Step(MixerFreeformKey, "TourMixerFreeformTitle", "TourMixerFreeformBody"))
@@ -134,16 +176,50 @@ namespace Resonance.Services
             if (hasChannels)
             {
                 builder.AddStep(Step(MixerChannelKey, "TourMixerChannelTitle", "TourMixerChannelBody"))
+                    .AddStep(Step(MixerChannelBackgroundKey, "TourMixerChannelBackgroundTitle", "TourMixerChannelBackgroundBody"))
                     .AddStep(Step(MixerChannelPlayKey, "TourMixerChannelPlayTitle", "TourMixerChannelPlayBody"))
                     .AddStep(Step(MixerChannelStopKey, "TourMixerChannelStopTitle", "TourMixerChannelStopBody"))
                     .AddStep(Step(MixerChannelVolumeKey, "TourMixerChannelVolumeTitle", "TourMixerChannelVolumeBody"))
                     .AddStep(Step(MixerChannelTrackKey, "TourMixerChannelTrackTitle", "TourMixerChannelTrackBody"))
                     .AddStep(Step(MixerChannelSettingsKey, "TourMixerChannelSettingsTitle", "TourMixerChannelSettingsBody"))
-                    .AddStep(Step(MixerChannelRemoveKey, "TourMixerChannelRemoveTitle", "TourMixerChannelRemoveBody"))
+                    .AddStep(Step(ChannelSettingsVolumeKey, "TourSettingsVolumeTitle", "TourSettingsVolumeBody") with
+                    {
+                        BeforeShow = async () =>
+                        {
+                            await openChannelSettings();
+                            _pendingCleanup = closeChannelSettings;
+                        }
+                    })
+                    .AddStep(Step(ChannelSettingsLoopKey, "TourSettingsLoopTitle", "TourSettingsLoopBody"))
+                    .AddStep(Step(ChannelSettingsFadeInKey, "TourSettingsFadeInTitle", "TourSettingsFadeInBody"))
+                    .AddStep(Step(ChannelSettingsFadeOutKey, "TourSettingsFadeOutTitle", "TourSettingsFadeOutBody"))
+                    .AddStep(Step(ChannelSettingsAutoPlayKey, "TourSettingsAutoPlayTitle", "TourSettingsAutoPlayBody"))
+                    .AddStep(Step(MixerChannelRemoveKey, "TourMixerChannelRemoveTitle", "TourMixerChannelRemoveBody") with
+                    {
+                        BeforeShow = RunPendingCleanupAsync
+                    })
                     .AddStep(Step(MixerChannelHandleKey, "TourMixerChannelHandleTitle", "TourMixerChannelHandleBody"));
             }
 
             await StartAsync(builder.Build());
+        }
+
+        public Task StartImportExportTourAsync() => StartAsync(OnboardingTourBuilder.Create(ImportExportTourKey)
+            .AddStep(Intro("TourImportExportIntroTitle", "TourImportExportIntroBody"))
+            .AddStep(Step(ImportExportLevelKey, "TourExportLevelTitle", "TourExportLevelBody"))
+            .AddStep(Step(ImportExportCampaignKey, "TourExportCampaignTitle", "TourExportCampaignBody"))
+            .AddStep(Step(ImportExportExportKey, "TourExportTitle", "TourExportBody"))
+            .AddStep(Step(ImportExportImportKey, "TourImportTitle", "TourImportBody"))
+            .Build());
+
+        private async Task RunPendingCleanupAsync()
+        {
+            var cleanup = _pendingCleanup;
+            _pendingCleanup = null;
+            if (cleanup == null) return;
+
+            try { await cleanup(); }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[Tour] {ex}"); }
         }
 
         private static bool IsPending(string tourKey) => IsSupported && !OnboardingCompletionStore.IsCompleted(tourKey);
@@ -154,6 +230,9 @@ namespace Resonance.Services
             Title = Loc[titleKey],
             Description = Loc[bodyKey]
         };
+
+        // Bulle centrée, sans projecteur : présente l'écran avant d'en détailler les contrôles.
+        private static OnboardingStep Intro(string titleKey, string bodyKey) => Step(string.Empty, titleKey, bodyKey);
 
         // Sans effet si une autre visite est déjà en cours : celle-ci reste en attente et reviendra à la
         // prochaine arrivée sur son écran.
