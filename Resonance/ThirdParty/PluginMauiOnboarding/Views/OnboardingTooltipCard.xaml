@@ -25,19 +25,22 @@
         <Border.StrokeShape>
             <RoundRectangle CornerRadius="14" />
         </Border.StrokeShape>
+        <!-- Ajout Resonance : ombre sombre discrète au lieu du halo blanc d'origine, et textes/boutons
+             aux couleurs du thème de l'appli (AppText, AppTextMuted, AppAccent) au lieu du blanc fixe -
+             le fond de la carte suit lui aussi le thème (AppSurface, cf. AppTourService). -->
         <Border.Shadow>
-            <Shadow Brush="#FFFFFF" Offset="0,4" Radius="14" Opacity="0.3" />
+            <Shadow Brush="#000000" Offset="0,4" Radius="14" Opacity="0.35" />
         </Border.Shadow>
 
         <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*">
             <Label Text="{Binding Source={x:Reference this}, Path=Title}"
-                   FontSize="16" FontAttributes="Bold"
-                   TextColor="White"
+                   FontSize="16" FontFamily="OpenSansSemibold"
+                   TextColor="{DynamicResource AppText}"
                    AutomationId="OnboardingTitleLabel" />
 
             <Label Grid.Row="1" Text="{Binding Source={x:Reference this}, Path=Description}"
                    FontSize="14" LineBreakMode="WordWrap"
-                   TextColor="#CCCCCC"
+                   TextColor="{DynamicResource AppTextMuted}"
                    AutomationId="OnboardingDescriptionLabel" />
 
             <!-- Hosts the step's optional Content (see OnboardingStep.Content) — collapsed (no reserved
@@ -57,7 +60,7 @@
                 <Button Grid.Column="0" Text="{Binding Source={x:Reference this}, Path=SkipText}"
                         IsVisible="{Binding Source={x:Reference this}, Path=IsLastStep, Converter={StaticResource InvertedBoolConverter}}"
                         HorizontalOptions="Start" BackgroundColor="Transparent"
-                        TextColor="#99FFFFFF"
+                        TextColor="{DynamicResource AppTextMuted}"
                         FontSize="13" Margin="0" Padding="0"
                         Command="{Binding Source={x:Reference this}, Path=SkipCommand}"
                         AutomationId="OnboardingSkipButton" />
@@ -65,7 +68,7 @@
                 <Button Grid.Column="1" Text="{Binding Source={x:Reference this}, Path=NextText}"
                         HorizontalOptions="End" FontSize="13"
                         FontAttributes="Bold" BackgroundColor="Transparent"
-                        TextColor="White"
+                        TextColor="{DynamicResource AppAccent}"
                         Command="{Binding Source={x:Reference this}, Path=NextCommand}"
                         AutomationId="OnboardingNextButton" Margin="0"/>
             </Grid>

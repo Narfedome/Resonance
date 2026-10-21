@@ -88,6 +88,14 @@ public sealed class OnboardingCoordinator
         set => _host.TooltipBorderColor = value;
     }
 
+    /// <summary>Ajout Resonance : couleur de la lueur autour du trou et de la flèche (blanc translucide par
+    /// défaut). Null laisse ce défaut. Réglable à tout moment, même pendant une visite.</summary>
+    public Color? GlowColor
+    {
+        get => _host.GlowColor;
+        set => _host.GlowColor = value;
+    }
+
     /// <summary>No-ops if a tour is already active or this one's already been completed.</summary>
     public async Task StartTourIfNotCompletedAsync(OnboardingTour tour, CancellationToken ct = default)
     {

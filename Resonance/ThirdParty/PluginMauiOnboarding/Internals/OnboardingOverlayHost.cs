@@ -27,6 +27,7 @@ public sealed class OnboardingOverlayHost
     private Color? _scrimColor;
     private Color? _tooltipBackgroundColor;
     private Color? _tooltipBorderColor;
+    private Color? _glowColor;
 
 #if IOS
     // iOS-only: Shell.Current.Navigation.PushModalAsync was confirmed (via extensive on-device
@@ -86,6 +87,19 @@ public sealed class OnboardingOverlayHost
         }
     }
 
+    /// <summary>Ajout Resonance : forwarded to <see cref="OnboardingOverlayView.GlowColor"/> — same
+    /// lazy-page caveat as <see cref="ScrimColor"/>.</summary>
+    public Color? GlowColor
+    {
+        get => _glowColor;
+        set
+        {
+            _glowColor = value;
+            if (_page is not null)
+                _page.Overlay.GlowColor = value;
+        }
+    }
+
     /// <exception cref="InvalidOperationException"><see cref="Shell.Current"/> is null. This library
     /// requires a Shell-based host app (see the class doc) - failing loudly here beats silently returning
     /// with the overlay never actually shown.</exception>
@@ -100,6 +114,7 @@ public sealed class OnboardingOverlayHost
                 _page.Overlay.ScrimColor = _scrimColor;
                 _page.Overlay.TooltipBackgroundColor = _tooltipBackgroundColor;
                 _page.Overlay.TooltipBorderColor = _tooltipBorderColor;
+                _page.Overlay.GlowColor = _glowColor;
                 _page.Overlay.NextRequested += (_, _) => NextRequested?.Invoke(this, EventArgs.Empty);
                 _page.Overlay.SkipRequested += (_, _) => SkipRequested?.Invoke(this, EventArgs.Empty);
             }

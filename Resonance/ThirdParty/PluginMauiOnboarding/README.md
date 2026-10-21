@@ -19,6 +19,11 @@ Resonance est aussi publiée sous Windows.
   modale commence sous la barre de titre) avant de dessiner le trou (`ToOverlayCoordinatesAsync`).
 - `Views/OnboardingTooltipCard.xaml.cs` : libellés Suivant / Terminer / Passer réglables
   (`NextLabel`, `DoneLabel`, `SkipLabel`) au lieu de l'anglais codé en dur, pour la localisation.
+- `OnboardingCoordinator.cs`, `Internals/OnboardingOverlayHost.cs`, `Views/OnboardingOverlayView.xaml.cs` :
+  propriété `GlowColor` (lueur autour du trou et flèche), transmise jusqu'au dessin comme `ScrimColor`.
+- `Views/OnboardingTooltipCard.xaml` : textes et boutons aux couleurs du thème de Resonance
+  (`AppText`, `AppTextMuted`, `AppAccent`, police OpenSans), ombre sombre au lieu du halo blanc. Cette
+  carte dépend donc désormais de ces clés de ressources de l'appli.
 
 Garder ce fichier à jour à chaque nouvelle modification, pour pouvoir reporter facilement une
 version plus récente du projet d'origine.

@@ -41,6 +41,20 @@ public partial class OnboardingOverlayView : ContentView
     private Color? _tooltipBackgroundColor;
     private Color? _tooltipBorderColor;
 
+    /// <summary>Ajout Resonance : couleur de la lueur et de la flèche dessinées par
+    /// <see cref="SpotlightDrawable"/>. Null garde son blanc translucide par défaut.</summary>
+    public Color? GlowColor
+    {
+        get => _drawable.GlowColor;
+        set
+        {
+            _drawable.GlowColor = value ?? DefaultGlowColor;
+            ScrimCanvas.Invalidate();
+        }
+    }
+
+    private static readonly Color DefaultGlowColor = Colors.White.WithAlpha(0.65f);
+
     public event EventHandler? NextRequested;
     public event EventHandler? SkipRequested;
 

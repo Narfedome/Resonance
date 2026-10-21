@@ -57,11 +57,28 @@ namespace Resonance.Services
             OnboardingTooltipCard.NextLabel = Loc["TourNext"];
             OnboardingTooltipCard.DoneLabel = Loc["TourDone"];
             OnboardingTooltipCard.SkipLabel = Loc["TourSkip"];
-            _coordinator.TooltipBorderColor = (Color)Application.Current!.Resources["AppAccent"];
+            ApplyThemeColors();
 
             // Replay plutôt que StartTourIfNotCompleted : c'est Resonance qui décide quand la proposer
             // (fin d'accueil, Réglages), pas l'état "déjà vue" mémorisé par le plugin.
             await _coordinator.ReplayTourAsync(BuildTour(includeSceneStep));
+        }
+
+        // Relu à chaque lancement : la palette et le thème clair/sombre ont pu changer entre deux visites.
+        // La bulle prend la surface et l'accent de la palette ; le voile reprend le fond de l'appli sur
+        // un thème sombre, mais reste noir sur un thème clair, où un voile clair n'assombrirait rien.
+        private void ApplyThemeColors()
+        {
+            var resources = Application.Current!.Resources;
+            var accent = (Color)resources["AppAccent"];
+            var background = (Color)resources["AppBackground"];
+
+            _coordinator.TooltipBackgroundColor = (Color)resources["AppSurface"];
+            _coordinator.TooltipBorderColor = accent;
+            _coordinator.GlowColor = accent.WithAlpha(0.8f);
+            _coordinator.ScrimColor = background.GetLuminosity() < 0.5f
+                ? background.WithAlpha(0.85f)
+                : Colors.Black.WithAlpha(0.6f);
         }
 
         private static OnboardingTour BuildTour(bool includeSceneStep)
