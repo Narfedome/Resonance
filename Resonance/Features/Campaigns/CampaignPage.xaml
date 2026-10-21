@@ -6,6 +6,8 @@
              xmlns:icons="clr-namespace:Resonance.Resources.Icons"
              xmlns:loc="clr-namespace:Resonance.Extensions"
              xmlns:components="clr-namespace:Resonance.Components"
+             xmlns:services="clr-namespace:Resonance.Services"
+             xmlns:onboarding="clr-namespace:Plugin.Maui.Onboarding"
              x:Class="Resonance.Features.Campaigns.CampaignPage"
              x:DataType="local:CampaignViewModel">
 
@@ -109,6 +111,10 @@
                         </DataTrigger>
                     </Grid.Triggers>
                 <Border Style="{StaticResource ExpandableRowBorderStyle}">
+                    <!-- Cible de la visite guidée (cf. AppTourService.CampaignRowKey). -->
+                    <Border.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.CampaignRowKey}"/>
+                    </Border.Behaviors>
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer
                             Command="{Binding Source={RelativeSource AncestorType={x:Type local:CampaignViewModel}}, Path=OpenCampaignCommand}"
@@ -217,6 +223,9 @@
                     <Label Grid.Column="4" Text="{Binding Scene.Title}" VerticalOptions="Center"
                            TextColor="{DynamicResource AppTextMuted}" Style="{StaticResource TruncatedLabelStyle}"/>
                     <Grid Grid.Column="5">
+                        <Grid.Behaviors>
+                            <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.SceneLaunchKey}"/>
+                        </Grid.Behaviors>
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer
                                 Command="{Binding Source={RelativeSource AncestorType={x:Type local:CampaignViewModel}}, Path=LaunchCommand}"
@@ -277,6 +286,9 @@
         </Grid>
 
         <HorizontalStackLayout Grid.Row="1" Spacing="10" HorizontalOptions="Center" Margin="0,8">
+            <HorizontalStackLayout.Behaviors>
+                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.CampaignActionsKey}"/>
+            </HorizontalStackLayout.Behaviors>
             <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Plus}"
                                          Command="{Binding CreateCommand}"
                                          Tooltip="{loc:Loc DialogCreateItem}"/>

@@ -1,10 +1,12 @@
 using CommunityToolkit.Maui.Extensions;
+using Resonance.Services;
 
 namespace Resonance.Features.Campaigns;
 
 public partial class CampaignPage : ContentPage
 {
     private readonly CampaignViewModel _vm;
+    private readonly AppTourService _tourService;
     private bool _initialized;
 
     // Cf. AudioMixerPage pour le principe général (poignée dédiée, DropCompleted pas fiable sur
@@ -16,10 +18,11 @@ public partial class CampaignPage : ContentPage
     private static Color AccentColor => (Color)Application.Current!.Resources["AppAccent"];
     private static Color HighlightBackgroundColor => AccentColor.WithAlpha(0.12f);
 
-    public CampaignPage(CampaignViewModel vm)
+    public CampaignPage(CampaignViewModel vm, AppTourService tourService)
     {
         InitializeComponent();
         _vm = vm;
+        _tourService = tourService;
         BindingContext = vm;
     }
 
@@ -31,11 +34,30 @@ public partial class CampaignPage : ContentPage
         // jour Rows localement (Create/Rename/Delete) — pas besoin de tout recharger. De même, revenir
         // du Mixer (changement d'onglet) ne doit pas réinitialiser l'arborescence dépliée : seul le
         // tout premier affichage charge les campagnes.
-        if (args.WasPreviousPageACommunityToolkitPopupPage() || _initialized)
+        if (args.WasPreviousPageACommunityToolkitPopupPage())
             return;
 
-        _initialized = true;
-        await _vm.InitializeAsync();
+        if (!_initialized)
+        {
+            _initialized = true;
+            await _vm.InitializeAsync();
+        }
+
+        // Visite guidée demandée en fin d'accueil ou depuis les Réglages : lancée ici, une fois la liste
+        // chargée, pour pouvoir d'abord déplier la campagne d'exemple.
+        if (_tourService.ConsumeRequest())
+        {
+            try
+            {
+                var hasScene = await _vm.ExpandLatestCampaignForTourAsync();
+                await _tourService.StartAsync(hasScene);
+            }
+            catch (Exception ex)
+            {
+                // Une visite qui échoue ne doit jamais bloquer l'appli : on la perd, sans plus.
+                System.Diagnostics.Debug.WriteLine($"[Tour] {ex}");
+            }
+        }
     }
 
     // Cf. SceneDataService.ReorderAsync : ne stocke que l'item glissé, pas un index, pour rester

@@ -17,6 +17,7 @@ namespace Resonance.Features.Settings
         private readonly AudioPlayerService _audioPlayerService;
         private readonly AudioMixerViewModel _audioMixerViewModel;
         private readonly SamplePackService _samplePackService;
+        private readonly AppTourService _tourService;
 
         // Windows exige 4 segments (Major.Minor.Build.Revision) pour l'identité de package - le 4e
         // (Revision) vaut toujours 0 (exigence du Microsoft Store), sans intérêt pour l'utilisateur, on l'aligne sur
@@ -180,6 +181,14 @@ namespace Resonance.Features.Settings
             }
         }
 
+        // Lancée par CampaignPage à son prochain affichage (cf. AppTourService).
+        [RelayCommand]
+        public async Task StartTour()
+        {
+            _tourService.Request();
+            await Shell.Current.GoToAsync("//CampaignPage");
+        }
+
         // Nouvelle instance de l'accueil (Transient) : repart de la première étape. Son dernier bouton
         // ramène sur l'AppShell (singleton), resté tel quel entre-temps.
         [RelayCommand]
@@ -203,12 +212,13 @@ namespace Resonance.Features.Settings
         private string selectedThemeOption;
 
         public SettingsViewModel(IStorageService storageService, AudioPlayerService audioPlayerService, AudioMixerViewModel audioMixerViewModel,
-            SamplePackService samplePackService)
+            SamplePackService samplePackService, AppTourService tourService)
         {
             _storageService = storageService;
             _audioPlayerService = audioPlayerService;
             _audioMixerViewModel = audioMixerViewModel;
             _samplePackService = samplePackService;
+            _tourService = tourService;
             selectedLanguage = Loc.Language;
             selectedPalette  = _theme.Palette;
             RebuildThemeOptions();

@@ -486,6 +486,45 @@
   <data name="SettingsWelcomeButton" xml:space="preserve">
     <value>Revoir</value>
   </data>
+  <data name="TourNext" xml:space="preserve">
+    <value>Suivant</value>
+  </data>
+  <data name="TourDone" xml:space="preserve">
+    <value>Terminer</value>
+  </data>
+  <data name="TourSkip" xml:space="preserve">
+    <value>Passer</value>
+  </data>
+  <data name="TourCampaignTitle" xml:space="preserve">
+    <value>Votre campagne d'exemple</value>
+  </data>
+  <data name="TourCampaignBody" xml:space="preserve">
+    <value>Une campagne se découpe en chapitres, et chaque chapitre en scènes. Touchez une ligne pour la déplier.</value>
+  </data>
+  <data name="TourLaunchTitle" xml:space="preserve">
+    <value>Lancez une scène</value>
+  </data>
+  <data name="TourLaunchBody" xml:space="preserve">
+    <value>« Lancer » ouvre la scène dans le mixeur, avec ses pistes et leurs volumes.</value>
+  </data>
+  <data name="TourActionsTitle" xml:space="preserve">
+    <value>Créez les vôtres</value>
+  </data>
+  <data name="TourActionsBody" xml:space="preserve">
+    <value>Ajoutez une campagne, un chapitre ou une scène, puis renommez ou supprimez la ligne sélectionnée.</value>
+  </data>
+  <data name="TourLibraryTitle" xml:space="preserve">
+    <value>Vos sons</value>
+  </data>
+  <data name="TourLibraryBody" xml:space="preserve">
+    <value>Importez ici vos musiques et ambiances, une par une ou tout un dossier, pour les utiliser dans vos scènes.</value>
+  </data>
+  <data name="SettingsTourDesc" xml:space="preserve">
+    <value>Visite guidée</value>
+  </data>
+  <data name="SettingsTourButton" xml:space="preserve">
+    <value>Démarrer</value>
+  </data>
   <data name="ErrorTitle" xml:space="preserve">
     <value>Erreur</value>
   </data>

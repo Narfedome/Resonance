@@ -102,6 +102,25 @@ namespace Resonance.Features.Campaigns
             if (!row.IsExpanded) await ExpandSessionAsync(row);
         }
 
+        /// <summary>
+        /// Prépare la visite guidée (cf. AppTourService) : déplie la campagne la plus récente - la
+        /// campagne d'exemple, tout juste importée - et son premier chapitre, pour qu'un bouton Lancer
+        /// soit à l'écran. Retourne faux si aucune scène n'a pu être affichée.
+        /// </summary>
+        public async Task<bool> ExpandLatestCampaignForTourAsync()
+        {
+            var campaignRow = Rows.OfType<CampaignRow>().MaxBy(r => r.Campaign.Id);
+            if (campaignRow == null) return false;
+            await OpenCampaign(campaignRow);
+
+            // Seule la campagne dépliée a ses chapitres dans Rows (une branche par niveau).
+            var sessionRow = Rows.OfType<SessionRow>().FirstOrDefault();
+            if (sessionRow == null) return false;
+            await OpenSession(sessionRow);
+
+            return Rows.OfType<SceneRow>().Any();
+        }
+
         [RelayCommand]
         public async Task ToggleCampaign(CampaignRow row)
         {

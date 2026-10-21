@@ -486,6 +486,45 @@
   <data name="SettingsWelcomeButton" xml:space="preserve">
     <value>Replay</value>
   </data>
+  <data name="TourNext" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="TourDone" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="TourSkip" xml:space="preserve">
+    <value>Skip</value>
+  </data>
+  <data name="TourCampaignTitle" xml:space="preserve">
+    <value>Your sample campaign</value>
+  </data>
+  <data name="TourCampaignBody" xml:space="preserve">
+    <value>A campaign is split into chapters, and each chapter into scenes. Tap a row to expand it.</value>
+  </data>
+  <data name="TourLaunchTitle" xml:space="preserve">
+    <value>Launch a scene</value>
+  </data>
+  <data name="TourLaunchBody" xml:space="preserve">
+    <value>“Launch” opens the scene in the mixer, with its tracks and their volumes.</value>
+  </data>
+  <data name="TourActionsTitle" xml:space="preserve">
+    <value>Create your own</value>
+  </data>
+  <data name="TourActionsBody" xml:space="preserve">
+    <value>Add a campaign, chapter, or scene, then rename or delete the selected row.</value>
+  </data>
+  <data name="TourLibraryTitle" xml:space="preserve">
+    <value>Your sounds</value>
+  </data>
+  <data name="TourLibraryBody" xml:space="preserve">
+    <value>Import your music and ambiences here, one at a time or a whole folder, to use them in your scenes.</value>
+  </data>
+  <data name="SettingsTourDesc" xml:space="preserve">
+    <value>Guided tour</value>
+  </data>
+  <data name="SettingsTourButton" xml:space="preserve">
+    <value>Start</value>
+  </data>
   <data name="ErrorTitle" xml:space="preserve">
     <value>Error</value>
   </data>

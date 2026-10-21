@@ -6,6 +6,8 @@
              xmlns:icons="clr-namespace:Resonance.Resources.Icons"
              xmlns:loc="clr-namespace:Resonance.Extensions"
              xmlns:components="clr-namespace:Resonance.Components"
+             xmlns:services="clr-namespace:Resonance.Services"
+             xmlns:onboarding="clr-namespace:Plugin.Maui.Onboarding"
              x:Name="root"      >
     <Grid Margin="5">
         <Grid.RowDefinitions>
@@ -163,6 +165,11 @@
         <VerticalStackLayout Grid.Row="2" IsVisible="{Binding Source={x:Reference root}, Path=IsCrud}">
             <HorizontalStackLayout Spacing="10" HorizontalOptions="Center" Margin="8,8"
                                    IsVisible="{Binding Loading.IsLoading, Converter={StaticResource InverseBoolConverter}}">
+                <!-- Cible de la visite guidée : ce bloc n'est visible qu'en mode CRUD (onglet
+                     Bibliothèque), jamais dans les sélecteurs de pistes qui réutilisent cette vue. -->
+                <HorizontalStackLayout.Behaviors>
+                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryActionsKey}"/>
+                </HorizontalStackLayout.Behaviors>
                 <components:FaIconButtonView Icon="{x:Static icons:SolidFont.CheckDouble}"
                                              Command="{Binding SelectAllCommand}"
                                              Tooltip="{loc:Loc LibSelectAll}"

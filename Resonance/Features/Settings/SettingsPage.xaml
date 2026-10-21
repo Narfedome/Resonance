@@ -155,6 +155,23 @@
                     <BoxView HeightRequest="1" Color="{DynamicResource AppBorder}"/>
 
                     <Grid ColumnDefinitions="*,auto">
+                        <Label Grid.Column="0" Text="{loc:Loc SettingsTourDesc}"
+                               VerticalOptions="Center" FontSize="{OnIdiom Default=13, Desktop=11}"
+                               TextColor="{DynamicResource AppTextMuted}"/>
+                        <Button Grid.Column="1"
+                                Text="{loc:Loc SettingsTourButton}"
+                                Command="{Binding StartTourCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{DynamicResource AppAccent}"
+                                FontSize="{OnIdiom Default=15, Desktop=13}"
+                                Padding="8,4"
+                                MinimumHeightRequest="{DynamicResource AppInlineButtonMinSize}"
+                                MinimumWidthRequest="{DynamicResource AppInlineButtonMinSize}"/>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{DynamicResource AppBorder}"/>
+
+                    <Grid ColumnDefinitions="*,auto">
                         <Label Grid.Column="0" Text="{loc:Loc SettingsWelcomeDesc}"
                                VerticalOptions="Center" FontSize="{OnIdiom Default=13, Desktop=11}"
                                TextColor="{DynamicResource AppTextMuted}"/>
