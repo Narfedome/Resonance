@@ -185,15 +185,16 @@ public partial class OnboardingOverlayView : ContentView
     }
 
     /// <summary>
-    /// Ajout Resonance : sous Windows, la page modale qui porte cet overlay commence sous la barre de
-    /// titre de la fenêtre, alors que la position des cibles est lue depuis la racine de la fenêtre (cf.
-    /// OnboardingBoundsExtensions) - sans cette correction, le trou était décalé vers le bas de la
-    /// hauteur de la barre de titre. On retranche donc l'origine de l'overlay lui-même, lue de la même
-    /// façon. Sans effet ailleurs (Android/iOS : overlay plein écran, origine en (0,0)).
+    /// Ajout Resonance : la page modale qui porte cet overlay ne commence pas toujours en haut de l'écran
+    /// - sous la barre de titre de la fenêtre sous Windows, sous la barre d'état sous Android (constaté
+    /// avec le Shell de Resonance, malgré SafeAreaEdges="None") - alors que la position des cibles est lue
+    /// depuis l'origine de l'écran/de la fenêtre (cf. OnboardingBoundsExtensions). Sans cette correction,
+    /// le trou était décalé vers le bas d'autant. On retranche donc l'origine de l'overlay lui-même, lue
+    /// de la même façon : sans effet quand l'overlay est réellement plein écran (origine en (0,0)).
     /// </summary>
     private async Task<SpotlightGeometry> ToOverlayCoordinatesAsync(SpotlightGeometry geometry)
     {
-#if WINDOWS
+#if WINDOWS || ANDROID || IOS
         Rect? own = this.GetAbsoluteBounds();
         for (int i = 0; i < 20 && own is null; i++)
         {

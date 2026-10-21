@@ -15,8 +15,9 @@ Resonance est aussi publiée sous Windows.
 
 - `Internals/OnboardingBoundsExtensions.cs` : lecture de la position à l'écran sous Windows
   (`TransformToVisual`), absente de l'original.
-- `Views/OnboardingOverlayView.xaml.cs` : sous Windows, retranche l'origine de l'overlay (la page
-  modale commence sous la barre de titre) avant de dessiner le trou (`ToOverlayCoordinatesAsync`).
+- `Views/OnboardingOverlayView.xaml.cs` : retranche l'origine de l'overlay avant de dessiner le trou
+  (`ToOverlayCoordinatesAsync`) - la page modale commence sous la barre de titre sous Windows, sous la
+  barre d'état sous Android, ce qui décalait le trou vers le bas.
 - `Internals/OnboardingTargetRegistry.cs` : plusieurs éléments par clé au lieu du seul dernier attaché ;
   `TryGet` préfère le plus récent visible sur la page affichée par le Shell (lignes de liste répétées,
   vue Bibliothèque réutilisée par les sélecteurs de pistes).
