@@ -28,6 +28,9 @@ Resonance est aussi publiée sous Windows.
   (`AppText`, `AppTextMuted`, police OpenSans) et boutons des popups de l'appli (Passer :
   `DialogSecondaryButtonStyle`, Suivant : style `Button` implicite), ombre sombre au lieu du halo
   blanc. Cette carte dépend donc désormais de ces ressources de l'appli.
+- `OnboardingStep.cs`, `OnboardingCoordinator.cs`, `Views/OnboardingOverlayView.xaml.cs` : étapes de
+  présentation sans cible (`TargetKey` vide : bulle centrée, sans trou), action `BeforeShow` lancée avant
+  une étape (ouvre un segment, comme `RequiredRoute`) et évènement `TourEnded` pour défaire ces actions.
 
 Garder ce fichier à jour à chaque nouvelle modification, pour pouvoir reporter facilement une
 version plus récente du projet d'origine.

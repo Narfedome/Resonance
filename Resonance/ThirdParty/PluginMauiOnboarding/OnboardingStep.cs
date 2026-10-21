@@ -6,8 +6,20 @@ namespace Plugin.Maui.Onboarding;
 /// </summary>
 public sealed record OnboardingStep
 {
-    /// <summary>Matches the <c>Key</c> an <see cref="OnboardingTargetBehavior"/> registered elsewhere in the UI.</summary>
+    /// <summary>Matches the <c>Key</c> an <see cref="OnboardingTargetBehavior"/> registered elsewhere in the UI.
+    /// Ajout Resonance : vide (<see cref="IsCentered"/>) pour une étape sans cible - bulle centrée, sans trou.</summary>
     public required string TargetKey { get; init; }
+
+    /// <summary>Ajout Resonance : étape de présentation, sans contrôle à mettre en lumière.</summary>
+    public bool IsCentered => string.IsNullOrEmpty(TargetKey);
+
+    /// <summary>
+    /// Ajout Resonance : action lancée avant de résoudre la cible de cette étape (ex. ouvrir un dialogue
+    /// dont on explique ensuite les contrôles, puis le refermer à l'étape d'après). Comme
+    /// <see cref="RequiredRoute"/>, elle ouvre un nouveau segment : l'overlay est masqué pendant qu'elle
+    /// s'exécute, pour qu'elle agisse sur la page réelle et non sous la page modale de la visite.
+    /// </summary>
+    public Func<Task>? BeforeShow { get; init; }
 
     public required string Title { get; init; }
 

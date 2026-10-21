@@ -120,7 +120,11 @@ public partial class OnboardingOverlayView : ContentView
     /// (see the comment below), rather than one shared instance being reparented across steps/replays.</summary>
     public async Task UpdateStepAsync(SpotlightGeometry geometry, string title, string description, bool isLastStep, Func<View>? content)
     {
-        geometry = await ToOverlayCoordinatesAsync(geometry);
+        // Ajout Resonance : étape de présentation (Rect vide, cf. OnboardingStep.IsCentered) - voile plein,
+        // sans trou ni flèche, bulle centrée.
+        bool centered = geometry.Bounds.Width <= 0 || geometry.Bounds.Height <= 0;
+        if (!centered)
+            geometry = await ToOverlayCoordinatesAsync(geometry);
         StartPulse();
 
         SpotlightGeometry from = _drawable.Geometry ?? geometry;
@@ -158,6 +162,18 @@ public partial class OnboardingOverlayView : ContentView
 
         _tooltipCard = card;
         RootGrid.Children.Add(card);
+
+        if (centered)
+        {
+            _drawable.Geometry = null;
+            _drawable.Arrow = null;
+            ScrimCanvas.Invalidate();
+            await CenterTooltipAsync(card);
+            await Task.WhenAll(
+                card.FadeToAsync(1, 180, Easing.CubicOut),
+                card.ScaleToAsync(1, 180, Easing.CubicOut));
+            return;
+        }
 
         await AnimateGeometryAsync(from, geometry);
         await PositionTooltipAsync(card, geometry.Bounds);
@@ -300,6 +316,16 @@ public partial class OnboardingOverlayView : ContentView
         Rect arrowBounds = OnboardingGeometryMath.ComputeArrowBounds(spotlight, tooltipBounds, placement, ArrowThickness, ArrowLength, TooltipCornerRadius, ArrowGap);
         _drawable.Arrow = (arrowBounds, OnboardingGeometryMath.GetArrowDirection(placement));
         ScrimCanvas.Invalidate();
+    }
+
+    /// <summary>Ajout Resonance : place la bulle au centre de l'overlay (étape de présentation).</summary>
+    private async Task CenterTooltipAsync(OnboardingTooltipCard card)
+    {
+        Size screen = await GetLaidOutSizeAsync();
+        double height = await WaitForFirstLayoutHeightAsync(card);
+        card.Margin = new Thickness(
+            Math.Max(0, (screen.Width - TooltipWidth) / 2),
+            Math.Max(0, (screen.Height - height) / 2), 0, 0);
     }
 
     /// <summary>Waits (briefly) for the first layout pass so Width/Height are populated on the very first step.</summary>

@@ -63,6 +63,10 @@ public sealed class OnboardingCoordinator
     /// </summary>
     public bool IsTourActive => _tour is not null;
 
+    /// <summary>Ajout Resonance : levé à la fin d'une visite (terminée, passée ou interrompue), une fois
+    /// l'overlay masqué - pour défaire ce qu'une <see cref="OnboardingStep.BeforeShow"/> a laissé ouvert.</summary>
+    public event EventHandler? TourEnded;
+
     /// <summary>Overrides the scrim's default color (`#B3000000`, or an <c>onboarding_scrim_light</c>/
     /// <c>onboarding_scrim_dark</c> app resource if defined). Null (the default) leaves those defaults in
     /// place. Can be set at any time, including mid-tour.</summary>
@@ -278,6 +282,7 @@ public sealed class OnboardingCoordinator
         _stepIndex = -1;
         _resolvedGeometries = [];
         _resolvedThroughExclusive = 0;
+        TourEnded?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -325,6 +330,8 @@ public sealed class OnboardingCoordinator
         OnboardingStep firstStep = tour.Steps[startIndex];
         if (firstStep.RequiredRoute is not null && Shell.Current is not null)
             await Shell.Current.GoToAsync(firstStep.RequiredRoute);
+        if (firstStep.BeforeShow is not null)
+            await firstStep.BeforeShow();
 
         int end = startIndex + 1;
         while (end < tour.Steps.Count && !IsSegmentStart(tour.Steps[end]))
@@ -349,6 +356,13 @@ public sealed class OnboardingCoordinator
     private async Task ResolveStepAsync(int index, CancellationToken ct)
     {
         OnboardingStep step = _tour!.Steps[index];
+        if (step.IsCentered)
+        {
+            // Ajout Resonance : rien à résoudre - Rect vide = bulle centrée (cf. OnboardingOverlayView).
+            _resolvedGeometries[index] = new SpotlightGeometry(Rect.Zero, step.Shape, 0);
+            return;
+        }
+
         Rect? bounds = await _locator.ResolveBoundsAsync(step.TargetKey, TargetResolveTimeout, ct);
         _resolvedGeometries[index] = bounds is { } b
             ? new SpotlightGeometry(Inflate(b, step.SpotlightPadding), step.Shape, step.CornerRadius)
@@ -356,7 +370,7 @@ public sealed class OnboardingCoordinator
     }
 
     /// <summary>A segment starts at step 0, or any step with a non-null <see cref="OnboardingStep.RequiredRoute"/>.</summary>
-    private static bool IsSegmentStart(OnboardingStep step) => step.RequiredRoute is not null;
+    private static bool IsSegmentStart(OnboardingStep step) => step.RequiredRoute is not null || step.BeforeShow is not null;
 
     // Routed through the public NextAsync/SkipAsync (not AdvanceAsync/EndTourAsync directly) so a tooltip
     // tap is serialized by _gate the same as any other entry point - see _gate's doc comment.
