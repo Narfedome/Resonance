@@ -432,8 +432,59 @@
   <data name="OnboardingLanguage" xml:space="preserve">
     <value>Language</value>
   </data>
-  <data name="OnboardingStart" xml:space="preserve">
-    <value>Get started</value>
+  <data name="OnboardingNext" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="OnboardingPrevious" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="OnboardingStructureTitle" xml:space="preserve">
+    <value>One campaign, many scenes</value>
+  </data>
+  <data name="OnboardingStructureBody" xml:space="preserve">
+    <value>Organize each campaign into chapters, and each chapter into scenes. A scene keeps its own tracks and their volumes.</value>
+  </data>
+  <data name="OnboardingPlayTitle" xml:space="preserve">
+    <value>Your sounds, ready to play</value>
+  </data>
+  <data name="OnboardingPlayBody" xml:space="preserve">
+    <value>Import your music and ambiences into the Library. Tap “Launch” on a scene to open its tracks in the mixer.</value>
+  </data>
+  <data name="OnboardingReadyTitle" xml:space="preserve">
+    <value>Your turn</value>
+  </data>
+  <data name="OnboardingLoadSample" xml:space="preserve">
+    <value>Load the sample campaign</value>
+  </data>
+  <data name="OnboardingLoadSampleDesc" xml:space="preserve">
+    <value>A short campaign with a tavern ambience, to try things right away.</value>
+  </data>
+  <data name="OnboardingStartEmpty" xml:space="preserve">
+    <value>Start from scratch</value>
+  </data>
+  <data name="SampleImportInProgress" xml:space="preserve">
+    <value>Adding the sample campaign</value>
+  </data>
+  <data name="SampleImportDone" xml:space="preserve">
+    <value>The sample campaign was added to your campaigns.</value>
+  </data>
+  <data name="SettingsHelpTitle" xml:space="preserve">
+    <value>Discover Resonance</value>
+  </data>
+  <data name="SettingsSampleDesc" xml:space="preserve">
+    <value>A ready-to-play campaign</value>
+  </data>
+  <data name="SettingsSampleButton" xml:space="preserve">
+    <value>Load</value>
+  </data>
+  <data name="SettingsSampleAlreadyImported" xml:space="preserve">
+    <value>The sample campaign is already loaded. Add a second copy?</value>
+  </data>
+  <data name="SettingsWelcomeDesc" xml:space="preserve">
+    <value>Welcome screen</value>
+  </data>
+  <data name="SettingsWelcomeButton" xml:space="preserve">
+    <value>Replay</value>
   </data>
   <data name="ErrorTitle" xml:space="preserve">
     <value>Error</value>
