@@ -15,6 +15,8 @@ Resonance est aussi publiée sous Windows.
 
 - `Internals/OnboardingBoundsExtensions.cs` : lecture de la position à l'écran sous Windows
   (`TransformToVisual`), absente de l'original.
+- `Views/OnboardingOverlayView.xaml.cs` : sous Windows, retranche l'origine de l'overlay (la page
+  modale commence sous la barre de titre) avant de dessiner le trou (`ToOverlayCoordinatesAsync`).
 - `Views/OnboardingTooltipCard.xaml.cs` : libellés Suivant / Terminer / Passer réglables
   (`NextLabel`, `DoneLabel`, `SkipLabel`) au lieu de l'anglais codé en dur, pour la localisation.
 
