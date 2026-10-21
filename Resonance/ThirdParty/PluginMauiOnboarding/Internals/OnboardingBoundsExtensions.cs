@@ -38,6 +38,20 @@ public static class OnboardingBoundsExtensions
             return null;
 
         return new Rect(frame.X, frame.Y, frame.Width, frame.Height);
+#elif WINDOWS
+        // Ajout Resonance (absent de l'original) : position relative à la racine XAML de la fenêtre, en
+        // unités indépendantes de la densité - même repère que la page modale de l'overlay, qui couvre
+        // cette même racine.
+        if (element.Handler?.PlatformView is not Microsoft.UI.Xaml.FrameworkElement nativeView
+            || nativeView.XamlRoot?.Content is not Microsoft.UI.Xaml.UIElement root
+            || nativeView.ActualWidth == 0
+            || nativeView.ActualHeight == 0)
+        {
+            return null;
+        }
+
+        global::Windows.Foundation.Point origin = nativeView.TransformToVisual(root).TransformPoint(new global::Windows.Foundation.Point(0, 0));
+        return new Rect(origin.X, origin.Y, nativeView.ActualWidth, nativeView.ActualHeight);
 #else
         return null;
 #endif

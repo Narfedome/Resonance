@@ -32,9 +32,13 @@ public partial class OnboardingTooltipCard : ContentView
     public static readonly BindableProperty TooltipBorderColorProperty =
         BindableProperty.Create(nameof(TooltipBorderColor), typeof(Color), typeof(OnboardingTooltipCard), Colors.Transparent);
 
-    // Plain English literal defaults — this library has no localized-resource dependency of its own.
-    // Consumers who need other wording (or localization) just set NextText/SkipText, same as any other
-    // bindable property.
+    // Ajout Resonance : libellés réglables par l'appli (localisation) - l'original codait l'anglais en
+    // dur, et la carte étant recréée à chaque étape par OnboardingOverlayView, des valeurs statiques sont
+    // le seul point d'entrée qui ne demande pas de toucher au coordinateur.
+    public static string NextLabel { get; set; } = "Next";
+    public static string DoneLabel { get; set; } = "Done";
+    public static string SkipLabel { get; set; } = "Skip";
+
     public static readonly BindableProperty NextTextProperty =
         BindableProperty.Create(nameof(NextText), typeof(string), typeof(OnboardingTooltipCard), "Next");
 
@@ -113,11 +117,13 @@ public partial class OnboardingTooltipCard : ContentView
     public OnboardingTooltipCard()
     {
         InitializeComponent();
+        NextText = NextLabel;
+        SkipText = SkipLabel;
     }
 
     private static void OnIsLastStepChanged(BindableObject bindable, object oldValue, object newValue)
     {
         var card = (OnboardingTooltipCard)bindable;
-        card.NextText = (bool)newValue ? "Done" : "Next";
+        card.NextText = (bool)newValue ? DoneLabel : NextLabel;
     }
 }

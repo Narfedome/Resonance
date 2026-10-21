@@ -106,6 +106,7 @@ public partial class OnboardingOverlayView : ContentView
     /// (see the comment below), rather than one shared instance being reparented across steps/replays.</summary>
     public async Task UpdateStepAsync(SpotlightGeometry geometry, string title, string description, bool isLastStep, Func<View>? content)
     {
+        geometry = await ToOverlayCoordinatesAsync(geometry);
         StartPulse();
 
         SpotlightGeometry from = _drawable.Geometry ?? geometry;
@@ -151,6 +152,33 @@ public partial class OnboardingOverlayView : ContentView
             card.FadeToAsync(1, 180, Easing.CubicOut),
             card.ScaleToAsync(1, 180, Easing.CubicOut),
             AnimateArrowOpacityAsync(0, 1, 180));
+    }
+
+    /// <summary>
+    /// Ajout Resonance : sous Windows, la page modale qui porte cet overlay commence sous la barre de
+    /// titre de la fenêtre, alors que la position des cibles est lue depuis la racine de la fenêtre (cf.
+    /// OnboardingBoundsExtensions) - sans cette correction, le trou était décalé vers le bas de la
+    /// hauteur de la barre de titre. On retranche donc l'origine de l'overlay lui-même, lue de la même
+    /// façon. Sans effet ailleurs (Android/iOS : overlay plein écran, origine en (0,0)).
+    /// </summary>
+    private async Task<SpotlightGeometry> ToOverlayCoordinatesAsync(SpotlightGeometry geometry)
+    {
+#if WINDOWS
+        Rect? own = this.GetAbsoluteBounds();
+        for (int i = 0; i < 20 && own is null; i++)
+        {
+            await Task.Delay(25);
+            own = this.GetAbsoluteBounds();
+        }
+
+        if (own is { } origin)
+        {
+            Rect b = geometry.Bounds;
+            return geometry with { Bounds = new Rect(b.X - origin.X, b.Y - origin.Y, b.Width, b.Height) };
+        }
+#endif
+        await Task.CompletedTask;
+        return geometry;
     }
 
     /// <summary>Resets for reuse the next time a tour starts (this view/page is reused across tours).</summary>
