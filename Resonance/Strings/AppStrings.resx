@@ -513,12 +513,6 @@
   <data name="TourActionsBody" xml:space="preserve">
     <value>Ajoutez une campagne, un chapitre ou une scène, puis renommez ou supprimez la ligne sélectionnée.</value>
   </data>
-  <data name="TourLibraryTitle" xml:space="preserve">
-    <value>Ajouter vos sons</value>
-  </data>
-  <data name="TourLibraryBody" xml:space="preserve">
-    <value>Ajoutez une piste, modifiez ou supprimez la sélection, ou importez tout un dossier d'un coup.</value>
-  </data>
   <data name="TourLibraryCategoryTitle" xml:space="preserve">
     <value>Filtrer par catégorie</value>
   </data>
@@ -530,6 +524,54 @@
   </data>
   <data name="TourLibraryManageBody" xml:space="preserve">
     <value>Créez, renommez ou supprimez vos catégories.</value>
+  </data>
+  <data name="TourLibraryTileTitle" xml:space="preserve">
+    <value>Une piste</value>
+  </data>
+  <data name="TourLibraryTileBody" xml:space="preserve">
+    <value>Touchez une tuile pour sélectionner la piste : son contour passe au bleu.</value>
+  </data>
+  <data name="TourLibraryPlayTitle" xml:space="preserve">
+    <value>Écouter</value>
+  </data>
+  <data name="TourLibraryPlayBody" xml:space="preserve">
+    <value>Écoutez la piste directement depuis la Bibliothèque.</value>
+  </data>
+  <data name="TourLibraryCheckTitle" xml:space="preserve">
+    <value>Sélection multiple</value>
+  </data>
+  <data name="TourLibraryCheckBody" xml:space="preserve">
+    <value>Cochez plusieurs pistes pour les supprimer d'un coup.</value>
+  </data>
+  <data name="TourLibrarySelectAllTitle" xml:space="preserve">
+    <value>Tout sélectionner</value>
+  </data>
+  <data name="TourLibrarySelectAllBody" xml:space="preserve">
+    <value>Coche toutes les pistes d'un coup.</value>
+  </data>
+  <data name="TourLibraryAddTitle" xml:space="preserve">
+    <value>Ajouter une piste</value>
+  </data>
+  <data name="TourLibraryAddBody" xml:space="preserve">
+    <value>Importez un fichier audio, puis donnez-lui un titre et une catégorie.</value>
+  </data>
+  <data name="TourLibraryEditTitle" xml:space="preserve">
+    <value>Modifier</value>
+  </data>
+  <data name="TourLibraryEditBody" xml:space="preserve">
+    <value>Changez le fichier, le titre ou la catégorie de la piste sélectionnée.</value>
+  </data>
+  <data name="TourLibraryDeleteTitle" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="TourLibraryDeleteBody" xml:space="preserve">
+    <value>Supprime la piste sélectionnée, ou toutes les pistes cochées.</value>
+  </data>
+  <data name="TourLibraryImportTitle" xml:space="preserve">
+    <value>Importer plusieurs pistes</value>
+  </data>
+  <data name="TourLibraryImportBody" xml:space="preserve">
+    <value>Choisissez plusieurs fichiers d'un coup, puis la catégorie où les ranger.</value>
   </data>
   <data name="TourMixerSceneTitle" xml:space="preserve">
     <value>Naviguer entre les scènes</value>
@@ -565,13 +607,49 @@
     <value>Un canal</value>
   </data>
   <data name="TourMixerChannelBody" xml:space="preserve">
-    <value>Lancez, mettez en pause ou arrêtez la piste, et réglez son volume. La carte s'éclaire pendant la lecture.</value>
+    <value>Chaque canal joue une piste. La tranche s'éclaire pendant la lecture, et les bandes en haut et en bas signalent le fondu de sortie et le fondu d'entrée.</value>
   </data>
-  <data name="TourMixerChannelActionsTitle" xml:space="preserve">
+  <data name="TourMixerChannelPlayTitle" xml:space="preserve">
+    <value>Lecture et pause</value>
+  </data>
+  <data name="TourMixerChannelPlayBody" xml:space="preserve">
+    <value>Lance la piste, ou la met en pause sans perdre sa position.</value>
+  </data>
+  <data name="TourMixerChannelStopTitle" xml:space="preserve">
+    <value>Arrêt</value>
+  </data>
+  <data name="TourMixerChannelStopBody" xml:space="preserve">
+    <value>Arrête la piste, en fondu si le fondu de sortie est activé. La lecture suivante repart du début.</value>
+  </data>
+  <data name="TourMixerChannelVolumeTitle" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="TourMixerChannelVolumeBody" xml:space="preserve">
+    <value>Faites glisser pour régler le volume du canal : il est enregistré avec la scène.</value>
+  </data>
+  <data name="TourMixerChannelTrackTitle" xml:space="preserve">
+    <value>Choisir la piste</value>
+  </data>
+  <data name="TourMixerChannelTrackBody" xml:space="preserve">
+    <value>Ouvre la Bibliothèque pour choisir la piste que joue ce canal.</value>
+  </data>
+  <data name="TourMixerChannelSettingsTitle" xml:space="preserve">
     <value>Réglages du canal</value>
   </data>
-  <data name="TourMixerChannelActionsBody" xml:space="preserve">
-    <value>Changez de piste, réglez la boucle, les fondus et la lecture automatique, retirez le canal, ou faites-le glisser par sa poignée pour le déplacer.</value>
+  <data name="TourMixerChannelSettingsBody" xml:space="preserve">
+    <value>Boucle, fondu d'entrée et de sortie, lecture automatique au lancement de la scène, et volume.</value>
+  </data>
+  <data name="TourMixerChannelRemoveTitle" xml:space="preserve">
+    <value>Retirer le canal</value>
+  </data>
+  <data name="TourMixerChannelRemoveBody" xml:space="preserve">
+    <value>Retire ce canal de la scène. La piste, elle, reste dans votre Bibliothèque.</value>
+  </data>
+  <data name="TourMixerChannelHandleTitle" xml:space="preserve">
+    <value>Déplacer le canal</value>
+  </data>
+  <data name="TourMixerChannelHandleBody" xml:space="preserve">
+    <value>Faites glisser cette poignée pour changer l'ordre des canaux.</value>
   </data>
   <data name="SettingsTourDesc" xml:space="preserve">
     <value>Visites guidées</value>

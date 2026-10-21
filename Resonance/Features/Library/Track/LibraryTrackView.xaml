@@ -125,6 +125,9 @@
                          besoin de masquer quoi que ce soit puisque la sélection native (et donc son
                          fond orange) n'est plus utilisée du tout. -->
                     <Border Style="{StaticResource SelectableGridItemBorderStyle}" BackgroundColor="Transparent" Stroke="Grey">
+                        <Border.Behaviors>
+                            <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryTrackTileKey}"/>
+                        </Border.Behaviors>
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding Source={x:Reference root}, Path=BindingContext.SelectItemCommand}"
                                                   CommandParameter="{Binding .}"/>
@@ -153,7 +156,11 @@
                             <CheckBox Grid.Row="0"
                                       IsChecked="{Binding IsSelected}"
                                       IsVisible="{Binding Source={x:Reference root}, Path=IsCrud}"
-                                      HorizontalOptions="Start" VerticalOptions="Start"/>
+                                      HorizontalOptions="Start" VerticalOptions="Start">
+                                <CheckBox.Behaviors>
+                                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryTrackCheckKey}"/>
+                                </CheckBox.Behaviors>
+                            </CheckBox>
                             <!-- Label au lieu de l'image -->
                             <Label Text="{Binding Title}"
                         HorizontalOptions="Center"
@@ -173,31 +180,46 @@
         <VerticalStackLayout Grid.Row="2" IsVisible="{Binding Source={x:Reference root}, Path=IsCrud}">
             <HorizontalStackLayout Spacing="10" HorizontalOptions="Center" Margin="8,8"
                                    IsVisible="{Binding Loading.IsLoading, Converter={StaticResource InverseBoolConverter}}">
-                <!-- Cible de la visite guidée : ce bloc n'est visible qu'en mode CRUD (onglet
-                     Bibliothèque), jamais dans les sélecteurs de pistes qui réutilisent cette vue. -->
-                <HorizontalStackLayout.Behaviors>
-                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryActionsKey}"/>
-                </HorizontalStackLayout.Behaviors>
                 <components:FaIconButtonView Icon="{x:Static icons:SolidFont.CheckDouble}"
                                              Command="{Binding SelectAllCommand}"
                                              Tooltip="{loc:Loc LibSelectAll}"
-                                             IsEnabled="{Binding HasTrackItems}"/>
+                                             IsEnabled="{Binding HasTrackItems}">
+                    <components:FaIconButtonView.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibrarySelectAllKey}"/>
+                    </components:FaIconButtonView.Behaviors>
+                </components:FaIconButtonView>
                 <BoxView WidthRequest="1" HeightRequest="28" VerticalOptions="Center" Margin="4,0" Color="{DynamicResource AppTextMuted}"/>
                 <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Plus}"
                                              Command="{Binding CreateCommand}"
-                                             Tooltip="{loc:Loc LibAdd}"/>
+                                             Tooltip="{loc:Loc LibAdd}">
+                    <components:FaIconButtonView.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryAddKey}"/>
+                    </components:FaIconButtonView.Behaviors>
+                </components:FaIconButtonView>
                 <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Pen}"
                                              Command="{Binding EditCommand}"
                                              Tooltip="{loc:Loc LibEdit}"
-                                             IsEnabled="{Binding SelectedTrackItem, Converter={StaticResource IsNotNullConverter}}"/>
+                                             IsEnabled="{Binding SelectedTrackItem, Converter={StaticResource IsNotNullConverter}}">
+                    <components:FaIconButtonView.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryEditKey}"/>
+                    </components:FaIconButtonView.Behaviors>
+                </components:FaIconButtonView>
                 <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Trash}"
                                              Command="{Binding DeleteSelectedItemsCommand}"
                                              Tooltip="{Binding DeleteTooltip}"
-                                             IsEnabled="{Binding CanDelete}"/>
+                                             IsEnabled="{Binding CanDelete}">
+                    <components:FaIconButtonView.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryDeleteKey}"/>
+                    </components:FaIconButtonView.Behaviors>
+                </components:FaIconButtonView>
                 <BoxView WidthRequest="1" HeightRequest="28" VerticalOptions="Center" Margin="4,0" Color="{DynamicResource AppTextMuted}"/>
                 <components:FaIconButtonView Icon="{x:Static icons:SolidFont.FolderPlus}"
                                              Command="{Binding ImportMultipleTracksCommand}"
-                                             Tooltip="{loc:Loc LibImport}"/>
+                                             Tooltip="{loc:Loc LibImport}">
+                    <components:FaIconButtonView.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryImportKey}"/>
+                    </components:FaIconButtonView.Behaviors>
+                </components:FaIconButtonView>
             </HorizontalStackLayout>
         </VerticalStackLayout>
         <VerticalStackLayout Grid.Row="2"

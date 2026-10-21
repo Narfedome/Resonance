@@ -23,13 +23,26 @@ namespace Resonance.Services
         public const string CampaignActionsKey = "Tour.CampaignActions";
         public const string LibraryCategoryKey = "Tour.LibraryCategory";
         public const string LibraryManageCategoriesKey = "Tour.LibraryManageCategories";
-        public const string LibraryActionsKey = "Tour.LibraryActions";
+        public const string LibraryTrackTileKey = "Tour.LibraryTrackTile";
+        public const string LibraryTrackPlayKey = "Tour.LibraryTrackPlay";
+        public const string LibraryTrackCheckKey = "Tour.LibraryTrackCheck";
+        public const string LibrarySelectAllKey = "Tour.LibrarySelectAll";
+        public const string LibraryAddKey = "Tour.LibraryAdd";
+        public const string LibraryEditKey = "Tour.LibraryEdit";
+        public const string LibraryDeleteKey = "Tour.LibraryDelete";
+        public const string LibraryImportKey = "Tour.LibraryImport";
         public const string MixerSceneSelectorKey = "Tour.MixerSceneSelector";
         public const string MixerGlobalKey = "Tour.MixerGlobal";
         public const string MixerFreeformKey = "Tour.MixerFreeform";
         public const string MixerAddChannelKey = "Tour.MixerAddChannel";
         public const string MixerChannelKey = "Tour.MixerChannel";
-        public const string MixerChannelActionsKey = "Tour.MixerChannelActions";
+        public const string MixerChannelPlayKey = "Tour.MixerChannelPlay";
+        public const string MixerChannelStopKey = "Tour.MixerChannelStop";
+        public const string MixerChannelVolumeKey = "Tour.MixerChannelVolume";
+        public const string MixerChannelTrackKey = "Tour.MixerChannelTrack";
+        public const string MixerChannelSettingsKey = "Tour.MixerChannelSettings";
+        public const string MixerChannelRemoveKey = "Tour.MixerChannelRemove";
+        public const string MixerChannelHandleKey = "Tour.MixerChannelHandle";
 
         private const string CampaignsTourKey = "resonance-campaigns";
         private const string LibraryTourKey = "resonance-library";
@@ -77,15 +90,32 @@ namespace Resonance.Services
             return StartAsync(builder.Build());
         }
 
-        public Task StartLibraryTourAsync() => StartAsync(OnboardingTourBuilder.Create(LibraryTourKey)
-            .AddStep(Step(LibraryCategoryKey, "TourLibraryCategoryTitle", "TourLibraryCategoryBody"))
-            .AddStep(Step(LibraryManageCategoriesKey, "TourLibraryManageTitle", "TourLibraryManageBody"))
-            .AddStep(Step(LibraryActionsKey, "TourLibraryTitle", "TourLibraryBody"))
-            .Build());
+        /// <param name="hasTracks">Faux sur une Bibliothèque vide : les étapes sur la tuile d'une piste
+        /// sont alors sautées (le plugin attendrait sinon 10 s une cible absente).</param>
+        public Task StartLibraryTourAsync(bool hasTracks)
+        {
+            var builder = OnboardingTourBuilder.Create(LibraryTourKey)
+                .AddStep(Step(LibraryCategoryKey, "TourLibraryCategoryTitle", "TourLibraryCategoryBody"))
+                .AddStep(Step(LibraryManageCategoriesKey, "TourLibraryManageTitle", "TourLibraryManageBody"));
+            if (hasTracks)
+            {
+                builder.AddStep(Step(LibraryTrackTileKey, "TourLibraryTileTitle", "TourLibraryTileBody"))
+                    .AddStep(Step(LibraryTrackPlayKey, "TourLibraryPlayTitle", "TourLibraryPlayBody"))
+                    .AddStep(Step(LibraryTrackCheckKey, "TourLibraryCheckTitle", "TourLibraryCheckBody"));
+            }
+
+            return StartAsync(builder
+                .AddStep(Step(LibrarySelectAllKey, "TourLibrarySelectAllTitle", "TourLibrarySelectAllBody"))
+                .AddStep(Step(LibraryAddKey, "TourLibraryAddTitle", "TourLibraryAddBody"))
+                .AddStep(Step(LibraryEditKey, "TourLibraryEditTitle", "TourLibraryEditBody"))
+                .AddStep(Step(LibraryDeleteKey, "TourLibraryDeleteTitle", "TourLibraryDeleteBody"))
+                .AddStep(Step(LibraryImportKey, "TourLibraryImportTitle", "TourLibraryImportBody"))
+                .Build());
+        }
 
         /// <summary>
-        /// Visite du mixeur, adaptée au contenu de la scène lancée : avec des canaux, elle détaille la
-        /// carte d'un canal ; sans canal, l'étape « Ajouter un canal » explique quoi faire selon que la
+        /// Visite du mixeur, adaptée au contenu de la scène lancée : avec des canaux, elle montre la
+        /// tranche entière d'un canal puis chacun de ses contrôles ; sans canal, l'étape « Ajouter un canal » explique quoi faire selon que la
         /// Bibliothèque contient déjà des pistes ou non.
         /// </summary>
         public async Task StartMixerTourAsync(bool hasChannels)
@@ -103,8 +133,14 @@ namespace Resonance.Services
                 .AddStep(Step(MixerAddChannelKey, "TourMixerAddTitle", addChannelBody));
             if (hasChannels)
             {
-                builder.AddStep(Step(MixerChannelKey, "TourMixerChannelTitle", "TourMixerChannelBody"));
-                builder.AddStep(Step(MixerChannelActionsKey, "TourMixerChannelActionsTitle", "TourMixerChannelActionsBody"));
+                builder.AddStep(Step(MixerChannelKey, "TourMixerChannelTitle", "TourMixerChannelBody"))
+                    .AddStep(Step(MixerChannelPlayKey, "TourMixerChannelPlayTitle", "TourMixerChannelPlayBody"))
+                    .AddStep(Step(MixerChannelStopKey, "TourMixerChannelStopTitle", "TourMixerChannelStopBody"))
+                    .AddStep(Step(MixerChannelVolumeKey, "TourMixerChannelVolumeTitle", "TourMixerChannelVolumeBody"))
+                    .AddStep(Step(MixerChannelTrackKey, "TourMixerChannelTrackTitle", "TourMixerChannelTrackBody"))
+                    .AddStep(Step(MixerChannelSettingsKey, "TourMixerChannelSettingsTitle", "TourMixerChannelSettingsBody"))
+                    .AddStep(Step(MixerChannelRemoveKey, "TourMixerChannelRemoveTitle", "TourMixerChannelRemoveBody"))
+                    .AddStep(Step(MixerChannelHandleKey, "TourMixerChannelHandleTitle", "TourMixerChannelHandleBody"));
             }
 
             await StartAsync(builder.Build());

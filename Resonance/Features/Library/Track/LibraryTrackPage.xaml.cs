@@ -32,7 +32,8 @@ public partial class LibraryTrackPage : ContentPage
         {
             try
             {
-                await _tourService.StartLibraryTourAsync();
+                var hasTracks = BindingContext is LibraryTrackViewModel { HasTrackItems: true };
+                await _tourService.StartLibraryTourAsync(hasTracks);
             }
             catch (Exception ex)
             {

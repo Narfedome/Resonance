@@ -513,12 +513,6 @@
   <data name="TourActionsBody" xml:space="preserve">
     <value>Add a campaign, chapter, or scene, then rename or delete the selected row.</value>
   </data>
-  <data name="TourLibraryTitle" xml:space="preserve">
-    <value>Add your sounds</value>
-  </data>
-  <data name="TourLibraryBody" xml:space="preserve">
-    <value>Add a track, edit or delete the selection, or import a whole folder at once.</value>
-  </data>
   <data name="TourLibraryCategoryTitle" xml:space="preserve">
     <value>Filter by category</value>
   </data>
@@ -530,6 +524,54 @@
   </data>
   <data name="TourLibraryManageBody" xml:space="preserve">
     <value>Create, rename, or delete your categories.</value>
+  </data>
+  <data name="TourLibraryTileTitle" xml:space="preserve">
+    <value>A track</value>
+  </data>
+  <data name="TourLibraryTileBody" xml:space="preserve">
+    <value>Tap a tile to select the track: its outline turns blue.</value>
+  </data>
+  <data name="TourLibraryPlayTitle" xml:space="preserve">
+    <value>Listen</value>
+  </data>
+  <data name="TourLibraryPlayBody" xml:space="preserve">
+    <value>Play the track right from the Library.</value>
+  </data>
+  <data name="TourLibraryCheckTitle" xml:space="preserve">
+    <value>Multiple selection</value>
+  </data>
+  <data name="TourLibraryCheckBody" xml:space="preserve">
+    <value>Check several tracks to delete them at once.</value>
+  </data>
+  <data name="TourLibrarySelectAllTitle" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="TourLibrarySelectAllBody" xml:space="preserve">
+    <value>Checks every track at once.</value>
+  </data>
+  <data name="TourLibraryAddTitle" xml:space="preserve">
+    <value>Add a track</value>
+  </data>
+  <data name="TourLibraryAddBody" xml:space="preserve">
+    <value>Import an audio file, then give it a title and a category.</value>
+  </data>
+  <data name="TourLibraryEditTitle" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="TourLibraryEditBody" xml:space="preserve">
+    <value>Change the file, title, or category of the selected track.</value>
+  </data>
+  <data name="TourLibraryDeleteTitle" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="TourLibraryDeleteBody" xml:space="preserve">
+    <value>Deletes the selected track, or every checked track.</value>
+  </data>
+  <data name="TourLibraryImportTitle" xml:space="preserve">
+    <value>Import several tracks</value>
+  </data>
+  <data name="TourLibraryImportBody" xml:space="preserve">
+    <value>Pick several files at once, then the category to put them in.</value>
   </data>
   <data name="TourMixerSceneTitle" xml:space="preserve">
     <value>Move between scenes</value>
@@ -565,13 +607,49 @@
     <value>A channel</value>
   </data>
   <data name="TourMixerChannelBody" xml:space="preserve">
-    <value>Play, pause, or stop the track and set its volume. The card lights up while it plays.</value>
+    <value>Each channel plays one track. The strip lights up while it plays, and the bands at the top and bottom show the fade-out and fade-in.</value>
   </data>
-  <data name="TourMixerChannelActionsTitle" xml:space="preserve">
+  <data name="TourMixerChannelPlayTitle" xml:space="preserve">
+    <value>Play and pause</value>
+  </data>
+  <data name="TourMixerChannelPlayBody" xml:space="preserve">
+    <value>Plays the track, or pauses it without losing its position.</value>
+  </data>
+  <data name="TourMixerChannelStopTitle" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="TourMixerChannelStopBody" xml:space="preserve">
+    <value>Stops the track, with a fade if fade-out is on. The next play starts from the beginning.</value>
+  </data>
+  <data name="TourMixerChannelVolumeTitle" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="TourMixerChannelVolumeBody" xml:space="preserve">
+    <value>Drag to set the channel volume: it's saved with the scene.</value>
+  </data>
+  <data name="TourMixerChannelTrackTitle" xml:space="preserve">
+    <value>Pick the track</value>
+  </data>
+  <data name="TourMixerChannelTrackBody" xml:space="preserve">
+    <value>Opens the Library to pick the track this channel plays.</value>
+  </data>
+  <data name="TourMixerChannelSettingsTitle" xml:space="preserve">
     <value>Channel settings</value>
   </data>
-  <data name="TourMixerChannelActionsBody" xml:space="preserve">
-    <value>Change the track, set looping, fades, and autoplay, remove the channel, or drag it by its handle to move it.</value>
+  <data name="TourMixerChannelSettingsBody" xml:space="preserve">
+    <value>Looping, fade-in and fade-out, autoplay when the scene starts, and volume.</value>
+  </data>
+  <data name="TourMixerChannelRemoveTitle" xml:space="preserve">
+    <value>Remove the channel</value>
+  </data>
+  <data name="TourMixerChannelRemoveBody" xml:space="preserve">
+    <value>Removes this channel from the scene. The track stays in your Library.</value>
+  </data>
+  <data name="TourMixerChannelHandleTitle" xml:space="preserve">
+    <value>Move the channel</value>
+  </data>
+  <data name="TourMixerChannelHandleBody" xml:space="preserve">
+    <value>Drag this handle to reorder the channels.</value>
   </data>
   <data name="SettingsTourDesc" xml:space="preserve">
     <value>Guided tours</value>
