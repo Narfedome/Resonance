@@ -4,7 +4,9 @@
              x:Class="Resonance.Components.ChannelStripView"
              xmlns:components ="clr-namespace:Resonance.Components"
              xmlns:loc="clr-namespace:Resonance.Extensions"
-             xmlns:icons="clr-namespace:Resonance.Resources.Icons"  WidthRequest="{DynamicResource AppChannelStripWidth}">
+             xmlns:icons="clr-namespace:Resonance.Resources.Icons"
+             xmlns:services="clr-namespace:Resonance.Services"
+             xmlns:onboarding="clr-namespace:Plugin.Maui.Onboarding"  WidthRequest="{DynamicResource AppChannelStripWidth}">
     <!-- Grid plutôt que VerticalStackLayout : un StackLayout ne redistribue jamais l'espace
          excédentaire à ses enfants (toujours dimensionné à la somme de leurs tailles naturelles),
          donc le slider ne pouvait pas s'étirer avec la fenêtre. Ici la ligne "*" absorbe tout
@@ -16,19 +18,31 @@
                                      Icon="{Binding IsPlaying, Converter={StaticResource BoolToPlayPauseConverter}}"
                                      Command="{Binding TogglePlayCommand}"
                                      Tooltip="{Binding IsPlaying, Converter={StaticResource BoolToTooltipPlayPauseConverter}}"
-                                     HorizontalOptions="Center" />
+                                     HorizontalOptions="Center">
+            <components:FaIconButtonView.Behaviors>
+                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelPlayKey}"/>
+            </components:FaIconButtonView.Behaviors>
+        </components:FaIconButtonView>
         <components:FaIconButtonView Grid.Row="1"
                                      Icon="{x:Static icons:SolidFont.Stop}"
                                      Command="{Binding StopPlaybackCommand}"
                                      Tooltip="{loc:Loc ChannelStop}"
-                                     HorizontalOptions="Center" />
+                                     HorizontalOptions="Center">
+            <components:FaIconButtonView.Behaviors>
+                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelStopKey}"/>
+            </components:FaIconButtonView.Behaviors>
+        </components:FaIconButtonView>
 
         <components:ChannelVolumeSliderView Grid.Row="2"
                                       Value="{Binding Volume, Mode=TwoWay}"
                                       ValueText="{Binding DisplayVolume}"
                                       Minimum="0" Maximum="1"
                                       MinimumHeightRequest="{DynamicResource AppChannelSliderMinHeight}"
-                                      Thickness="{DynamicResource AppChannelStripWidth}" />
+                                      Thickness="{DynamicResource AppChannelStripWidth}">
+            <components:ChannelVolumeSliderView.Behaviors>
+                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelVolumeKey}"/>
+            </components:ChannelVolumeSliderView.Behaviors>
+        </components:ChannelVolumeSliderView>
 
         <components:RotatedLabelView Grid.Row="3"
                Text="{Binding DisplayTrackName}"

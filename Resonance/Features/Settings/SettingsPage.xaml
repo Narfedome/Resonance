@@ -132,6 +132,62 @@
                 </Grid>
             </Border>
 
+            <!-- Découvrir : campagne d'exemple et accueil, retrouvables après le premier lancement -->
+            <Border Style="{StaticResource SectionCardBorderStyle}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="{loc:Loc SettingsHelpTitle}" FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
+
+                    <Grid ColumnDefinitions="*,auto">
+                        <Label Grid.Column="0" Text="{loc:Loc SettingsSampleDesc}"
+                               VerticalOptions="Center" FontSize="{OnIdiom Default=13, Desktop=11}"
+                               TextColor="{DynamicResource AppTextMuted}"/>
+                        <Button Grid.Column="1"
+                                Text="{loc:Loc SettingsSampleButton}"
+                                Command="{Binding LoadSampleCampaignCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{DynamicResource AppAccent}"
+                                FontSize="{OnIdiom Default=15, Desktop=13}"
+                                Padding="8,4"
+                                MinimumHeightRequest="{DynamicResource AppInlineButtonMinSize}"
+                                MinimumWidthRequest="{DynamicResource AppInlineButtonMinSize}"/>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{DynamicResource AppBorder}"/>
+
+                    <Grid ColumnDefinitions="*,auto">
+                        <Label Grid.Column="0" Text="{loc:Loc SettingsTourDesc}"
+                               VerticalOptions="Center" FontSize="{OnIdiom Default=13, Desktop=11}"
+                               TextColor="{DynamicResource AppTextMuted}"/>
+                        <Button Grid.Column="1"
+                                Text="{loc:Loc SettingsTourButton}"
+                                Command="{Binding StartTourCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{DynamicResource AppAccent}"
+                                FontSize="{OnIdiom Default=15, Desktop=13}"
+                                Padding="8,4"
+                                MinimumHeightRequest="{DynamicResource AppInlineButtonMinSize}"
+                                MinimumWidthRequest="{DynamicResource AppInlineButtonMinSize}"/>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{DynamicResource AppBorder}"/>
+
+                    <Grid ColumnDefinitions="*,auto">
+                        <Label Grid.Column="0" Text="{loc:Loc SettingsWelcomeDesc}"
+                               VerticalOptions="Center" FontSize="{OnIdiom Default=13, Desktop=11}"
+                               TextColor="{DynamicResource AppTextMuted}"/>
+                        <Button Grid.Column="1"
+                                Text="{loc:Loc SettingsWelcomeButton}"
+                                Command="{Binding ReplayWelcomeCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{DynamicResource AppAccent}"
+                                FontSize="{OnIdiom Default=15, Desktop=13}"
+                                Padding="8,4"
+                                MinimumHeightRequest="{DynamicResource AppInlineButtonMinSize}"
+                                MinimumWidthRequest="{DynamicResource AppInlineButtonMinSize}"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
             <!-- Buy Me a Coffee -->
             <Border Style="{StaticResource SectionCardBorderStyle}">
                 <Grid ColumnDefinitions="*,auto">

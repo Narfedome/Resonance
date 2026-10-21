@@ -432,8 +432,362 @@
   <data name="OnboardingLanguage" xml:space="preserve">
     <value>Language</value>
   </data>
-  <data name="OnboardingStart" xml:space="preserve">
-    <value>Get started</value>
+  <data name="OnboardingNext" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="OnboardingPrevious" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="OnboardingStructureTitle" xml:space="preserve">
+    <value>One campaign, many scenes</value>
+  </data>
+  <data name="OnboardingStructureBody" xml:space="preserve">
+    <value>Organize each campaign into chapters, and each chapter into scenes. A scene keeps its own tracks and their volumes.</value>
+  </data>
+  <data name="OnboardingPlayTitle" xml:space="preserve">
+    <value>Your sounds, ready to play</value>
+  </data>
+  <data name="OnboardingPlayBody" xml:space="preserve">
+    <value>Import your music and ambiences into the Library. Tap “Launch” on a scene to open its tracks in the mixer.</value>
+  </data>
+  <data name="OnboardingReadyTitle" xml:space="preserve">
+    <value>Your turn</value>
+  </data>
+  <data name="OnboardingLoadSample" xml:space="preserve">
+    <value>Load the sample campaign</value>
+  </data>
+  <data name="OnboardingLoadSampleDesc" xml:space="preserve">
+    <value>A short campaign with a tavern ambience, to try things right away.</value>
+  </data>
+  <data name="OnboardingStartEmpty" xml:space="preserve">
+    <value>Start from scratch</value>
+  </data>
+  <data name="SampleImportInProgress" xml:space="preserve">
+    <value>Adding the sample campaign</value>
+  </data>
+  <data name="SampleImportDone" xml:space="preserve">
+    <value>The sample campaign was added to your campaigns.</value>
+  </data>
+  <data name="SettingsHelpTitle" xml:space="preserve">
+    <value>Discover Resonance</value>
+  </data>
+  <data name="SettingsSampleDesc" xml:space="preserve">
+    <value>A ready-to-play campaign</value>
+  </data>
+  <data name="SettingsSampleButton" xml:space="preserve">
+    <value>Load</value>
+  </data>
+  <data name="SettingsSampleAlreadyImported" xml:space="preserve">
+    <value>The sample campaign is already loaded. Add a second copy?</value>
+  </data>
+  <data name="SettingsWelcomeDesc" xml:space="preserve">
+    <value>Welcome screen</value>
+  </data>
+  <data name="SettingsWelcomeButton" xml:space="preserve">
+    <value>Replay</value>
+  </data>
+  <data name="OnboardingShareTitle" xml:space="preserve">
+    <value>Back up and share</value>
+  </data>
+  <data name="OnboardingShareBody" xml:space="preserve">
+    <value>In Settings, the Import / Export screen saves your campaigns and sounds to a .dmpack file: to back them up, find them on another device, or share them with other GMs.</value>
+  </data>
+  <data name="TourCampaignIntroTitle" xml:space="preserve">
+    <value>Your campaigns</value>
+  </data>
+  <data name="TourCampaignIntroBody" xml:space="preserve">
+    <value>This screen organizes your games. A campaign is split into chapters, and each chapter into scenes. A scene gathers the tracks that play together: launch it from here to open it in the mixer.</value>
+  </data>
+  <data name="TourChevronTitle" xml:space="preserve">
+    <value>Expand or collapse</value>
+  </data>
+  <data name="TourChevronBody" xml:space="preserve">
+    <value>The chevron expands or collapses the campaign. Tapping the rest of the row only expands it, never collapses it.</value>
+  </data>
+  <data name="TourCampaignHandleTitle" xml:space="preserve">
+    <value>Reorder</value>
+  </data>
+  <data name="TourCampaignHandleBody" xml:space="preserve">
+    <value>Drag the handle to reorder your campaigns. Chapters and scenes have the same handle.</value>
+  </data>
+  <data name="TourSessionTitle" xml:space="preserve">
+    <value>A chapter</value>
+  </data>
+  <data name="TourSessionBody" xml:space="preserve">
+    <value>A chapter groups scenes, for example those of one game session. Tap it to show its scenes.</value>
+  </data>
+  <data name="TourSceneTitle" xml:space="preserve">
+    <value>A scene</value>
+  </data>
+  <data name="TourSceneBody" xml:space="preserve">
+    <value>A scene is a soundscape ready to play: its tracks, their volumes, and their settings. Tap it to select it.</value>
+  </data>
+  <data name="TourCreateTitle" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="TourCreateBody" xml:space="preserve">
+    <value>Add a campaign, chapter, or scene. The type and location are prefilled from the selected row, and you can change them.</value>
+  </data>
+  <data name="TourEditTitle" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="TourEditBody" xml:space="preserve">
+    <value>Rename the selected row. A chapter or scene can also be moved to another campaign or chapter.</value>
+  </data>
+  <data name="TourDeleteTitle" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="TourDeleteBody" xml:space="preserve">
+    <value>Deletes the selected row after confirmation. Deleting a campaign or chapter also deletes everything in it.</value>
+  </data>
+  <data name="TourLibraryIntroTitle" xml:space="preserve">
+    <value>The Library</value>
+  </data>
+  <data name="TourLibraryIntroBody" xml:space="preserve">
+    <value>All your sounds live here: music, ambiences, and sound effects, sorted by category. These are the tracks you then put in your scenes' channels.</value>
+  </data>
+  <data name="TourMixerIntroTitle" xml:space="preserve">
+    <value>The mixer</value>
+  </data>
+  <data name="TourMixerIntroBody" xml:space="preserve">
+    <value>This is where you play a scene. Each channel runs one track at its own volume: layer them to build the soundscape, and switch scenes during the game.</value>
+  </data>
+  <data name="TourMixerChannelBackgroundTitle" xml:space="preserve">
+    <value>The strip background</value>
+  </data>
+  <data name="TourMixerChannelBackgroundBody" xml:space="preserve">
+    <value>It lights up during playback and follows the actual volume: it rises during a fade-in and drops during a fade-out. The bands at the top and bottom show that a fade-out or fade-in is set.</value>
+  </data>
+  <data name="TourSettingsIntroTitle" xml:space="preserve">
+    <value>Channel settings</value>
+  </data>
+  <data name="TourSettingsIntroBody" xml:space="preserve">
+    <value>These settings apply to this channel in this scene. “Save” keeps them, “Cancel” leaves everything as it was.</value>
+  </data>
+  <data name="TourSettingsVolumeTitle" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="TourSettingsVolumeBody" xml:space="preserve">
+    <value>This channel's volume in the scene, the same as on the strip.</value>
+  </data>
+  <data name="TourSettingsLoopTitle" xml:space="preserve">
+    <value>Loop</value>
+  </data>
+  <data name="TourSettingsLoopBody" xml:space="preserve">
+    <value>The track starts over when it ends, for a never-ending soundscape.</value>
+  </data>
+  <data name="TourSettingsFadeInTitle" xml:space="preserve">
+    <value>Fade in</value>
+  </data>
+  <data name="TourSettingsFadeInBody" xml:space="preserve">
+    <value>When it starts, the volume rises gradually instead of starting all at once.</value>
+  </data>
+  <data name="TourSettingsFadeOutTitle" xml:space="preserve">
+    <value>Fade out</value>
+  </data>
+  <data name="TourSettingsFadeOutBody" xml:space="preserve">
+    <value>When it stops or the scene changes, the volume lowers gradually before cutting off.</value>
+  </data>
+  <data name="TourSettingsAutoPlayTitle" xml:space="preserve">
+    <value>Autoplay</value>
+  </data>
+  <data name="TourSettingsAutoPlayBody" xml:space="preserve">
+    <value>The track starts on its own when the scene is launched.</value>
+  </data>
+  <data name="TourImportExportIntroTitle" xml:space="preserve">
+    <value>Import / Export</value>
+  </data>
+  <data name="TourImportExportIntroBody" xml:space="preserve">
+    <value>This screen backs up and shares your work through .dmpack files. The summary at the top of the screen sums it up at any time; here are its two blocks.</value>
+  </data>
+  <data name="TourExportLevelTitle" xml:space="preserve">
+    <value>What to export</value>
+  </data>
+  <data name="TourExportLevelBody" xml:space="preserve">
+    <value>Structure only: the campaign, its chapters, and its scenes, without sound. Structure + channels: the same with each scene's channels and the audio they use. Audio library only: all your tracks, without campaigns. Full backup: everything.</value>
+  </data>
+  <data name="TourExportCampaignTitle" xml:space="preserve">
+    <value>Which campaign</value>
+  </data>
+  <data name="TourExportCampaignBody" xml:space="preserve">
+    <value>For “Structure only” and “Structure + channels”, pick the campaign to export. The other two levels cover the whole app, so this row disappears.</value>
+  </data>
+  <data name="TourExportTitle" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="TourExportBody" xml:space="preserve">
+    <value>Creates a .dmpack file with the content chosen just below, then lets you choose where to save it.</value>
+  </data>
+  <data name="TourImportTitle" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="TourImportBody" xml:space="preserve">
+    <value>Pick a .dmpack file: its campaigns are added to yours, and tracks already in your Library aren't copied twice.</value>
+  </data>
+  <data name="TourNext" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="TourDone" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="TourSkip" xml:space="preserve">
+    <value>Skip</value>
+  </data>
+  <data name="TourCampaignTitle" xml:space="preserve">
+    <value>A campaign</value>
+  </data>
+  <data name="TourCampaignBody" xml:space="preserve">
+    <value>Tap it to select it and show its chapters. Only one campaign stays expanded at a time.</value>
+  </data>
+  <data name="TourLaunchTitle" xml:space="preserve">
+    <value>Launch a scene</value>
+  </data>
+  <data name="TourLaunchBody" xml:space="preserve">
+    <value>“Launch” opens the scene in the mixer, with its tracks and their volumes.</value>
+  </data>
+  <data name="TourLibraryCategoryTitle" xml:space="preserve">
+    <value>Filter by category</value>
+  </data>
+  <data name="TourLibraryCategoryBody" xml:space="preserve">
+    <value>Show all your tracks, or only one category: music, ambience, sound effects.</value>
+  </data>
+  <data name="TourLibraryManageTitle" xml:space="preserve">
+    <value>Manage categories</value>
+  </data>
+  <data name="TourLibraryManageBody" xml:space="preserve">
+    <value>Create, rename, or delete your categories.</value>
+  </data>
+  <data name="TourLibraryTileTitle" xml:space="preserve">
+    <value>A track</value>
+  </data>
+  <data name="TourLibraryTileBody" xml:space="preserve">
+    <value>Tap a tile to select the track: its outline turns blue.</value>
+  </data>
+  <data name="TourLibraryPlayTitle" xml:space="preserve">
+    <value>Listen</value>
+  </data>
+  <data name="TourLibraryPlayBody" xml:space="preserve">
+    <value>Play the track right from the Library.</value>
+  </data>
+  <data name="TourLibraryCheckTitle" xml:space="preserve">
+    <value>Multiple selection</value>
+  </data>
+  <data name="TourLibraryCheckBody" xml:space="preserve">
+    <value>Check several tracks to delete them at once.</value>
+  </data>
+  <data name="TourLibrarySelectAllTitle" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="TourLibrarySelectAllBody" xml:space="preserve">
+    <value>Checks every track at once.</value>
+  </data>
+  <data name="TourLibraryAddTitle" xml:space="preserve">
+    <value>Add a track</value>
+  </data>
+  <data name="TourLibraryAddBody" xml:space="preserve">
+    <value>Import an audio file (MP3, WAV, M4A, or Opus), then give it a title and a category.</value>
+  </data>
+  <data name="TourLibraryEditTitle" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="TourLibraryEditBody" xml:space="preserve">
+    <value>Change the file, title, or category of the selected track.</value>
+  </data>
+  <data name="TourLibraryDeleteTitle" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="TourLibraryDeleteBody" xml:space="preserve">
+    <value>Deletes the selected track, or every checked track.</value>
+  </data>
+  <data name="TourLibraryImportTitle" xml:space="preserve">
+    <value>Import several tracks</value>
+  </data>
+  <data name="TourLibraryImportBody" xml:space="preserve">
+    <value>Pick several audio files at once (MP3, WAV, M4A, or Opus), then the category to put them in.</value>
+  </data>
+  <data name="TourMixerSceneTitle" xml:space="preserve">
+    <value>Move between scenes</value>
+  </data>
+  <data name="TourMixerSceneBody" xml:space="preserve">
+    <value>Switch chapter or scene, or step to the previous and next one with the arrows.</value>
+  </data>
+  <data name="TourMixerGlobalTitle" xml:space="preserve">
+    <value>Global controls</value>
+  </data>
+  <data name="TourMixerGlobalBody" xml:space="preserve">
+    <value>Play every channel, fade them all out, or stop everything at once.</value>
+  </data>
+  <data name="TourMixerFreeformTitle" xml:space="preserve">
+    <value>Free scene</value>
+  </data>
+  <data name="TourMixerFreeformBody" xml:space="preserve">
+    <value>Switch to a free scene, outside any campaign, to improvise a soundscape. It keeps its channels from one use to the next.</value>
+  </data>
+  <data name="TourMixerAddTitle" xml:space="preserve">
+    <value>Add a channel</value>
+  </data>
+  <data name="TourMixerAddBody" xml:space="preserve">
+    <value>Each channel plays one track: add more to layer music and ambiences.</value>
+  </data>
+  <data name="TourMixerAddEmptySceneBody" xml:space="preserve">
+    <value>This scene is empty: add a channel, then pick its track from the Library.</value>
+  </data>
+  <data name="TourMixerAddNoTracksBody" xml:space="preserve">
+    <value>Your Library is empty: first import your sounds from the Library tab, then add a channel here.</value>
+  </data>
+  <data name="TourMixerChannelTitle" xml:space="preserve">
+    <value>A channel</value>
+  </data>
+  <data name="TourMixerChannelBody" xml:space="preserve">
+    <value>Each channel plays one track: its strip holds playback, volume, and settings.</value>
+  </data>
+  <data name="TourMixerChannelPlayTitle" xml:space="preserve">
+    <value>Play and pause</value>
+  </data>
+  <data name="TourMixerChannelPlayBody" xml:space="preserve">
+    <value>Plays the track, or pauses it without losing its position.</value>
+  </data>
+  <data name="TourMixerChannelStopTitle" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="TourMixerChannelStopBody" xml:space="preserve">
+    <value>Stops the track, with a fade if fade-out is on. The next play starts from the beginning.</value>
+  </data>
+  <data name="TourMixerChannelVolumeTitle" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="TourMixerChannelVolumeBody" xml:space="preserve">
+    <value>Drag to set the channel volume: it's saved with the scene.</value>
+  </data>
+  <data name="TourMixerChannelTrackTitle" xml:space="preserve">
+    <value>Pick the track</value>
+  </data>
+  <data name="TourMixerChannelTrackBody" xml:space="preserve">
+    <value>Opens the Library to pick the track this channel plays.</value>
+  </data>
+  <data name="TourMixerChannelSettingsTitle" xml:space="preserve">
+    <value>Channel settings</value>
+  </data>
+  <data name="TourMixerChannelSettingsBody" xml:space="preserve">
+    <value>Opens the channel settings: volume, looping, fades, and autoplay.</value>
+  </data>
+  <data name="TourMixerChannelRemoveTitle" xml:space="preserve">
+    <value>Remove the channel</value>
+  </data>
+  <data name="TourMixerChannelRemoveBody" xml:space="preserve">
+    <value>Removes this channel from the scene. The track stays in your Library.</value>
+  </data>
+  <data name="TourMixerChannelHandleTitle" xml:space="preserve">
+    <value>Move the channel</value>
+  </data>
+  <data name="TourMixerChannelHandleBody" xml:space="preserve">
+    <value>Drag this handle to reorder the channels.</value>
+  </data>
+  <data name="SettingsTourDesc" xml:space="preserve">
+    <value>Guided tours</value>
+  </data>
+  <data name="SettingsTourButton" xml:space="preserve">
+    <value>Replay</value>
   </data>
   <data name="ErrorTitle" xml:space="preserve">
     <value>Error</value>
@@ -518,6 +872,18 @@
   </data>
   <data name="ImportExportTitle" xml:space="preserve">
     <value>Import / Export</value>
+  </data>
+  <data name="ImportExportInfoTitle" xml:space="preserve">
+    <value>Back up and share</value>
+  </data>
+  <data name="ImportExportInfoBody" xml:space="preserve">
+    <value>A .dmpack file carries your campaigns, your sounds, or both. Use it to back up your work, find it on another device, or share it with other GMs.</value>
+  </data>
+  <data name="ImportExportInfoExport" xml:space="preserve">
+    <value>Export: choose what goes in the file, from a single campaign (without audio, or with its channels and their audio) to the audio library or a full backup.</value>
+  </data>
+  <data name="ImportExportInfoImport" xml:space="preserve">
+    <value>Import: the file's content is added to yours, without replacing anything. Tracks already in your Library aren't copied twice.</value>
   </data>
   <data name="ImportExportSettingsDesc" xml:space="preserve">
     <value>Export or import your campaigns and library</value>

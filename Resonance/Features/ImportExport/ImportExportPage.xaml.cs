@@ -1,13 +1,17 @@
 using CommunityToolkit.Maui.Extensions;
+using Resonance.Services;
 
 namespace Resonance.Features.ImportExport;
 
 public partial class ImportExportPage : ContentPage
 {
-    public ImportExportPage(ImportExportViewModel vm)
+    private readonly AppTourService _tourService;
+
+    public ImportExportPage(ImportExportViewModel vm, AppTourService tourService)
     {
         InitializeComponent();
         BindingContext = vm;
+        _tourService = tourService;
 
         // Cf. SettingsPage.xaml.cs : plafonne/centre la colonne sur Desktop uniquement, en code plutôt
         // qu'en XAML (MaximumWidthRequest n'a pas de valeur sentinelle "pas de contrainte" du genre
@@ -36,5 +40,18 @@ public partial class ImportExportPage : ContentPage
 
         if (BindingContext is ImportExportViewModel vm)
             await vm.InitializeAsync();
+
+        // Visite de cet écran, la première fois qu'on y arrive (cf. AppTourService).
+        if (_tourService.IsImportExportTourPending)
+        {
+            try
+            {
+                await _tourService.StartImportExportTourAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Tour] {ex}");
+            }
+        }
     }
 }

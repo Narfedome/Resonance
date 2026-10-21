@@ -432,8 +432,362 @@
   <data name="OnboardingLanguage" xml:space="preserve">
     <value>Langue</value>
   </data>
-  <data name="OnboardingStart" xml:space="preserve">
-    <value>Commencer</value>
+  <data name="OnboardingNext" xml:space="preserve">
+    <value>Suivant</value>
+  </data>
+  <data name="OnboardingPrevious" xml:space="preserve">
+    <value>Précédent</value>
+  </data>
+  <data name="OnboardingStructureTitle" xml:space="preserve">
+    <value>Une campagne, des scènes</value>
+  </data>
+  <data name="OnboardingStructureBody" xml:space="preserve">
+    <value>Organisez chaque campagne en chapitres, et chaque chapitre en scènes. Une scène garde ses propres pistes et leurs volumes.</value>
+  </data>
+  <data name="OnboardingPlayTitle" xml:space="preserve">
+    <value>Vos sons, prêts à jouer</value>
+  </data>
+  <data name="OnboardingPlayBody" xml:space="preserve">
+    <value>Importez vos musiques et ambiances dans la Bibliothèque. Touchez « Lancer » sur une scène : ses pistes s'ouvrent dans le mixeur.</value>
+  </data>
+  <data name="OnboardingReadyTitle" xml:space="preserve">
+    <value>À vous de jouer</value>
+  </data>
+  <data name="OnboardingLoadSample" xml:space="preserve">
+    <value>Charger la campagne d'exemple</value>
+  </data>
+  <data name="OnboardingLoadSampleDesc" xml:space="preserve">
+    <value>Une courte campagne avec une ambiance de taverne, pour essayer tout de suite.</value>
+  </data>
+  <data name="OnboardingStartEmpty" xml:space="preserve">
+    <value>Partir de zéro</value>
+  </data>
+  <data name="SampleImportInProgress" xml:space="preserve">
+    <value>Ajout de la campagne d'exemple</value>
+  </data>
+  <data name="SampleImportDone" xml:space="preserve">
+    <value>La campagne d'exemple a été ajoutée à vos campagnes.</value>
+  </data>
+  <data name="SettingsHelpTitle" xml:space="preserve">
+    <value>Découvrir Resonance</value>
+  </data>
+  <data name="SettingsSampleDesc" xml:space="preserve">
+    <value>Une campagne prête à jouer</value>
+  </data>
+  <data name="SettingsSampleButton" xml:space="preserve">
+    <value>Charger</value>
+  </data>
+  <data name="SettingsSampleAlreadyImported" xml:space="preserve">
+    <value>La campagne d'exemple a déjà été chargée. En ajouter une seconde copie ?</value>
+  </data>
+  <data name="SettingsWelcomeDesc" xml:space="preserve">
+    <value>Écran d'accueil</value>
+  </data>
+  <data name="SettingsWelcomeButton" xml:space="preserve">
+    <value>Revoir</value>
+  </data>
+  <data name="OnboardingShareTitle" xml:space="preserve">
+    <value>Sauvegardez et partagez</value>
+  </data>
+  <data name="OnboardingShareBody" xml:space="preserve">
+    <value>Depuis les Réglages, l'écran Import / Export enregistre vos campagnes et vos sons dans un fichier .dmpack : pour les sauvegarder, les retrouver sur un autre appareil ou les partager avec d'autres MJ.</value>
+  </data>
+  <data name="TourCampaignIntroTitle" xml:space="preserve">
+    <value>Vos campagnes</value>
+  </data>
+  <data name="TourCampaignIntroBody" xml:space="preserve">
+    <value>Cet écran organise vos parties. Une campagne se découpe en chapitres, et chaque chapitre en scènes. Une scène réunit les pistes à jouer ensemble : vous la lancez d'ici pour l'ouvrir dans le mixeur.</value>
+  </data>
+  <data name="TourChevronTitle" xml:space="preserve">
+    <value>Ouvrir ou refermer</value>
+  </data>
+  <data name="TourChevronBody" xml:space="preserve">
+    <value>Le chevron ouvre ou referme la campagne. Toucher le reste de la ligne l'ouvre seulement, sans jamais la refermer.</value>
+  </data>
+  <data name="TourCampaignHandleTitle" xml:space="preserve">
+    <value>Réorganiser</value>
+  </data>
+  <data name="TourCampaignHandleBody" xml:space="preserve">
+    <value>Faites glisser la poignée pour changer l'ordre des campagnes. Chapitres et scènes ont la même poignée.</value>
+  </data>
+  <data name="TourSessionTitle" xml:space="preserve">
+    <value>Un chapitre</value>
+  </data>
+  <data name="TourSessionBody" xml:space="preserve">
+    <value>Un chapitre regroupe des scènes, par exemple celles d'une séance de jeu. Touchez-le pour afficher ses scènes.</value>
+  </data>
+  <data name="TourSceneTitle" xml:space="preserve">
+    <value>Une scène</value>
+  </data>
+  <data name="TourSceneBody" xml:space="preserve">
+    <value>Une scène est une ambiance prête à jouer : ses pistes, leurs volumes et leurs réglages. Touchez-la pour la sélectionner.</value>
+  </data>
+  <data name="TourCreateTitle" xml:space="preserve">
+    <value>Créer</value>
+  </data>
+  <data name="TourCreateBody" xml:space="preserve">
+    <value>Ajoutez une campagne, un chapitre ou une scène. Le type et l'emplacement sont pré-remplis d'après la ligne sélectionnée, et restent modifiables.</value>
+  </data>
+  <data name="TourEditTitle" xml:space="preserve">
+    <value>Modifier</value>
+  </data>
+  <data name="TourEditBody" xml:space="preserve">
+    <value>Renommez la ligne sélectionnée. Un chapitre ou une scène peut aussi être déplacé vers une autre campagne ou un autre chapitre.</value>
+  </data>
+  <data name="TourDeleteTitle" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="TourDeleteBody" xml:space="preserve">
+    <value>Supprime la ligne sélectionnée, après confirmation. Supprimer une campagne ou un chapitre supprime aussi tout ce qu'il contient.</value>
+  </data>
+  <data name="TourLibraryIntroTitle" xml:space="preserve">
+    <value>La Bibliothèque</value>
+  </data>
+  <data name="TourLibraryIntroBody" xml:space="preserve">
+    <value>Tous vos sons sont ici : musiques, ambiances et effets sonores, rangés par catégorie. Ce sont ces pistes que vous placez ensuite dans les canaux de vos scènes.</value>
+  </data>
+  <data name="TourMixerIntroTitle" xml:space="preserve">
+    <value>Le mixeur</value>
+  </data>
+  <data name="TourMixerIntroBody" xml:space="preserve">
+    <value>C'est ici que vous jouez une scène. Chaque canal fait tourner une piste avec son propre volume : superposez-les pour créer l'ambiance, et passez d'une scène à l'autre en cours de partie.</value>
+  </data>
+  <data name="TourMixerChannelBackgroundTitle" xml:space="preserve">
+    <value>Le fond de la tranche</value>
+  </data>
+  <data name="TourMixerChannelBackgroundBody" xml:space="preserve">
+    <value>Il s'éclaire pendant la lecture et suit le volume réel : il monte pendant un fondu d'entrée et descend pendant un fondu de sortie. Les bandes en haut et en bas signalent qu'un fondu de sortie ou d'entrée est réglé.</value>
+  </data>
+  <data name="TourSettingsIntroTitle" xml:space="preserve">
+    <value>Réglages du canal</value>
+  </data>
+  <data name="TourSettingsIntroBody" xml:space="preserve">
+    <value>Ces réglages s'appliquent à ce canal dans cette scène. « Enregistrer » les garde, « Annuler » laisse tout tel quel.</value>
+  </data>
+  <data name="TourSettingsVolumeTitle" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="TourSettingsVolumeBody" xml:space="preserve">
+    <value>Le volume de ce canal dans la scène, le même que celui de la tranche.</value>
+  </data>
+  <data name="TourSettingsLoopTitle" xml:space="preserve">
+    <value>Loop</value>
+  </data>
+  <data name="TourSettingsLoopBody" xml:space="preserve">
+    <value>La piste repart du début quand elle se termine, pour une ambiance sans fin.</value>
+  </data>
+  <data name="TourSettingsFadeInTitle" xml:space="preserve">
+    <value>Fade in</value>
+  </data>
+  <data name="TourSettingsFadeInBody" xml:space="preserve">
+    <value>Au lancement, le volume monte progressivement au lieu de démarrer d'un coup.</value>
+  </data>
+  <data name="TourSettingsFadeOutTitle" xml:space="preserve">
+    <value>Fade out</value>
+  </data>
+  <data name="TourSettingsFadeOutBody" xml:space="preserve">
+    <value>À l'arrêt ou au changement de scène, le volume baisse progressivement avant de couper.</value>
+  </data>
+  <data name="TourSettingsAutoPlayTitle" xml:space="preserve">
+    <value>Autoplay</value>
+  </data>
+  <data name="TourSettingsAutoPlayBody" xml:space="preserve">
+    <value>La piste démarre toute seule quand la scène est lancée.</value>
+  </data>
+  <data name="TourImportExportIntroTitle" xml:space="preserve">
+    <value>Import / Export</value>
+  </data>
+  <data name="TourImportExportIntroBody" xml:space="preserve">
+    <value>Cet écran sert à sauvegarder et partager votre travail grâce aux fichiers .dmpack. Le récapitulatif en haut de l'écran le résume à tout moment ; voici ses deux blocs.</value>
+  </data>
+  <data name="TourExportLevelTitle" xml:space="preserve">
+    <value>Quoi exporter</value>
+  </data>
+  <data name="TourExportLevelBody" xml:space="preserve">
+    <value>Structure seule : la campagne, ses chapitres et ses scènes, sans le son. Structure + canaux : la même chose avec les canaux de chaque scène et l'audio qu'ils utilisent. Bibliothèque audio seule : toutes vos pistes, sans campagne. Sauvegarde complète : tout.</value>
+  </data>
+  <data name="TourExportCampaignTitle" xml:space="preserve">
+    <value>Quelle campagne</value>
+  </data>
+  <data name="TourExportCampaignBody" xml:space="preserve">
+    <value>Pour « Structure seule » et « Structure + canaux », choisissez la campagne à exporter. Les deux autres niveaux portent sur toute l'appli : cette ligne disparaît alors.</value>
+  </data>
+  <data name="TourExportTitle" xml:space="preserve">
+    <value>Exporter</value>
+  </data>
+  <data name="TourExportBody" xml:space="preserve">
+    <value>Crée un fichier .dmpack avec le contenu choisi juste en dessous, puis vous laisse choisir où l'enregistrer.</value>
+  </data>
+  <data name="TourImportTitle" xml:space="preserve">
+    <value>Importer</value>
+  </data>
+  <data name="TourImportBody" xml:space="preserve">
+    <value>Choisissez un fichier .dmpack : ses campagnes s'ajoutent aux vôtres, et les pistes déjà présentes dans votre Bibliothèque ne sont pas copiées en double.</value>
+  </data>
+  <data name="TourNext" xml:space="preserve">
+    <value>Suivant</value>
+  </data>
+  <data name="TourDone" xml:space="preserve">
+    <value>Terminer</value>
+  </data>
+  <data name="TourSkip" xml:space="preserve">
+    <value>Passer</value>
+  </data>
+  <data name="TourCampaignTitle" xml:space="preserve">
+    <value>Une campagne</value>
+  </data>
+  <data name="TourCampaignBody" xml:space="preserve">
+    <value>Touchez-la pour la sélectionner et afficher ses chapitres. Une seule campagne reste dépliée à la fois.</value>
+  </data>
+  <data name="TourLaunchTitle" xml:space="preserve">
+    <value>Lancez une scène</value>
+  </data>
+  <data name="TourLaunchBody" xml:space="preserve">
+    <value>« Lancer » ouvre la scène dans le mixeur, avec ses pistes et leurs volumes.</value>
+  </data>
+  <data name="TourLibraryCategoryTitle" xml:space="preserve">
+    <value>Filtrer par catégorie</value>
+  </data>
+  <data name="TourLibraryCategoryBody" xml:space="preserve">
+    <value>Affichez toutes vos pistes, ou seulement une catégorie : musiques, ambiances, effets sonores.</value>
+  </data>
+  <data name="TourLibraryManageTitle" xml:space="preserve">
+    <value>Gérer les catégories</value>
+  </data>
+  <data name="TourLibraryManageBody" xml:space="preserve">
+    <value>Créez, renommez ou supprimez vos catégories.</value>
+  </data>
+  <data name="TourLibraryTileTitle" xml:space="preserve">
+    <value>Une piste</value>
+  </data>
+  <data name="TourLibraryTileBody" xml:space="preserve">
+    <value>Touchez une tuile pour sélectionner la piste : son contour passe au bleu.</value>
+  </data>
+  <data name="TourLibraryPlayTitle" xml:space="preserve">
+    <value>Écouter</value>
+  </data>
+  <data name="TourLibraryPlayBody" xml:space="preserve">
+    <value>Écoutez la piste directement depuis la Bibliothèque.</value>
+  </data>
+  <data name="TourLibraryCheckTitle" xml:space="preserve">
+    <value>Sélection multiple</value>
+  </data>
+  <data name="TourLibraryCheckBody" xml:space="preserve">
+    <value>Cochez plusieurs pistes pour les supprimer d'un coup.</value>
+  </data>
+  <data name="TourLibrarySelectAllTitle" xml:space="preserve">
+    <value>Tout sélectionner</value>
+  </data>
+  <data name="TourLibrarySelectAllBody" xml:space="preserve">
+    <value>Coche toutes les pistes d'un coup.</value>
+  </data>
+  <data name="TourLibraryAddTitle" xml:space="preserve">
+    <value>Ajouter une piste</value>
+  </data>
+  <data name="TourLibraryAddBody" xml:space="preserve">
+    <value>Importez un fichier audio (MP3, WAV, M4A ou Opus), puis donnez-lui un titre et une catégorie.</value>
+  </data>
+  <data name="TourLibraryEditTitle" xml:space="preserve">
+    <value>Modifier</value>
+  </data>
+  <data name="TourLibraryEditBody" xml:space="preserve">
+    <value>Changez le fichier, le titre ou la catégorie de la piste sélectionnée.</value>
+  </data>
+  <data name="TourLibraryDeleteTitle" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="TourLibraryDeleteBody" xml:space="preserve">
+    <value>Supprime la piste sélectionnée, ou toutes les pistes cochées.</value>
+  </data>
+  <data name="TourLibraryImportTitle" xml:space="preserve">
+    <value>Importer plusieurs pistes</value>
+  </data>
+  <data name="TourLibraryImportBody" xml:space="preserve">
+    <value>Choisissez plusieurs fichiers audio d'un coup (MP3, WAV, M4A ou Opus), puis la catégorie où les ranger.</value>
+  </data>
+  <data name="TourMixerSceneTitle" xml:space="preserve">
+    <value>Naviguer entre les scènes</value>
+  </data>
+  <data name="TourMixerSceneBody" xml:space="preserve">
+    <value>Changez de chapitre ou de scène, ou passez à la précédente et à la suivante avec les flèches.</value>
+  </data>
+  <data name="TourMixerGlobalTitle" xml:space="preserve">
+    <value>Commandes globales</value>
+  </data>
+  <data name="TourMixerGlobalBody" xml:space="preserve">
+    <value>Lancez tous les canaux, coupez-les en fondu ou arrêtez tout d'un coup.</value>
+  </data>
+  <data name="TourMixerFreeformTitle" xml:space="preserve">
+    <value>Scène libre</value>
+  </data>
+  <data name="TourMixerFreeformBody" xml:space="preserve">
+    <value>Passez sur une scène libre, hors de toute campagne, pour improviser une ambiance. Elle garde ses canaux d'une fois sur l'autre.</value>
+  </data>
+  <data name="TourMixerAddTitle" xml:space="preserve">
+    <value>Ajouter un canal</value>
+  </data>
+  <data name="TourMixerAddBody" xml:space="preserve">
+    <value>Chaque canal joue une piste : ajoutez-en pour superposer musique et ambiances.</value>
+  </data>
+  <data name="TourMixerAddEmptySceneBody" xml:space="preserve">
+    <value>Cette scène est vide : ajoutez un canal, puis choisissez sa piste dans la Bibliothèque.</value>
+  </data>
+  <data name="TourMixerAddNoTracksBody" xml:space="preserve">
+    <value>Votre Bibliothèque est vide : importez d'abord vos sons depuis l'onglet Bibliothèque, puis ajoutez un canal ici.</value>
+  </data>
+  <data name="TourMixerChannelTitle" xml:space="preserve">
+    <value>Un canal</value>
+  </data>
+  <data name="TourMixerChannelBody" xml:space="preserve">
+    <value>Chaque canal joue une piste : sa tranche réunit la lecture, le volume et ses réglages.</value>
+  </data>
+  <data name="TourMixerChannelPlayTitle" xml:space="preserve">
+    <value>Lecture et pause</value>
+  </data>
+  <data name="TourMixerChannelPlayBody" xml:space="preserve">
+    <value>Lance la piste, ou la met en pause sans perdre sa position.</value>
+  </data>
+  <data name="TourMixerChannelStopTitle" xml:space="preserve">
+    <value>Arrêt</value>
+  </data>
+  <data name="TourMixerChannelStopBody" xml:space="preserve">
+    <value>Arrête la piste, en fondu si le fondu de sortie est activé. La lecture suivante repart du début.</value>
+  </data>
+  <data name="TourMixerChannelVolumeTitle" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="TourMixerChannelVolumeBody" xml:space="preserve">
+    <value>Faites glisser pour régler le volume du canal : il est enregistré avec la scène.</value>
+  </data>
+  <data name="TourMixerChannelTrackTitle" xml:space="preserve">
+    <value>Choisir la piste</value>
+  </data>
+  <data name="TourMixerChannelTrackBody" xml:space="preserve">
+    <value>Ouvre la Bibliothèque pour choisir la piste que joue ce canal.</value>
+  </data>
+  <data name="TourMixerChannelSettingsTitle" xml:space="preserve">
+    <value>Réglages du canal</value>
+  </data>
+  <data name="TourMixerChannelSettingsBody" xml:space="preserve">
+    <value>Ouvre les réglages du canal : volume, boucle, fondus et lecture automatique.</value>
+  </data>
+  <data name="TourMixerChannelRemoveTitle" xml:space="preserve">
+    <value>Retirer le canal</value>
+  </data>
+  <data name="TourMixerChannelRemoveBody" xml:space="preserve">
+    <value>Retire ce canal de la scène. La piste, elle, reste dans votre Bibliothèque.</value>
+  </data>
+  <data name="TourMixerChannelHandleTitle" xml:space="preserve">
+    <value>Déplacer le canal</value>
+  </data>
+  <data name="TourMixerChannelHandleBody" xml:space="preserve">
+    <value>Faites glisser cette poignée pour changer l'ordre des canaux.</value>
+  </data>
+  <data name="SettingsTourDesc" xml:space="preserve">
+    <value>Visites guidées</value>
+  </data>
+  <data name="SettingsTourButton" xml:space="preserve">
+    <value>Revoir</value>
   </data>
   <data name="ErrorTitle" xml:space="preserve">
     <value>Erreur</value>
@@ -518,6 +872,18 @@
   </data>
   <data name="ImportExportTitle" xml:space="preserve">
     <value>Import / Export</value>
+  </data>
+  <data name="ImportExportInfoTitle" xml:space="preserve">
+    <value>Sauvegarder et partager</value>
+  </data>
+  <data name="ImportExportInfoBody" xml:space="preserve">
+    <value>Un fichier .dmpack emporte vos campagnes, vos sons, ou les deux. Servez-vous-en pour sauvegarder votre travail, le retrouver sur un autre appareil ou le partager avec d'autres MJ.</value>
+  </data>
+  <data name="ImportExportInfoExport" xml:space="preserve">
+    <value>Exporter : choisissez ce que contient le fichier, d'une campagne seule (sans l'audio, ou avec ses canaux et leur audio) à la bibliothèque audio ou à une sauvegarde complète.</value>
+  </data>
+  <data name="ImportExportInfoImport" xml:space="preserve">
+    <value>Importer : le contenu du fichier s'ajoute au vôtre, sans rien remplacer. Les pistes déjà présentes dans votre Bibliothèque ne sont pas copiées en double.</value>
   </data>
   <data name="ImportExportSettingsDesc" xml:space="preserve">
     <value>Exportez ou importez vos campagnes et votre bibliothèque</value>

@@ -21,13 +21,16 @@ namespace Resonance.Features.Campaigns
     {
         private readonly ISceneDataService _sceneDataService;
         private readonly AudioMixerViewModel _audioMixerViewModel;
+        private readonly AppTourService _tourService;
 
         public CampaignViewModel(
             ISceneDataService sceneDataService,
-            AudioMixerViewModel audioMixerViewModel)
+            AudioMixerViewModel audioMixerViewModel,
+            AppTourService tourService)
         {
             _sceneDataService = sceneDataService;
             _audioMixerViewModel = audioMixerViewModel;
+            _tourService = tourService;
 
             // Les mutations normales (Create/Edit/Delete) patchent Rows directement, sans jamais
             // recharger depuis la base — mais un import ajoute des campagnes par un chemin qui ne
@@ -100,6 +103,25 @@ namespace Resonance.Features.Campaigns
         {
             SelectedRow = row;
             if (!row.IsExpanded) await ExpandSessionAsync(row);
+        }
+
+        /// <summary>
+        /// Prépare la visite guidée (cf. AppTourService) : déplie la campagne la plus récente - la
+        /// campagne d'exemple, tout juste importée - et son premier chapitre, pour qu'un bouton Lancer
+        /// soit à l'écran. Retourne faux si aucune scène n'a pu être affichée.
+        /// </summary>
+        public async Task<bool> ExpandLatestCampaignForTourAsync()
+        {
+            var campaignRow = Rows.OfType<CampaignRow>().MaxBy(r => r.Campaign.Id);
+            if (campaignRow == null) return false;
+            await OpenCampaign(campaignRow);
+
+            // Seule la campagne dépliée a ses chapitres dans Rows (une branche par niveau).
+            var sessionRow = Rows.OfType<SessionRow>().FirstOrDefault();
+            if (sessionRow == null) return false;
+            await OpenSession(sessionRow);
+
+            return Rows.OfType<SceneRow>().Any();
         }
 
         [RelayCommand]
@@ -497,6 +519,20 @@ namespace Resonance.Features.Campaigns
             _audioMixerViewModel.SuppressNextFreeformAutoLoad = true;
             await Shell.Current.GoToAsync("//AudioMixerPage");
             await _audioMixerViewModel.LoadFromPlayAsync(sceneRow.ParentCampaign, sceneRow.ParentSession, sceneRow.Scene);
+
+            // Visite du mixeur au premier lancement d'une scène (pas en scène libre), une fois ses canaux
+            // chargés : son contenu dépend de la présence de canaux (cf. AppTourService).
+            if (_tourService.IsMixerTourPending)
+            {
+                try
+                {
+                    await _tourService.StartMixerTourAsync(_audioMixerViewModel.CurrentChannels.Count > 0);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[Tour] {ex}");
+                }
+            }
         }
     }
 }

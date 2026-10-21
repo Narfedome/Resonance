@@ -6,6 +6,8 @@
              xmlns:icons="clr-namespace:Resonance.Resources.Icons"
              xmlns:loc="clr-namespace:Resonance.Extensions"
              xmlns:components="clr-namespace:Resonance.Components"
+             xmlns:services="clr-namespace:Resonance.Services"
+             xmlns:onboarding="clr-namespace:Plugin.Maui.Onboarding"
              x:Name="root"      >
     <Grid Margin="5">
         <Grid.RowDefinitions>
@@ -22,12 +24,20 @@
                     TextColor="{DynamicResource AppAccent}"
                     FontSize="{OnIdiom Default=15, Desktop=13}"
                     HorizontalOptions="Start"
-                    Padding="8,4"/>
+                    Padding="8,4">
+                <Button.Behaviors>
+                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryCategoryKey}"/>
+                </Button.Behaviors>
+            </Button>
             <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Tags}"
                                          Command="{Binding ManageCategoriesCommand}"
                                          Tooltip="{loc:Loc LibManageCategories}"
                                          IsVisible="{Binding Source={x:Reference root}, Path=IsCrud}"
-                                         Grid.Column="1"/>
+                                         Grid.Column="1">
+                <components:FaIconButtonView.Behaviors>
+                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryManageCategoriesKey}"/>
+                </components:FaIconButtonView.Behaviors>
+            </components:FaIconButtonView>
         </Grid>
 
         <ActivityIndicator Grid.Row="1" IsRunning="{Binding Loading.IsLoading}" IsVisible="{Binding Loading.IsLoading}"
@@ -115,6 +125,9 @@
                          besoin de masquer quoi que ce soit puisque la sélection native (et donc son
                          fond orange) n'est plus utilisée du tout. -->
                     <Border Style="{StaticResource SelectableGridItemBorderStyle}" BackgroundColor="Transparent" Stroke="Grey">
+                        <Border.Behaviors>
+                            <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryTrackTileKey}"/>
+                        </Border.Behaviors>
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding Source={x:Reference root}, Path=BindingContext.SelectItemCommand}"
                                                   CommandParameter="{Binding .}"/>
@@ -143,7 +156,11 @@
                             <CheckBox Grid.Row="0"
                                       IsChecked="{Binding IsSelected}"
                                       IsVisible="{Binding Source={x:Reference root}, Path=IsCrud}"
-                                      HorizontalOptions="Start" VerticalOptions="Start"/>
+                                      HorizontalOptions="Start" VerticalOptions="Start">
+                                <CheckBox.Behaviors>
+                                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryTrackCheckKey}"/>
+                                </CheckBox.Behaviors>
+                            </CheckBox>
                             <!-- Label au lieu de l'image -->
                             <Label Text="{Binding Title}"
                         HorizontalOptions="Center"
@@ -166,23 +183,43 @@
                 <components:FaIconButtonView Icon="{x:Static icons:SolidFont.CheckDouble}"
                                              Command="{Binding SelectAllCommand}"
                                              Tooltip="{loc:Loc LibSelectAll}"
-                                             IsEnabled="{Binding HasTrackItems}"/>
+                                             IsEnabled="{Binding HasTrackItems}">
+                    <components:FaIconButtonView.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibrarySelectAllKey}"/>
+                    </components:FaIconButtonView.Behaviors>
+                </components:FaIconButtonView>
                 <BoxView WidthRequest="1" HeightRequest="28" VerticalOptions="Center" Margin="4,0" Color="{DynamicResource AppTextMuted}"/>
                 <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Plus}"
                                              Command="{Binding CreateCommand}"
-                                             Tooltip="{loc:Loc LibAdd}"/>
+                                             Tooltip="{loc:Loc LibAdd}">
+                    <components:FaIconButtonView.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryAddKey}"/>
+                    </components:FaIconButtonView.Behaviors>
+                </components:FaIconButtonView>
                 <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Pen}"
                                              Command="{Binding EditCommand}"
                                              Tooltip="{loc:Loc LibEdit}"
-                                             IsEnabled="{Binding SelectedTrackItem, Converter={StaticResource IsNotNullConverter}}"/>
+                                             IsEnabled="{Binding SelectedTrackItem, Converter={StaticResource IsNotNullConverter}}">
+                    <components:FaIconButtonView.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryEditKey}"/>
+                    </components:FaIconButtonView.Behaviors>
+                </components:FaIconButtonView>
                 <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Trash}"
                                              Command="{Binding DeleteSelectedItemsCommand}"
                                              Tooltip="{Binding DeleteTooltip}"
-                                             IsEnabled="{Binding CanDelete}"/>
+                                             IsEnabled="{Binding CanDelete}">
+                    <components:FaIconButtonView.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryDeleteKey}"/>
+                    </components:FaIconButtonView.Behaviors>
+                </components:FaIconButtonView>
                 <BoxView WidthRequest="1" HeightRequest="28" VerticalOptions="Center" Margin="4,0" Color="{DynamicResource AppTextMuted}"/>
                 <components:FaIconButtonView Icon="{x:Static icons:SolidFont.FolderPlus}"
                                              Command="{Binding ImportMultipleTracksCommand}"
-                                             Tooltip="{loc:Loc LibImport}"/>
+                                             Tooltip="{loc:Loc LibImport}">
+                    <components:FaIconButtonView.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryImportKey}"/>
+                    </components:FaIconButtonView.Behaviors>
+                </components:FaIconButtonView>
             </HorizontalStackLayout>
         </VerticalStackLayout>
         <VerticalStackLayout Grid.Row="2"

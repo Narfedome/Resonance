@@ -1,6 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:services="clr-namespace:Resonance.Services"
+               xmlns:onboarding="clr-namespace:Plugin.Maui.Onboarding"
                xmlns:system="clr-namespace:System;assembly=mscorlib"
                xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
                xmlns:loc="clr-namespace:Resonance.Extensions"
@@ -21,6 +23,9 @@
 
             <!-- Volume -->
             <Grid ColumnDefinitions="auto,*,40" ColumnSpacing="10">
+                <Grid.Behaviors>
+                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ChannelSettingsVolumeKey}"/>
+                </Grid.Behaviors>
                 <Label Text="{loc:Loc SceneVolume}" VerticalOptions="Center"/>
                 <Slider Grid.Column="1"
                         Minimum="0" Maximum="1"
@@ -31,19 +36,38 @@
             </Grid>
 
             <!-- Toggles -->
-            <Grid ColumnDefinitions="*,auto" RowDefinitions="auto,auto,auto,auto" RowSpacing="4">
-                <Label Grid.Row="0" Text="{loc:Loc ChannelLoop}" VerticalOptions="Center"/>
-                <CheckBox Grid.Row="0" Grid.Column="1" IsChecked="{Binding IsLooping, Mode=TwoWay}"/>
-
-                <Label Grid.Row="1" Text="{loc:Loc SceneFadeIn}" VerticalOptions="Center"/>
-                <CheckBox Grid.Row="1" Grid.Column="1" IsChecked="{Binding FadeIn, Mode=TwoWay}"/>
-
-                <Label Grid.Row="2" Text="{loc:Loc SceneFadeOut}" VerticalOptions="Center"/>
-                <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding FadeOut, Mode=TwoWay}"/>
-
-                <Label Grid.Row="3" Text="{loc:Loc SceneAuto}" VerticalOptions="Center"/>
-                <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding AutoPlay, Mode=TwoWay}"/>
-            </Grid>
+            <!-- Un Grid par option (et non un seul Grid à 4 lignes) : chaque ligne entière, libellé et
+                 case, peut ainsi être mise en lumière par la visite guidée (cf. AppTourService). -->
+            <VerticalStackLayout Spacing="4">
+                <Grid ColumnDefinitions="*,auto">
+                    <Grid.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ChannelSettingsLoopKey}"/>
+                    </Grid.Behaviors>
+                    <Label Text="{loc:Loc ChannelLoop}" VerticalOptions="Center"/>
+                    <CheckBox Grid.Column="1" IsChecked="{Binding IsLooping, Mode=TwoWay}"/>
+                </Grid>
+                <Grid ColumnDefinitions="*,auto">
+                    <Grid.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ChannelSettingsFadeInKey}"/>
+                    </Grid.Behaviors>
+                    <Label Text="{loc:Loc SceneFadeIn}" VerticalOptions="Center"/>
+                    <CheckBox Grid.Column="1" IsChecked="{Binding FadeIn, Mode=TwoWay}"/>
+                </Grid>
+                <Grid ColumnDefinitions="*,auto">
+                    <Grid.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ChannelSettingsFadeOutKey}"/>
+                    </Grid.Behaviors>
+                    <Label Text="{loc:Loc SceneFadeOut}" VerticalOptions="Center"/>
+                    <CheckBox Grid.Column="1" IsChecked="{Binding FadeOut, Mode=TwoWay}"/>
+                </Grid>
+                <Grid ColumnDefinitions="*,auto">
+                    <Grid.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ChannelSettingsAutoPlayKey}"/>
+                    </Grid.Behaviors>
+                    <Label Text="{loc:Loc SceneAuto}" VerticalOptions="Center"/>
+                    <CheckBox Grid.Column="1" IsChecked="{Binding AutoPlay, Mode=TwoWay}"/>
+                </Grid>
+            </VerticalStackLayout>
 
             <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                 <Button Grid.Column="0"
