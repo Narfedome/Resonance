@@ -188,7 +188,7 @@ public partial class OnboardingOverlayView : ContentView
         if (own is { } origin)
         {
             Rect b = geometry.Bounds;
-            return geometry with { Bounds = new Rect(b.X - origin.X, b.Y - origin.Y, b.Width, b.Height) };
+            return new SpotlightGeometry(new Rect(b.X - origin.X, b.Y - origin.Y, b.Width, b.Height), geometry.Shape, geometry.CornerRadius);
         }
 #endif
         await Task.CompletedTask;
