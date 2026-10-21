@@ -22,8 +22,9 @@ Resonance est aussi publiée sous Windows.
 - `OnboardingCoordinator.cs`, `Internals/OnboardingOverlayHost.cs`, `Views/OnboardingOverlayView.xaml.cs` :
   propriété `GlowColor` (lueur autour du trou et flèche), transmise jusqu'au dessin comme `ScrimColor`.
 - `Views/OnboardingTooltipCard.xaml` : textes et boutons aux couleurs du thème de Resonance
-  (`AppText`, `AppTextMuted`, `AppAccent`, police OpenSans), ombre sombre au lieu du halo blanc. Cette
-  carte dépend donc désormais de ces clés de ressources de l'appli.
+  (`AppText`, `AppTextMuted`, police OpenSans) et boutons des popups de l'appli (Passer :
+  `DialogSecondaryButtonStyle`, Suivant : style `Button` implicite), ombre sombre au lieu du halo
+  blanc. Cette carte dépend donc désormais de ces ressources de l'appli.
 
 Garder ce fichier à jour à chaque nouvelle modification, pour pouvoir reporter facilement une
 version plus récente du projet d'origine.

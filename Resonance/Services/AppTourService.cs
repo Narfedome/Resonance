@@ -64,21 +64,17 @@ namespace Resonance.Services
             await _coordinator.ReplayTourAsync(BuildTour(includeSceneStep));
         }
 
-        // Relu à chaque lancement : la palette et le thème clair/sombre ont pu changer entre deux visites.
-        // La bulle prend la surface et l'accent de la palette ; le voile reprend le fond de l'appli sur
-        // un thème sombre, mais reste noir sur un thème clair, où un voile clair n'assombrirait rien.
+        // Relu à chaque lancement : la palette a pu changer entre deux visites. La bulle et la lueur
+        // prennent la surface et l'accent de la palette ; le voile, lui, reste noir quel que soit le thème.
         private void ApplyThemeColors()
         {
             var resources = Application.Current!.Resources;
             var accent = (Color)resources["AppAccent"];
-            var background = (Color)resources["AppBackground"];
 
             _coordinator.TooltipBackgroundColor = (Color)resources["AppSurface"];
             _coordinator.TooltipBorderColor = accent;
             _coordinator.GlowColor = accent.WithAlpha(0.8f);
-            _coordinator.ScrimColor = background.GetLuminosity() < 0.5f
-                ? background.WithAlpha(0.85f)
-                : Colors.Black.WithAlpha(0.6f);
+            _coordinator.ScrimColor = Colors.Black.WithAlpha(0.7f);
         }
 
         private static OnboardingTour BuildTour(bool includeSceneStep)
