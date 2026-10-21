@@ -598,7 +598,7 @@
     <value>Import / Export</value>
   </data>
   <data name="TourImportExportIntroBody" xml:space="preserve">
-    <value>Save your campaigns and library to a .dmpack file, to find them on another device or share them with other GMs. Importing a file adds its content to yours, without replacing anything.</value>
+    <value>This screen backs up and shares your work through .dmpack files. The summary at the top of the screen sums it up at any time; here are its two blocks.</value>
   </data>
   <data name="TourExportLevelTitle" xml:space="preserve">
     <value>What to export</value>

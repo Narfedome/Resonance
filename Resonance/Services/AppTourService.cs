@@ -60,7 +60,6 @@ namespace Resonance.Services
         public const string ChannelSettingsFadeOutKey = "Tour.ChannelSettingsFadeOut";
         public const string ChannelSettingsAutoPlayKey = "Tour.ChannelSettingsAutoPlay";
 
-        public const string ImportExportInfoKey = "Tour.ImportExportInfo";
         public const string ImportExportExportKey = "Tour.ImportExportExport";
         public const string ImportExportLevelKey = "Tour.ImportExportLevel";
         public const string ImportExportCampaignKey = "Tour.ImportExportCampaign";
@@ -186,11 +185,10 @@ namespace Resonance.Services
             await StartAsync(builder.Build());
         }
 
-        // Ici, la présentation met en lumière la carte récapitulative plutôt qu'une bulle centrée : elle
-        // reste visible en haut de l'écran après la visite. Chaque bloc est ensuite montré en entier,
-        // avec un détour par les deux sélections de l'export.
+        // Chaque bloc est montré en entier, avec un détour par les deux sélections de l'export. La carte
+        // récapitulative du haut n'a pas d'étape : elle dit déjà, en permanence, ce que dirait sa bulle.
         public Task StartImportExportTourAsync() => StartAsync(OnboardingTourBuilder.Create(ImportExportTourKey)
-            .AddStep(Step(ImportExportInfoKey, "TourImportExportIntroTitle", "TourImportExportIntroBody"))
+            .AddStep(Intro("TourImportExportIntroTitle", "TourImportExportIntroBody"))
             .AddStep(Step(ImportExportExportKey, "TourExportTitle", "TourExportBody"))
             .AddStep(Step(ImportExportLevelKey, "TourExportLevelTitle", "TourExportLevelBody"))
             .AddStep(Step(ImportExportCampaignKey, "TourExportCampaignTitle", "TourExportCampaignBody"))

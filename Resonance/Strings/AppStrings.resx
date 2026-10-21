@@ -598,7 +598,7 @@
     <value>Import / Export</value>
   </data>
   <data name="TourImportExportIntroBody" xml:space="preserve">
-    <value>Sauvegardez vos campagnes et votre bibliothèque dans un fichier .dmpack, pour les retrouver sur un autre appareil ou les partager avec d'autres MJ. Importer un fichier ajoute son contenu au vôtre, sans rien remplacer.</value>
+    <value>Cet écran sert à sauvegarder et partager votre travail grâce aux fichiers .dmpack. Le récapitulatif en haut de l'écran le résume à tout moment ; voici ses deux blocs.</value>
   </data>
   <data name="TourExportLevelTitle" xml:space="preserve">
     <value>Quoi exporter</value>

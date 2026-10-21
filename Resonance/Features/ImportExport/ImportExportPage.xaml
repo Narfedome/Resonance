@@ -24,9 +24,6 @@
             <!-- Récapitulatif permanent (en plus de la visite guidée, qui ne passe qu'une fois) : à quoi
                  sert un .dmpack, ce que contient chaque niveau d'export, et ce que fait un import. -->
             <Border Style="{StaticResource SectionCardBorderStyle}">
-                <Border.Behaviors>
-                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.ImportExportInfoKey}"/>
-                </Border.Behaviors>
                 <VerticalStackLayout Spacing="8">
                     <Label Text="{loc:Loc ImportExportInfoTitle}" FontSize="{DynamicResource AppFontSizeSectionTitle}" FontAttributes="Bold"/>
                     <Label Text="{loc:Loc ImportExportInfoBody}" TextColor="{DynamicResource AppTextMuted}"
