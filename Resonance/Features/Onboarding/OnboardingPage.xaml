@@ -71,15 +71,20 @@
         </Grid.GestureRecognizers>
 
         <ScrollView Grid.Row="0">
-            <Grid x:Name="StepsHost" Padding="32,48,32,16" VerticalOptions="Center"
-                  MaximumWidthRequest="520">
+            <!-- Encart (fond translucide de SectionCardBorderStyle) : le texte posé directement sur le
+                 filigrane de WatermarkedLayout restait difficile à lire. -->
+            <Border Style="{StaticResource SectionCardBorderStyle}" Margin="20,32,20,16"
+                    VerticalOptions="Center" MaximumWidthRequest="520">
+            <Grid x:Name="StepsHost" Padding="8,16">
 
                 <!-- 1. Bienvenue : la langue d'abord, pour que la suite s'affiche dans la bonne langue. -->
                 <VerticalStackLayout Spacing="28" IsVisible="{Binding IsWelcomeStep}">
                     <Label Text="{loc:Loc OnboardingTitle}" Style="{StaticResource StepTitleStyle}"
                            FontSize="{OnIdiom Default=28, Desktop=24}"/>
                     <Label Text="{loc:Loc OnboardingDesc}" Style="{StaticResource StepBodyStyle}"/>
-                    <Border Style="{StaticResource SectionCardBorderStyle}">
+                    <!-- Simple ligne séparée plutôt qu'une carte : elle est déjà dans l'encart. -->
+                    <VerticalStackLayout Spacing="12">
+                        <BoxView HeightRequest="1" Color="{DynamicResource AppBorder}"/>
                         <Grid ColumnDefinitions="*,auto">
                             <Label Grid.Column="0"
                                    Text="{loc:Loc OnboardingLanguage}"
@@ -92,7 +97,7 @@
                                     FontSize="{OnIdiom Default=15, Desktop=13}"
                                     Padding="8,4"/>
                         </Grid>
-                    </Border>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
 
                 <!-- 2. Campagne › chapitre › scène, en escalier comme dans l'accordéon des Campagnes. -->
@@ -145,6 +150,7 @@
                             FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
                 </VerticalStackLayout>
             </Grid>
+            </Border>
         </ScrollView>
 
         <!-- Navigation : Précédent / points de progression / Suivant. Les colonnes latérales gardent
