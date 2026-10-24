@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Resonance.Features.AudioMixer;
 using Resonance.Features.ImportExport;
 using Resonance.Features.Library;
+using Resonance.Features.Onboarding;
 using Resonance.Services;
 using System.Collections.ObjectModel;
 
@@ -15,6 +16,8 @@ namespace Resonance.Features.Settings
         private readonly IStorageService _storageService;
         private readonly AudioPlayerService _audioPlayerService;
         private readonly AudioMixerViewModel _audioMixerViewModel;
+        private readonly SamplePackService _samplePackService;
+        private readonly AppTourService _tourService;
 
         // Windows exige 4 segments (Major.Minor.Build.Revision) pour l'identité de package - le 4e
         // (Revision) vaut toujours 0 (exigence du Microsoft Store), sans intérêt pour l'utilisateur, on l'aligne sur
@@ -158,6 +161,41 @@ namespace Resonance.Features.Settings
         public async Task OpenImportExport() =>
             await Shell.Current.GoToAsync(nameof(ImportExportPage));
 
+        [RelayCommand]
+        public async Task LoadSampleCampaign()
+        {
+            // L'import crée toujours de nouvelles campagnes : un second chargement en ferait une copie.
+            if (_samplePackService.HasImportedSample &&
+                !await ConfirmAsync(Loc["OnboardingLoadSample"], Loc["SettingsSampleAlreadyImported"]))
+                return;
+
+            try
+            {
+                await _samplePackService.ImportAsync(Shell.Current.CurrentPage);
+                await InitializeAsync();
+                await ShowInfoAsync(Loc["OnboardingLoadSample"], Loc["SampleImportDone"]);
+            }
+            catch (Exception ex)
+            {
+                await ShowErrorAsync(ex);
+            }
+        }
+
+        // Fait revenir les visites de chaque écran ; celle des Campagnes démarre tout de suite (cf.
+        // CampaignPage), les autres à la prochaine arrivée sur leur écran.
+        [RelayCommand]
+        public async Task StartTour()
+        {
+            _tourService.ResetAll();
+            await Shell.Current.GoToAsync("//CampaignPage");
+        }
+
+        // Nouvelle instance de l'accueil (Transient) : repart de la première étape. Son dernier bouton
+        // ramène sur l'AppShell (singleton), resté tel quel entre-temps.
+        [RelayCommand]
+        public void ReplayWelcome() =>
+            Application.Current!.Windows[0].Page = IPlatformApplication.Current!.Services.GetRequiredService<OnboardingPage>();
+
         public static Dictionary<string, string> LanguageLabels => LocalizationService.SupportedLanguages;
 
         public ObservableCollection<string> ThemeOptions { get; } = new();
@@ -174,11 +212,14 @@ namespace Resonance.Features.Settings
         [ObservableProperty]
         private string selectedThemeOption;
 
-        public SettingsViewModel(IStorageService storageService, AudioPlayerService audioPlayerService, AudioMixerViewModel audioMixerViewModel)
+        public SettingsViewModel(IStorageService storageService, AudioPlayerService audioPlayerService, AudioMixerViewModel audioMixerViewModel,
+            SamplePackService samplePackService, AppTourService tourService)
         {
             _storageService = storageService;
             _audioPlayerService = audioPlayerService;
             _audioMixerViewModel = audioMixerViewModel;
+            _samplePackService = samplePackService;
+            _tourService = tourService;
             selectedLanguage = Loc.Language;
             selectedPalette  = _theme.Palette;
             RebuildThemeOptions();

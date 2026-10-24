@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:internals="clr-namespace:Plugin.Maui.Onboarding.Internals"
+             x:Class="Plugin.Maui.Onboarding.Views.OnboardingTooltipCard"
+             x:Name="this">
+
+    <ContentView.Resources>
+        <internals:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+        <internals:NullToBoolConverter x:Key="NullToBoolConverter" />
+    </ContentView.Resources>
+
+    <!-- Plain BindableProperty-in / ICommand-out ContentView, no events. -->
+    <!-- BackgroundColor/Stroke are bound to TooltipBackgroundColor/TooltipBorderColor, whose own defaults
+         are literals (#E6000000, Transparent) rather than StaticResource lookups — a plugin can't assume
+         the host app defines a particular resource key, and an undefined StaticResource throws at load
+         time. Consumers who want different colors set those properties (directly, or via
+         OnboardingCoordinator.TooltipBackgroundColor/TooltipBorderColor), same as any other bindable
+         property. StrokeThickness stays nonzero unconditionally — Transparent is invisible at any
+         thickness, so the default look is unaffected, but it means a border color set later actually
+         renders without also having to touch this. -->
+    <Border Padding="18,12" StrokeThickness="1"
+            BackgroundColor="{Binding Source={x:Reference this}, Path=TooltipBackgroundColor}"
+            Stroke="{Binding Source={x:Reference this}, Path=TooltipBorderColor}">
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="14" />
+        </Border.StrokeShape>
+        <!-- Ajout Resonance : ombre sombre discrète au lieu du halo blanc d'origine, et textes/boutons
+             aux couleurs du thème de l'appli (AppText, AppTextMuted, AppAccent) au lieu du blanc fixe -
+             le fond de la carte suit lui aussi le thème (AppSurface, cf. AppTourService). -->
+        <Border.Shadow>
+            <Shadow Brush="#000000" Offset="0,4" Radius="14" Opacity="0.35" />
+        </Border.Shadow>
+
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*">
+            <Label Text="{Binding Source={x:Reference this}, Path=Title}"
+                   FontSize="16" FontFamily="OpenSansSemibold"
+                   TextColor="{DynamicResource AppText}"
+                   AutomationId="OnboardingTitleLabel" />
+
+            <Label Grid.Row="1" Text="{Binding Source={x:Reference this}, Path=Description}"
+                   FontSize="14" LineBreakMode="WordWrap"
+                   TextColor="{DynamicResource AppTextMuted}"
+                   AutomationId="OnboardingDescriptionLabel" />
+
+            <!-- Hosts the step's optional Content (see OnboardingStep.Content) — collapsed (no reserved
+                 space) whenever a step doesn't supply one, via NullToBoolConverter. -->
+            <ContentView Grid.Row="2" Margin="0,10,0,0"
+                         Content="{Binding Source={x:Reference this}, Path=StepContent}"
+                         IsVisible="{Binding Source={x:Reference this}, Path=StepContent, Converter={StaticResource NullToBoolConverter}}"
+                         AutomationId="OnboardingStepContentHost" />
+
+            <!-- Skip and Next both set TextColor explicitly (like everything else on this card) rather
+                 than falling through to the host app's implicit Button style, which would otherwise leak
+                 in here — the plugin can't assume what that style looks like, or even that Next would
+                 stay legible against TooltipBackgroundColor above. Skip renders lighter/dimmer
+                 (translucent white, regular weight) as the de-emphasized action; Next stays solid white
+                 and bold as the primary one. -->
+            <!-- Ajout Resonance : mêmes boutons que les popups de l'appli (ConfirmDialog) - Passer à
+                 contour (DialogSecondaryButtonStyle), Suivant/Terminer plein accent (style Button
+                 implicite) - pour que Passer ne se confonde plus avec le texte de la bulle. -->
+            <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="0,12,0,0">
+                <Button Grid.Column="0" Text="{Binding Source={x:Reference this}, Path=SkipText}"
+                        IsVisible="{Binding Source={x:Reference this}, Path=IsLastStep, Converter={StaticResource InvertedBoolConverter}}"
+                        HorizontalOptions="Start"
+                        Style="{StaticResource DialogSecondaryButtonStyle}"
+                        Command="{Binding Source={x:Reference this}, Path=SkipCommand}"
+                        AutomationId="OnboardingSkipButton" />
+
+                <Button Grid.Column="1" Text="{Binding Source={x:Reference this}, Path=NextText}"
+                        HorizontalOptions="End"
+                        Command="{Binding Source={x:Reference this}, Path=NextCommand}"
+                        AutomationId="OnboardingNextButton"/>
+            </Grid>
+        </Grid>
+    </Border>
+</ContentView>

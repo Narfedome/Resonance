@@ -5,12 +5,17 @@
              xmlns:icons="clr-namespace:Resonance.Resources.Icons"
              xmlns:loc="clr-namespace:Resonance.Extensions"
              xmlns:local="clr-namespace:Resonance.Features.AudioMixer"
+             xmlns:services="clr-namespace:Resonance.Services"
+             xmlns:onboarding="clr-namespace:Plugin.Maui.Onboarding"
              x:Class="Resonance.Components.MixerSceneSelectorView"
              x:DataType="local:AudioMixerViewModel">
 
     <!-- Barre de sélection de scène -->
     <Border Padding="10"
             IsEnabled="{Binding Loading.IsLoading, Converter={StaticResource InverseBoolConverter}}">
+        <Border.Behaviors>
+            <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerSceneSelectorKey}"/>
+        </Border.Behaviors>
         <!-- Grid sans lignes/colonnes déclarées : les deux enfants remplissent la même cellule
              et se superposent - seul celui dont IsVisible est vrai est réellement affiché, donc
              pas de chevauchement à l'écran. Évite de garder les 5 colonnes normales avec des

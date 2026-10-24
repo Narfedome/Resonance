@@ -6,6 +6,8 @@
              xmlns:icons="clr-namespace:Resonance.Resources.Icons"
              xmlns:loc="clr-namespace:Resonance.Extensions"
              xmlns:local="clr-namespace:Resonance.Features.AudioMixer"
+             xmlns:services="clr-namespace:Resonance.Services"
+             xmlns:onboarding="clr-namespace:Plugin.Maui.Onboarding"
              x:Class="Resonance.Components.MixerChannelCardView"
              x:DataType="corevm:ChannelStripViewModel">
 
@@ -17,6 +19,11 @@
     <!-- IsEnabled global : le strip et ses boutons (livre/gear/X) restent désactivés tant que
          SON lecteur n'est pas prêt (IsLoading), sans dupliquer le binding sur chaque bouton. -->
     <Grid Margin="10" IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
+        <!-- Cible de la visite guidée : la tranche entière (strip + boutons), détaillée ensuite
+             contrôle par contrôle (cf. AppTourService.StartMixerTourAsync). -->
+        <Grid.Behaviors>
+            <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelKey}"/>
+        </Grid.Behaviors>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
@@ -35,15 +42,27 @@
             </Grid.RowDefinitions>
             <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Book}"
                                      Command="{Binding Source={RelativeSource AncestorType={x:Type local:AudioMixerViewModel}}, Path=PickLibraryItemCommand}"
-                                     CommandParameter="{Binding .}" Grid.Row="0"/>
+                                     CommandParameter="{Binding .}" Grid.Row="0">
+                <components:FaIconButtonView.Behaviors>
+                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelTrackKey}"/>
+                </components:FaIconButtonView.Behaviors>
+            </components:FaIconButtonView>
             <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Gear}"
                                      Command="{Binding Source={RelativeSource AncestorType={x:Type local:AudioMixerViewModel}}, Path=OpenChannelSettingsCommand}"
                                      CommandParameter="{Binding .}"
                                      IsEnabled="{Binding HasSceneTrack}"
-                                     Tooltip="{loc:Loc ChannelSettings}" Grid.Row="1"/>
+                                     Tooltip="{loc:Loc ChannelSettings}" Grid.Row="1">
+                <components:FaIconButtonView.Behaviors>
+                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelSettingsKey}"/>
+                </components:FaIconButtonView.Behaviors>
+            </components:FaIconButtonView>
             <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Xmark}"
                                      Command="{Binding Source={RelativeSource AncestorType={x:Type local:AudioMixerViewModel}}, Path=RemoveChannelCommand}"
-                                     CommandParameter="{Binding .}" Grid.Row="2"/>
+                                     CommandParameter="{Binding .}" Grid.Row="2">
+                <components:FaIconButtonView.Behaviors>
+                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelRemoveKey}"/>
+                </components:FaIconButtonView.Behaviors>
+            </components:FaIconButtonView>
 
             <!-- Poignée : seul point d'accroche du drag, sur toutes les plateformes (cf.
                  AudioMixerPage.xaml : le Drop reste sur toute la carte, une cible facile à
@@ -55,6 +74,9 @@
                     Stroke="{DynamicResource AppBorder}" StrokeThickness="1"
                     StrokeShape="RoundRectangle 6"
                     Padding="6,4">
+                <Border.Behaviors>
+                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelHandleKey}"/>
+                </Border.Behaviors>
                 <Border.GestureRecognizers>
                     <DragGestureRecognizer CanDrag="True" DragStarting="OnDragStarting" DropCompleted="OnDropCompleted"/>
                 </Border.GestureRecognizers>

@@ -3,60 +3,220 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Resonance.Features.Onboarding"
              xmlns:loc="clr-namespace:Resonance.Extensions"
+             xmlns:icons="clr-namespace:Resonance.Resources.Icons"
              xmlns:components="clr-namespace:Resonance.Components"
              x:Class="Resonance.Features.Onboarding.OnboardingPage"
              x:DataType="local:OnboardingViewModel"
              NavigationPage.HasNavigationBar="False">
 
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="StepTitleStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="{OnIdiom Default=24, Desktop=20}"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{DynamicResource AppAccent}"/>
+                <Setter Property="HorizontalTextAlignment" Value="Center"/>
+            </Style>
+
+            <Style x:Key="StepBodyStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="{OnIdiom Default=15, Desktop=13}"/>
+                <Setter Property="TextColor" Value="{DynamicResource AppTextMuted}"/>
+                <Setter Property="HorizontalTextAlignment" Value="Center"/>
+                <Setter Property="LineHeight" Value="1.5"/>
+            </Style>
+
+            <!-- Illustrations composées d'icônes de la police (pas d'images) : suivent la palette
+                 choisie sans avoir à maintenir une capture par thème et par langue. -->
+            <Style x:Key="StepIconStyle" TargetType="Label">
+                <Setter Property="FontFamily" Value="FontSolid"/>
+                <Setter Property="FontSize" Value="{OnIdiom Default=30, Desktop=26}"/>
+                <Setter Property="TextColor" Value="{DynamicResource AppAccent}"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+                <Setter Property="HorizontalOptions" Value="Center"/>
+            </Style>
+
+            <Style x:Key="StepArrowStyle" TargetType="Label">
+                <Setter Property="FontFamily" Value="FontSolid"/>
+                <Setter Property="FontSize" Value="{OnIdiom Default=18, Desktop=16}"/>
+                <Setter Property="TextColor" Value="{DynamicResource AppTextMuted}"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+            </Style>
+
+            <Style x:Key="StepDotStyle" TargetType="BoxView">
+                <Setter Property="WidthRequest" Value="8"/>
+                <Setter Property="HeightRequest" Value="8"/>
+                <Setter Property="CornerRadius" Value="4"/>
+                <Setter Property="Color" Value="{DynamicResource AppAccent}"/>
+                <Setter Property="Opacity" Value="0.3"/>
+            </Style>
+
+            <Style x:Key="StepNavButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="TextColor" Value="{DynamicResource AppAccent}"/>
+                <Setter Property="FontSize" Value="{DynamicResource AppFontSizeSectionTitle}"/>
+                <Setter Property="Padding" Value="12,6"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
     <components:WatermarkedLayout>
-    <ScrollView>
-        <VerticalStackLayout Padding="32,48,32,32" Spacing="28" VerticalOptions="Center">
+    <!-- Diapos superposées dans un même Grid plutôt qu'un CarouselView : 4 écrans fixes n'ont pas
+         besoin de virtualisation, et on évite le swipe souris peu fiable du CarouselView sous Windows
+         et la synchro Position/IndicatorView. Le swipe tactile passe par SwipeGestureRecognizer ; les
+         boutons Précédent/Suivant restent toujours visibles pour la souris. -->
+    <Grid RowDefinitions="*,auto" Padding="0,0,0,16">
+        <Grid.GestureRecognizers>
+            <SwipeGestureRecognizer Direction="Left" Command="{Binding NextCommand}"/>
+            <SwipeGestureRecognizer Direction="Right" Command="{Binding PreviousCommand}"/>
+        </Grid.GestureRecognizers>
 
-            <!-- Title -->
-            <Label Text="{loc:Loc OnboardingTitle}"
-                   FontSize="{OnIdiom Default=28, Desktop=24}" FontAttributes="Bold"
-                   TextColor="{DynamicResource AppAccent}"
-                   HorizontalTextAlignment="Center"/>
+        <ScrollView Grid.Row="0">
+            <!-- Encart (fond translucide de SectionCardBorderStyle) : le texte posé directement sur le
+                 filigrane de WatermarkedLayout restait difficile à lire. Marges portées par le Grid
+                 parent, pas par le Border : combinée à MaximumWidthRequest, une Margin sur le Border
+                 n'est pas retranchée de sa largeur et l'encart débordait à droite. -->
+            <Grid Padding="20,32,20,16">
+            <Border Style="{StaticResource SectionCardBorderStyle}"
+                    VerticalOptions="Center" MaximumWidthRequest="520">
+            <Grid x:Name="StepsHost" Padding="8,16">
 
-            <!-- Description -->
-            <Label Text="{loc:Loc OnboardingDesc}"
-                   FontSize="{OnIdiom Default=15, Desktop=13}"
-                   TextColor="{DynamicResource AppTextMuted}"
-                   HorizontalTextAlignment="Center"
-                   LineHeight="1.5"/>
+                <!-- 1. Bienvenue : la langue d'abord, pour que la suite s'affiche dans la bonne langue. -->
+                <VerticalStackLayout Spacing="28" IsVisible="{Binding IsWelcomeStep}">
+                    <Label Text="{loc:Loc OnboardingTitle}" Style="{StaticResource StepTitleStyle}"
+                           FontSize="{OnIdiom Default=28, Desktop=24}"/>
+                    <Label Text="{loc:Loc OnboardingDesc}" Style="{StaticResource StepBodyStyle}"/>
+                    <!-- Simple ligne séparée plutôt qu'une carte : elle est déjà dans l'encart. -->
+                    <VerticalStackLayout Spacing="12">
+                        <BoxView HeightRequest="1" Color="{DynamicResource AppBorder}"/>
+                        <Grid ColumnDefinitions="*,auto">
+                            <Label Grid.Column="0"
+                                   Text="{loc:Loc OnboardingLanguage}"
+                                   VerticalOptions="Center" FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
+                            <Button Grid.Column="1"
+                                    Text="{Binding SelectedLanguageLabel}"
+                                    Command="{Binding SelectLanguageCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{DynamicResource AppAccent}"
+                                    FontSize="{OnIdiom Default=15, Desktop=13}"
+                                    Padding="8,4"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
 
-            <!-- Palette picker -->
-            <VerticalStackLayout Spacing="12">
-                <Label Text="{loc:Loc OnboardingPalette}"
-                       FontSize="{DynamicResource AppFontSizeSectionTitle}" FontAttributes="Bold"
-                       HorizontalTextAlignment="Center"/>
-                <components:PalettePickerView
-                    SelectedPalette="{Binding SelectedPalette, Mode=TwoWay}"/>
-            </VerticalStackLayout>
+                <!-- 2. Campagne › chapitre › scène, en escalier comme dans l'accordéon des Campagnes. -->
+                <VerticalStackLayout Spacing="28" IsVisible="{Binding IsStructureStep}">
+                    <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="{x:Static icons:SolidFont.Map}" Style="{StaticResource StepIconStyle}" HorizontalOptions="Start"/>
+                        <Label Text="{x:Static icons:SolidFont.Bookmark}" Style="{StaticResource StepIconStyle}" HorizontalOptions="Start" Margin="36,0,0,0"/>
+                        <HorizontalStackLayout Spacing="14" Margin="72,0,0,0">
+                            <Label Text="{x:Static icons:SolidFont.MasksTheater}" Style="{StaticResource StepIconStyle}"/>
+                            <Label Text="{x:Static icons:SolidFont.Music}" Style="{StaticResource StepIconStyle}" TextColor="{DynamicResource AppTextMuted}"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                    <Label Text="{loc:Loc OnboardingStructureTitle}" Style="{StaticResource StepTitleStyle}"/>
+                    <Label Text="{loc:Loc OnboardingStructureBody}" Style="{StaticResource StepBodyStyle}"/>
+                </VerticalStackLayout>
 
-            <!-- Language -->
-            <Border Style="{StaticResource SectionCardBorderStyle}">
-                <Grid ColumnDefinitions="*,auto">
-                    <Label Grid.Column="0"
-                           Text="{loc:Loc OnboardingLanguage}"
-                           VerticalOptions="Center" FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
-                    <Button Grid.Column="1"
-                            Text="{Binding SelectedLanguageLabel}"
-                            Command="{Binding SelectLanguageCommand}"
-                            BackgroundColor="Transparent"
-                            TextColor="{DynamicResource AppAccent}"
-                            FontSize="{OnIdiom Default=15, Desktop=13}"
-                            Padding="8,4"/>
-                </Grid>
+                <!-- 3. Bibliothèque puis mixeur : le chemin d'une piste jusqu'à la lecture. -->
+                <VerticalStackLayout Spacing="28" IsVisible="{Binding IsPlayStep}">
+                    <HorizontalStackLayout Spacing="16" HorizontalOptions="Center">
+                        <Label Text="{x:Static icons:SolidFont.BookOpen}" Style="{StaticResource StepIconStyle}"/>
+                        <Label Text="{x:Static icons:SolidFont.ArrowRight}" Style="{StaticResource StepArrowStyle}"/>
+                        <Label Text="{x:Static icons:SolidFont.MasksTheater}" Style="{StaticResource StepIconStyle}"/>
+                        <Label Text="{x:Static icons:SolidFont.ArrowRight}" Style="{StaticResource StepArrowStyle}"/>
+                        <Label Text="{x:Static icons:SolidFont.Sliders}" Style="{StaticResource StepIconStyle}"/>
+                    </HorizontalStackLayout>
+                    <Label Text="{loc:Loc OnboardingPlayTitle}" Style="{StaticResource StepTitleStyle}"/>
+                    <Label Text="{loc:Loc OnboardingPlayBody}" Style="{StaticResource StepBodyStyle}"/>
+                </VerticalStackLayout>
+
+                <!-- 4. Sauvegarde et partage : présente l'écran Import / Export des Réglages. -->
+                <VerticalStackLayout Spacing="28" IsVisible="{Binding IsShareStep}">
+                    <HorizontalStackLayout Spacing="16" HorizontalOptions="Center">
+                        <Label Text="{x:Static icons:SolidFont.FileExport}" Style="{StaticResource StepIconStyle}"/>
+                        <Label Text="{x:Static icons:SolidFont.ArrowRightArrowLeft}" Style="{StaticResource StepArrowStyle}"/>
+                        <Label Text="{x:Static icons:SolidFont.FileImport}" Style="{StaticResource StepIconStyle}"/>
+                    </HorizontalStackLayout>
+                    <Label Text="{loc:Loc OnboardingShareTitle}" Style="{StaticResource StepTitleStyle}"/>
+                    <Label Text="{loc:Loc OnboardingShareBody}" Style="{StaticResource StepBodyStyle}"/>
+                </VerticalStackLayout>
+
+                <!-- 5. Palette, puis campagne d'exemple ou install vide. -->
+                <VerticalStackLayout Spacing="24" IsVisible="{Binding IsReadyStep}">
+                    <Label Text="{loc:Loc OnboardingReadyTitle}" Style="{StaticResource StepTitleStyle}"/>
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="{loc:Loc OnboardingPalette}"
+                               FontSize="{DynamicResource AppFontSizeSectionTitle}" FontAttributes="Bold"
+                               HorizontalTextAlignment="Center"/>
+                        <components:PalettePickerView
+                            SelectedPalette="{Binding SelectedPalette, Mode=TwoWay}"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Spacing="8" Margin="0,8,0,0">
+                        <Button Text="{loc:Loc OnboardingLoadSample}"
+                                Command="{Binding LoadSampleCommand}"
+                                FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
+                        <Label Text="{loc:Loc OnboardingLoadSampleDesc}" Style="{StaticResource StepBodyStyle}"
+                               FontSize="{OnIdiom Default=13, Desktop=11}"/>
+                    </VerticalStackLayout>
+                    <Button Text="{loc:Loc OnboardingStartEmpty}"
+                            Command="{Binding StartEmptyCommand}"
+                            Style="{StaticResource DialogSecondaryButtonStyle}"
+                            FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
+                </VerticalStackLayout>
+            </Grid>
             </Border>
+            </Grid>
+        </ScrollView>
 
-            <!-- Start button -->
-            <Button Text="{loc:Loc OnboardingStart}"
-                    Command="{Binding StartCommand}"
-                    FontSize="{DynamicResource AppFontSizeSectionTitle}"
-                    Margin="0,8,0,0"/>
-
-        </VerticalStackLayout>
-    </ScrollView>
+        <!-- Navigation : Précédent / points de progression / Suivant. Les colonnes latérales gardent
+             leur largeur même bouton masqué, pour que les points restent centrés. -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,auto,*" Padding="16,0" MaximumWidthRequest="520">
+            <Button Grid.Column="0" Text="{loc:Loc OnboardingPrevious}"
+                    Command="{Binding PreviousCommand}" Style="{StaticResource StepNavButtonStyle}"
+                    HorizontalOptions="Start"
+                    IsVisible="{Binding IsFirstStep, Converter={StaticResource InverseBoolConverter}}"/>
+            <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
+                <BoxView Style="{StaticResource StepDotStyle}">
+                    <BoxView.Triggers>
+                        <DataTrigger TargetType="BoxView" Binding="{Binding IsWelcomeStep}" Value="True">
+                            <Setter Property="Opacity" Value="1"/>
+                        </DataTrigger>
+                    </BoxView.Triggers>
+                </BoxView>
+                <BoxView Style="{StaticResource StepDotStyle}">
+                    <BoxView.Triggers>
+                        <DataTrigger TargetType="BoxView" Binding="{Binding IsStructureStep}" Value="True">
+                            <Setter Property="Opacity" Value="1"/>
+                        </DataTrigger>
+                    </BoxView.Triggers>
+                </BoxView>
+                <BoxView Style="{StaticResource StepDotStyle}">
+                    <BoxView.Triggers>
+                        <DataTrigger TargetType="BoxView" Binding="{Binding IsPlayStep}" Value="True">
+                            <Setter Property="Opacity" Value="1"/>
+                        </DataTrigger>
+                    </BoxView.Triggers>
+                </BoxView>
+                <BoxView Style="{StaticResource StepDotStyle}">
+                    <BoxView.Triggers>
+                        <DataTrigger TargetType="BoxView" Binding="{Binding IsShareStep}" Value="True">
+                            <Setter Property="Opacity" Value="1"/>
+                        </DataTrigger>
+                    </BoxView.Triggers>
+                </BoxView>
+                <BoxView Style="{StaticResource StepDotStyle}">
+                    <BoxView.Triggers>
+                        <DataTrigger TargetType="BoxView" Binding="{Binding IsReadyStep}" Value="True">
+                            <Setter Property="Opacity" Value="1"/>
+                        </DataTrigger>
+                    </BoxView.Triggers>
+                </BoxView>
+            </HorizontalStackLayout>
+            <Button Grid.Column="2" Text="{loc:Loc OnboardingNext}"
+                    Command="{Binding NextCommand}" Style="{StaticResource StepNavButtonStyle}"
+                    HorizontalOptions="End"
+                    IsVisible="{Binding IsReadyStep, Converter={StaticResource InverseBoolConverter}}"/>
+        </Grid>
+    </Grid>
     </components:WatermarkedLayout>
 </ContentPage>
