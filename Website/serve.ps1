@@ -30,6 +30,9 @@ while ($listener.IsListening) {
         $relativePath = "index.html"
     }
     $filePath = Join-Path $RootPath $relativePath
+    if (Test-Path $filePath -PathType Container) {
+        $filePath = Join-Path $filePath "index.html"
+    }
 
     if (Test-Path $filePath -PathType Leaf) {
         $ext = [System.IO.Path]::GetExtension($filePath)

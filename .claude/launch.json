@@ -4,8 +4,9 @@
     {
       "name": "dmtools-website",
       "runtimeExecutable": "powershell",
-      "runtimeArgs": ["-ExecutionPolicy", "Bypass", "-File", "D:/Dev/DmTools/Website/serve.ps1"],
-      "port": 8532
+      "runtimeArgs": ["-ExecutionPolicy", "Bypass", "-File", "Website/serve.ps1", "-Port", "8532"],
+      "port": 8532,
+      "autoPort": false
     }
   ]
 }
