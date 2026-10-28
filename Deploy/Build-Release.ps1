@@ -213,11 +213,35 @@ try {
             Write-Warning "Deploy\dmtools-release.keystore absent (ou identifiants manquants dans Build-Release.local.ps1) : signature avec le debug.keystore local (differente d'un PC a l'autre, a eviter pour une release distribuee)."
         }
 
+        # Build Android toujours reparti de zero : un obj\ laisse par un build precedent (Debug deploye
+        # sur telephone, build incremental interrompu...) a deja produit, cote Mordheim Ledger, un AAB
+        # publie sans les polices d'icones, alors qu'un build propre du meme commit les embarque.
+        Remove-Item (Join-Path $repoRoot "Resonance\obj\Release\net10.0-android"), (Join-Path $repoRoot "Resonance\bin\Release\net10.0-android") -Recurse -Force -ErrorAction SilentlyContinue
+
         dotnet publish $csprojPath -f net10.0-android -c Release -p:AndroidPackageFormat=aab @signingArgs
         if ($LASTEXITCODE -ne 0) { throw "dotnet publish (Android) a echoue (code $LASTEXITCODE)." }
 
         $publishedAab = Join-Path $repoRoot "Resonance\bin\Release\net10.0-android\publish\com.narfedome.resonance-Signed.aab"
         if (-not (Test-Path $publishedAab)) { throw "AAB signe introuvable a '$publishedAab'." }
+
+        # Garde-fou bloquant : chaque police de Resources\Fonts doit etre dans l'AAB (base/assets/), non
+        # vide. Sans elles l'appli demarre normalement mais toutes les icones s'affichent vides - rien
+        # ne le signale au build, d'ou ce controle avant de laisser l'AAB partir vers la Play Console.
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        $aabZip = [System.IO.Compression.ZipFile]::OpenRead($publishedAab)
+        try {
+            $aabAssets = @{}
+            foreach ($entry in $aabZip.Entries) { $aabAssets[$entry.FullName] = $entry.Length }
+        } finally {
+            $aabZip.Dispose()
+        }
+        $missingFonts = Get-ChildItem (Join-Path $repoRoot "Resonance\Resources\Fonts") -File |
+            Where-Object { -not $aabAssets["base/assets/$($_.Name)"] } |
+            ForEach-Object Name
+        if ($missingFonts) {
+            throw "Polices absentes (ou vides) dans l'AAB : $($missingFonts -join ', '). AAB non publie - relancer le script."
+        }
+        Write-Host "Polices verifiees dans l'AAB." -ForegroundColor DarkGray
         $aabPath = Join-Path $outputDirPlayStore "Resonance-$version.aab"
         Copy-Item -Path $publishedAab -Destination $aabPath -Force
 
