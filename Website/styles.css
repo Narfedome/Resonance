@@ -432,36 +432,11 @@ section > .container > p.section-intro {
   width: auto;
 }
 
-.badge-soon {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  height: 56px;
-  box-sizing: border-box;
-  padding: 0 18px;
-  background: #000;
-  border: 1px solid #a6a6a6;
-  border-radius: 8px;
-  color: #fff;
-  text-align: left;
-  opacity: 0.45;
-}
-
-.badge-soon svg {
-  width: 24px;
-  height: 24px;
-}
-
-.badge-soon span {
-  font-size: 1.15rem;
-  line-height: 1.15;
-}
-
-.badge-soon small {
-  display: block;
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+/* Badge officiel Google Play : le PNG (646x250) a une marge transparente en haut et en bas (29px
+   chacune), compensee ici pour que le badge visible fasse 56px comme celui du Microsoft Store. */
+.store-badges .badge-play img {
+  height: 73px;
+  margin: -8.5px 0;
 }
 
 .store-alt {
