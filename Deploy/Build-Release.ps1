@@ -294,9 +294,11 @@ try {
         throw "GitHub CLI (gh) introuvable. Installe-le et authentifie-toi (gh auth login) pour publier une release."
     }
 
-    $assets = @(
+    # @() exterieur indispensable : avec un seul fichier, le filtre renvoie une chaine et non un
+    # tableau, et @assets la passerait alors caractere par caractere a gh ("no matches found for D").
+    $assets = @(@(
         Join-Path $outputDirWindows "ResonanceInstaller.exe"
-    ) | Where-Object { Test-Path $_ }
+    ) | Where-Object { Test-Path $_ })
 
     if ($SkipWindows -or $assets.Count -eq 0) {
         Write-Host "Pas d'installeur Windows : ni GitHub Release ni redeploiement du site (l'AAB passe par la Play Console)." -ForegroundColor Yellow
