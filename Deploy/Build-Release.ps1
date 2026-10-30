@@ -16,8 +16,9 @@
     AppVersionMajor.AppVersionMinor.<nombre de commits git> - lu ici depuis le csproj pour
     ne jamais s'en ecarter silencieusement.
     Android est distribue uniquement via le Play Store : la partie Android produit un AAB signe
-    sous Deploy\PlayStore\Resonance-<version>.aab, a uploader dans la Play Console, et n'apparait
-    ni dans la GitHub Release ni sur le site.
+    sous Deploy\PlayStore\Resonance-<version>.aab, publie automatiquement sur Google Play si la cle
+    du compte de service est configuree (sinon a uploader dans la Play Console), et n'apparait ni
+    dans la GitHub Release ni sur le site.
     L'installeur Windows finit sous Website\downloads\ (a la racine du depot), avec un nom de
     fichier fixe (ResonanceInstaller.exe) : pas de numero de version dans le nom, pour
     que le lien de telechargement du site n'ait jamais besoin de changer. Ce dossier est gitignore
@@ -245,7 +246,41 @@ try {
         $aabPath = Join-Path $outputDirPlayStore "Resonance-$version.aab"
         Copy-Item -Path $publishedAab -Destination $aabPath -Force
 
-        Write-Host "AAB : $aabPath (a uploader dans la Play Console)" -ForegroundColor Green
+        Write-Host "AAB : $aabPath" -ForegroundColor Green
+
+        # --- Publication Google Play via Deploy\PlayPublisher.cs (Google Play Developer API) : upload de
+        #     l'AAB et du mapping.txt R8, version affectee a la piste DMTOOLS_PLAY_TRACK (production par
+        #     defaut), avec en notes de version (« Nouveautes ») la section $major.$minor du changelog du
+        #     site (FR + EN), puis envoi en examen. Identifiants : cle JSON d'un compte de service invite
+        #     dans la Play Console, deposee dans ce dossier Deploy\ (gitignoree, comme la keystore) ou
+        #     designee par DMTOOLS_PLAY_SERVICE_ACCOUNT_JSON. Non bloquant comme le Microsoft Store : en
+        #     cas d'echec, l'AAB reste sous Deploy\PlayStore\ pour un upload manuel. ---
+        $playKey = $env:DMTOOLS_PLAY_SERVICE_ACCOUNT_JSON
+        if (-not $playKey) {
+            $playKey = Get-ChildItem $releaseDir -Filter *.json |
+                Where-Object { try { (Get-Content $_.FullName -Raw | ConvertFrom-Json).type -eq "service_account" } catch { $false } } |
+                Select-Object -First 1 -ExpandProperty FullName
+        }
+        if (-not $playKey) {
+            Write-Warning "Aucune cle de compte de service Google Play (.json) dans Deploy\ : AAB a uploader a la main dans la Play Console."
+        } elseif (-not (Test-Path $playKey)) {
+            Write-Warning "Cle Google Play introuvable ('$playKey') : AAB a uploader a la main dans la Play Console."
+        } else {
+            Write-Host "=== Android : publication Google Play ===" -ForegroundColor Cyan
+            $playTrack = if ($env:DMTOOLS_PLAY_TRACK) { $env:DMTOOLS_PLAY_TRACK } else { "production" }
+            dotnet run (Join-Path $releaseDir "PlayPublisher.cs") -- `
+                --key $playKey `
+                --package "com.narfedome.resonance" `
+                --aab $aabPath `
+                --track $playTrack `
+                --name $version `
+                --mapping (Join-Path $repoRoot "Resonance\bin\Release\net10.0-android\mapping.txt") `
+                --changelog (Join-Path $repoRoot "Website") `
+                --changelog-version "$major.$minor"
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "Echec de la publication Google Play (code $LASTEXITCODE) : AAB a uploader a la main dans la Play Console."
+            }
+        }
     }
 
     # --- Publication GitHub Release : seule source des binaires pour le site (jamais commites,

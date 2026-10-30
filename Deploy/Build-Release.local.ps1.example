@@ -34,3 +34,18 @@ $env:DMTOOLS_MSSTORE_SELLER_ID     = "00000000"
 $env:DMTOOLS_MSSTORE_TENANT_ID     = "00000000-0000-0000-0000-000000000000"
 $env:DMTOOLS_MSSTORE_CLIENT_ID     = "00000000-0000-0000-0000-000000000000"
 $env:DMTOOLS_MSSTORE_CLIENT_SECRET = "secret-de-l-appli-entra"
+
+# Publication automatique de l'AAB sur Google Play (Deploy\PlayPublisher.cs) : deposer dans ce
+# dossier Deploy\ la cle JSON du compte de service (recuperee depuis le Drive partage, gitignoree
+# comme la keystore) suffit, rien a configurer. Sans cle, l'AAB reste sous Deploy\PlayStore\ pour
+# un upload manuel dans la Play Console. Les notes de version reprennent la section de la version
+# majeure.mineure du changelog du site (Website\changelog.html et en\changelog.html).
+# Cle : compte de service Google Cloud (projet avec l'API "Google Play Android Developer API"
+# activee), invite dans Play Console > Utilisateurs et autorisations avec "Afficher les informations
+# sur l'application" et "Mettre les applications a disposition de tous les utilisateurs". La meme
+# cle sert pour toutes les applis du compte Play.
+# Optionnel :
+# - SERVICE_ACCOUNT_JSON : chemin d'une cle rangee ailleurs que dans Deploy\.
+# - TRACK : piste cible (production par defaut, sinon beta, alpha, internal).
+# $env:DMTOOLS_PLAY_SERVICE_ACCOUNT_JSON = "C:\chemin\vers\narfedome-xxxxxxxxxxxx.json"
+# $env:DMTOOLS_PLAY_TRACK                = "production"
