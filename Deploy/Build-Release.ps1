@@ -37,6 +37,12 @@
 .PARAMETER SkipAndroid
     N'effectue que la publication Windows + installeur.
 
+.PARAMETER StoreDraft
+    Cree la soumission Microsoft Store en brouillon (msstore publish --noCommit) au lieu de l'envoyer
+    en certification. Sert a valider identifiants et envoi sans rien publier : Partner Center ne
+    traite le MSIX envoye qu'a la validation (commit), donc le brouillon affiche encore l'ancien
+    paquet - le supprimer ensuite plutot que l'envoyer depuis Partner Center.
+
 .EXAMPLE
     .\Build-Release.ps1
     Genere l'installeur Windows ET l'AAB Android, publie une GitHub Release et redeploie le site.
@@ -49,7 +55,8 @@
 
 param(
     [switch]$SkipWindows,
-    [switch]$SkipAndroid
+    [switch]$SkipAndroid,
+    [switch]$StoreDraft
 )
 
 $ErrorActionPreference = "Stop"
@@ -172,10 +179,46 @@ try {
                 msstore reconfigure --tenantId $env:DMTOOLS_MSSTORE_TENANT_ID --sellerId $env:DMTOOLS_MSSTORE_SELLER_ID --clientId $env:DMTOOLS_MSSTORE_CLIENT_ID --clientSecret $env:DMTOOLS_MSSTORE_CLIENT_SECRET | Out-Null
                 if ($LASTEXITCODE -ne 0) { throw "msstore reconfigure a echoue (code $LASTEXITCODE)." }
 
-                msstore publish (Join-Path $repoRoot "Resonance") --inputFile $msixPath --appId $storeProductId
-                if ($LASTEXITCODE -ne 0) { throw "msstore publish a echoue (code $LASTEXITCODE)." }
+                # reconfigure ne verifie que l'obtention du jeton, pas les droits sur l'API de soumission :
+                # on interroge l'appli directement pour distinguer un refus de droits (403, cause la plus
+                # frequente) d'un autre echec, que msstore resume en "Could not retrieve your application".
+                try {
+                    $token = (Invoke-RestMethod -Method Post -Uri "https://login.microsoftonline.com/$($env:DMTOOLS_MSSTORE_TENANT_ID)/oauth2/token" -Body @{
+                        grant_type = "client_credentials"; client_id = $env:DMTOOLS_MSSTORE_CLIENT_ID
+                        client_secret = $env:DMTOOLS_MSSTORE_CLIENT_SECRET; resource = "https://manage.devcenter.microsoft.com" }).access_token
+                } catch {
+                    throw "identifiants Microsoft Entra refuses (TENANT_ID/CLIENT_ID/CLIENT_SECRET) : verifier que CLIENT_SECRET est bien la VALEUR du secret, pas son ID, et qu'il n'a pas expire."
+                }
+                try {
+                    Invoke-RestMethod -Uri "https://manage.devcenter.microsoft.com/v1.0/my/applications/$storeProductId" -Headers @{ Authorization = "Bearer $token" } | Out-Null
+                } catch {
+                    $status = [int]$_.Exception.Response.StatusCode
+                    if ($status -eq 403) {
+                        throw "acces refuse par l'API de soumission (403) : l'appli Microsoft Entra $($env:DMTOOLS_MSSTORE_CLIENT_ID) doit figurer dans Partner Center > Parametres du compte > Gestion des utilisateurs > Applications Microsoft Entra, avec le role Manager."
+                    }
+                    if ($status -eq 404) { throw "appli $storeProductId introuvable pour ce compte Partner Center (Store ID ou Seller ID errone ?)." }
+                    throw "API de soumission injoignable (HTTP $status)."
+                }
 
-                Write-Host "Soumission Microsoft Store envoyee en certification (v$version)." -ForegroundColor Green
+                # msstore publish attend le DOSSIER du package (-i), pas le fichier, et y choisit lui-meme
+                # le "meilleur candidat" : Deploy\MicrosoftStore garde les MSIX des versions precedentes,
+                # d'ou un dossier d'envoi qui ne contient que celui-ci.
+                $msixUploadDir = Join-Path $outputDirMicrosoftStore "upload"
+                Remove-Item $msixUploadDir -Recurse -Force -ErrorAction SilentlyContinue
+                New-Item -ItemType Directory -Force -Path $msixUploadDir | Out-Null
+                Copy-Item -Path $msixPath -Destination $msixUploadDir
+
+                $publishArgs = @((Join-Path $repoRoot "Resonance"), "-i", $msixUploadDir, "--appId", $storeProductId)
+                if ($StoreDraft) { $publishArgs += "--noCommit" }
+                msstore publish @publishArgs
+                if ($LASTEXITCODE -ne 0) { throw "msstore publish a echoue (code $LASTEXITCODE)." }
+                Remove-Item $msixUploadDir -Recurse -Force -ErrorAction SilentlyContinue
+
+                if ($StoreDraft) {
+                    Write-Host "Soumission Microsoft Store creee en brouillon (v$version) : identifiants et envoi valides, brouillon a supprimer dans Partner Center." -ForegroundColor Green
+                } else {
+                    Write-Host "Soumission Microsoft Store envoyee en certification (v$version)." -ForegroundColor Green
+                }
             } catch {
                 Write-Warning "Echec de la soumission Microsoft Store : $($_.Exception.Message) MSIX a uploader a la main dans Partner Center."
             }
