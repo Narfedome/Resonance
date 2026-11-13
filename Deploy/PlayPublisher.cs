@@ -18,6 +18,13 @@
 //   --changelog <dossier Website> + --changelog-version <majeure.mineure> : notes de version
 //                       (« Nouveautes » de la fiche Play) reprises du changelog du site, section
 //                       <h2>majeure.mineure</h2> de changelog.html (fr-FR) et en/changelog.html (en-US)
+//   --listing-images <dossier> : remplace dans le meme edit les images de la fiche (fr-FR et en-US),
+//                       depuis la sortie de StoreListing\Build-StoreListing.ps1 : captures telephone
+//                       phone-*.png (memes images pour les deux langues) et image de presentation
+//                       feature-graphic-fr.png / feature-graphic-en.png. Les images existantes du meme
+//                       type sont supprimees d'abord (deleteall), sinon elles s'ajouteraient aux nouvelles.
+//   --aab est facultatif avec --listing-images : sans AAB, l'edit ne touche que les images (avec
+//                       --dry-run, pour tester l'envoi sans rien publier).
 //   --dry-run           tout faire sauf valider l'edit
 //   --notes-only        afficher les notes extraites du changelog, sans rien envoyer
 
@@ -28,6 +35,7 @@ using Google.Apis.Services;
 using Google.Apis.Upload;
 using System.Net;
 using System.Text.RegularExpressions;
+using ImageType = Google.Apis.AndroidPublisher.v3.EditsResource.ImagesResource.UploadMediaUpload.ImageTypeEnum;
 
 var options = ParseArgs(args);
 string Required(string name) => options.TryGetValue(name, out var value) && value != null
@@ -61,7 +69,9 @@ try
         return 0;
 
     var package = Required("package");
-    var aabPath = Required("aab");
+    var listingImagesDir = options.GetValueOrDefault("listing-images");
+    var aabPath = listingImagesDir != null ? options.GetValueOrDefault("aab") : Required("aab");
+    var listingImages = listingImagesDir != null ? ListingImages(listingImagesDir) : [];
 
     var credential = CredentialFactory.FromFile<ServiceAccountCredential>(Required("key"))
         .ToGoogleCredential()
@@ -78,6 +88,24 @@ try
     var committed = false;
     try
     {
+        if (listingImages.Count > 0)
+            await UploadListingImagesAsync(service, package, edit.Id, listingImages);
+
+        if (aabPath == null)
+        {
+            if (dryRun)
+            {
+                Console.WriteLine("--dry-run : edit abandonne, rien n'est publie.");
+            }
+            else
+            {
+                await service.Edits.Commit(package, edit.Id).ExecuteAsync();
+                committed = true;
+                Console.WriteLine("Images de la fiche Google Play publiees.");
+            }
+            return 0;
+        }
+
         Console.WriteLine($"Upload de {Path.GetFileName(aabPath)}...");
         Bundle bundle;
         using (var aab = File.OpenRead(aabPath))
@@ -143,6 +171,46 @@ catch (Exception e)
 {
     Console.Error.WriteLine($"ECHEC : {e.Message}");
     return 1;
+}
+
+// Images a envoyer par langue de fiche : (langue, type, fichiers dans l'ordre d'affichage).
+// Verifie tout avant d'ouvrir l'edit : un dossier incomplet ne doit pas vider la fiche a moitie.
+static List<(string Language, ImageType Type, string[] Files)> ListingImages(string dir)
+{
+    var phones = Directory.Exists(dir)
+        ? Directory.GetFiles(dir, "phone-*.png").OrderBy(f => f, StringComparer.OrdinalIgnoreCase).ToArray()
+        : [];
+    // Google Play : 2 a 8 captures telephone.
+    if (phones.Length is < 2 or > 8)
+        throw new ArgumentException($"{phones.Length} capture(s) phone-*.png dans {dir} : Google Play en demande de 2 a 8.");
+    var result = new List<(string, ImageType, string[])>();
+    foreach (var (language, suffix) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
+    {
+        var feature = Path.Combine(dir, $"feature-graphic-{suffix}.png");
+        if (!File.Exists(feature))
+            throw new ArgumentException($"{feature} introuvable.");
+        result.Add((language, ImageType.PhoneScreenshots, phones));
+        result.Add((language, ImageType.FeatureGraphic, [feature]));
+    }
+    return result;
+}
+
+static async Task UploadListingImagesAsync(AndroidPublisherService service, string package, string editId,
+    List<(string Language, ImageType Type, string[] Files)> images)
+{
+    foreach (var (language, type, files) in images)
+    {
+        await service.Edits.Images.Deleteall(package, editId, language,
+            Enum.Parse<EditsResource.ImagesResource.DeleteallRequest.ImageTypeEnum>(type.ToString())).ExecuteAsync();
+        foreach (var file in files)
+        {
+            using var stream = File.OpenRead(file);
+            var upload = service.Edits.Images.Upload(package, editId, language,
+                type, stream, "image/png");
+            Ensure(await upload.UploadAsync(), $"{Path.GetFileName(file)} ({language})");
+        }
+        Console.WriteLine($"Fiche {language} : {type} remplace(s) par {string.Join(", ", files.Select(Path.GetFileName))}.");
+    }
 }
 
 static void Ensure(IUploadProgress progress, string what)
