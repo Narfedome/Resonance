@@ -43,10 +43,32 @@
     traite le MSIX envoye qu'a la validation (commit), donc le brouillon affiche encore l'ancien
     paquet - le supprimer ensuite plutot que l'envoyer depuis Partner Center.
 
+.PARAMETER UploadListingImages
+    Remplace aussi les images des fiches des stores par celles de StoreListing\output\ (generees par
+    StoreListing\Build-StoreListing.ps1), dans la meme publication que la version, en francais et en
+    anglais. Sans ce switch, les fiches gardent leurs images actuelles.
+    - Google Play : captures telephone (phone-*.png) et image de presentation
+      (feature-graphic-fr/en.png), dans l'edit de PlayPublisher.cs (les images en place sont supprimees).
+    - Microsoft Store : captures (microsoft-store\screenshot-*.png), affiche 9:16
+      (poster-9x16-fr/en.png), logo carre (box-1x1.png) et icone (tile-300.png). msstore ne sait pas
+      envoyer d'images locales : la soumission est creee par msstore publish --noCommit, puis ce script
+      marque les anciennes images PendingDelete, ajoute les nouvelles (PendingUpload), renvoie sur
+      fileUploadUrl une archive avec le MSIX et les images, et valide lui-meme la soumission (sauf
+      -StoreDraft). En cas d'echec apres msstore, la soumission reste en brouillon dans Partner Center.
+
+.PARAMETER NoPause
+    Ne pas attendre Entree avant de fermer la fenetre (en fin de release comme en cas d'echec), pour
+    un lancement depuis un terminal. Par defaut la fenetre reste ouverte pour lire le resultat.
+
 .EXAMPLE
     .\Build-Release.ps1
     Genere l'installeur Windows ET l'AAB Android, publie une GitHub Release et redeploie le site.
-    C'est la commande lancee par un clic droit > Executer avec PowerShell.
+    C'est la commande lancee par un clic droit > Executer avec PowerShell. Les autres deroulements
+    ont chacun leur lanceur a cote de ce script, a lancer de la meme facon (Release-*.ps1).
+
+.EXAMPLE
+    .\Build-Release.ps1 -UploadListingImages
+    Publie la version et remplace les images des fiches Google Play et Microsoft Store.
 
 .EXAMPLE
     .\Build-Release.ps1 -SkipAndroid
@@ -56,10 +78,99 @@
 param(
     [switch]$SkipWindows,
     [switch]$SkipAndroid,
-    [switch]$StoreDraft
+    [switch]$StoreDraft,
+    [switch]$UploadListingImages,
+    [switch]$NoPause
 )
 
 $ErrorActionPreference = "Stop"
+
+# Remplace les images de la fiche Microsoft Store dans la soumission en brouillon creee par
+# msstore publish --noCommit (API de soumission de Partner Center, applis MSIX) : les images
+# actuelles des types geres passent en PendingDelete, les nouvelles sont ajoutees en PendingUpload
+# sous <langue>/<fichier>, le MSIX remplace l'ancien paquet, puis une archive contenant le MSIX et
+# les images remplace celle de msstore sur fileUploadUrl - Partner Center ne la lit qu'a la
+# validation. Les autres types d'images (s'il y en a) ne bougent pas.
+function Update-StoreListingImages {
+    param([string]$Token, [string]$ProductId, [string]$MsixPath, [string]$ImagesDir, [string]$WorkDir, [switch]$Commit)
+
+    $headers = @{ Authorization = "Bearer $Token" }
+    $appUri = "https://manage.devcenter.microsoft.com/v1.0/my/applications/$ProductId"
+
+    $screenshots = @(Get-ChildItem $ImagesDir -Filter "screenshot-*.png" -ErrorAction SilentlyContinue | Sort-Object Name)
+    if ($screenshots.Count -eq 0) { throw "aucune capture screenshot-*.png dans $ImagesDir" }
+    # Fichier par type d'image, selon la langue de la fiche (fr ou en).
+    $imagesFor = {
+        param([string]$lang)
+        [ordered]@{
+            Screenshot      = $screenshots.FullName
+            StoreLogo9x16   = @(Join-Path $ImagesDir "poster-9x16-$lang.png")
+            StoreLogoSquare = @(Join-Path $ImagesDir "box-1x1.png")
+            Icon            = @(Join-Path $ImagesDir "tile-300.png")
+        }
+    }
+    foreach ($lang in "fr", "en") {
+        foreach ($file in (& $imagesFor $lang).Values | ForEach-Object { $_ }) {
+            if (-not (Test-Path $file)) { throw "$file introuvable" }
+        }
+    }
+
+    $app = Invoke-RestMethod -Uri $appUri -Headers $headers
+    $submissionId = $app.pendingApplicationSubmission.id
+    if (-not $submissionId) { throw "pas de soumission en brouillon apres msstore publish" }
+    $submissionUri = "$appUri/submissions/$submissionId"
+    $submission = Invoke-RestMethod -Uri $submissionUri -Headers $headers
+
+    # Paquet : constate a l'essai (msstore 0.4.4), le brouillon relu apres msstore publish ne reference
+    # que l'ancien MSIX (Uploaded), pas le nouveau - d'ou le remplacement fait ici aussi.
+    $msixName = Split-Path $MsixPath -Leaf
+    $packages = @($submission.applicationPackages | Where-Object { $_ -and $_.fileName -ne $msixName })
+    foreach ($package in $packages) { $package.fileStatus = "PendingDelete" }
+    $submission.applicationPackages = @($packages) + @([pscustomobject]@{ fileName = $msixName; fileStatus = "PendingUpload" })
+
+    $stagingDir = Join-Path $WorkDir "listing-upload"
+    $zipPath = Join-Path $WorkDir "listing-upload.zip"
+    Remove-Item $stagingDir, $zipPath -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Force -Path $stagingDir | Out-Null
+    Copy-Item $MsixPath (Join-Path $stagingDir $msixName)
+
+    foreach ($listing in $submission.listings.PSObject.Properties) {
+        $lang = if ($listing.Name -like "fr*") { "fr" } else { "en" }
+        $images = & $imagesFor $lang
+        $baseListing = $listing.Value.baseListing
+        $kept = @($baseListing.images | Where-Object { $_ -and -not ($images.Contains([string]$_.imageType) -and $_.fileStatus -eq "PendingUpload") })
+        foreach ($image in $kept) {
+            if ($images.Contains([string]$image.imageType)) { $image.fileStatus = "PendingDelete" }
+        }
+        New-Item -ItemType Directory -Force -Path (Join-Path $stagingDir $listing.Name) | Out-Null
+        $added = foreach ($type in $images.Keys) {
+            foreach ($file in $images[$type]) {
+                $zipName = "$($listing.Name)/$(Split-Path $file -Leaf)"
+                Copy-Item $file (Join-Path $stagingDir $zipName)
+                [pscustomobject]@{ fileName = $zipName; fileStatus = "PendingUpload"; imageType = $type; description = "" }
+            }
+        }
+        $baseListing.images = @($kept) + @($added)
+        Write-Host "  Fiche $($listing.Name) : $(@($added).Count) images a envoyer ($(@($kept | Where-Object fileStatus -eq 'PendingDelete').Count) remplacees)." -ForegroundColor DarkGray
+    }
+
+    Invoke-RestMethod -Method Put -Uri $submissionUri -Headers $headers -ContentType "application/json; charset=utf-8" `
+        -Body ([System.Text.Encoding]::UTF8.GetBytes(($submission | ConvertTo-Json -Depth 32))) | Out-Null
+
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [System.IO.Compression.ZipFile]::CreateFromDirectory($stagingDir, $zipPath)
+    Remove-Item $stagingDir -Recurse -Force
+    # Put Blob en un seul envoi : jusqu'a 5000 Mo a partir de la version 2019-12-12 du service.
+    Invoke-RestMethod -Method Put -Uri $submission.fileUploadUrl -InFile $zipPath -ContentType "application/zip" `
+        -Headers @{ "x-ms-blob-type" = "BlockBlob"; "x-ms-version" = "2020-04-08" } | Out-Null
+    Remove-Item $zipPath -Force
+    Write-Host "Images de la fiche Microsoft Store ajoutees au brouillon $submissionId." -ForegroundColor Green
+
+    if ($Commit) {
+        Invoke-RestMethod -Method Post -Uri "$submissionUri/commit" -Headers $headers | Out-Null
+        Write-Host "Soumission Microsoft Store envoyee en certification, avec les nouvelles images." -ForegroundColor Green
+    }
+}
 
 # Tout le corps du script est dans ce try/catch : lance en double-clic (pas depuis un terminal deja
 # ouvert), une erreur non rattrapee fermerait sinon la fenetre PowerShell instantanement avec elle,
@@ -84,6 +195,8 @@ try {
     # Archive versionnee de l'installeur Windows (gitignore) : Website\downloads\ n'en garde que la
     # derniere version, sous un nom fixe pour le lien du site.
     $outputDirInstaller = Join-Path $releaseDir "Installer"
+    # Images des fiches des stores (-UploadListingImages), produites par StoreListing\Build-StoreListing.ps1.
+    $listingImagesDir = Join-Path $releaseDir "StoreListing\output"
 
     New-Item -ItemType Directory -Force -Path $outputDir, $outputDirPlayStore, $outputDirMicrosoftStore, $outputDirInstaller | Out-Null
 
@@ -209,10 +322,20 @@ try {
                 Copy-Item -Path $msixPath -Destination $msixUploadDir
 
                 $publishArgs = @((Join-Path $repoRoot "Resonance"), "-i", $msixUploadDir, "--appId", $storeProductId)
-                if ($StoreDraft) { $publishArgs += "--noCommit" }
+                # Avec les images, la validation se fait apres leur ajout (Update-StoreListingImages).
+                if ($StoreDraft -or $UploadListingImages) { $publishArgs += "--noCommit" }
                 msstore publish @publishArgs
                 if ($LASTEXITCODE -ne 0) { throw "msstore publish a echoue (code $LASTEXITCODE)." }
                 Remove-Item $msixUploadDir -Recurse -Force -ErrorAction SilentlyContinue
+
+                if ($UploadListingImages) {
+                    try {
+                        Update-StoreListingImages -Token $token -ProductId $storeProductId -MsixPath $msixPath `
+                            -ImagesDir (Join-Path $listingImagesDir "microsoft-store") -WorkDir $outputDirMicrosoftStore -Commit:(-not $StoreDraft)
+                    } catch {
+                        throw "images de la fiche non envoyees ($($_.Exception.Message)) ; la soumission avec le MSIX reste en brouillon dans Partner Center, a envoyer (ou supprimer) a la main."
+                    }
+                }
 
                 if ($StoreDraft) {
                     Write-Host "Soumission Microsoft Store creee en brouillon (v$version) : identifiants et envoi valides, brouillon a supprimer dans Partner Center." -ForegroundColor Green
@@ -311,8 +434,10 @@ try {
         } else {
             Write-Host "=== Android : publication Google Play ===" -ForegroundColor Cyan
             $playTrack = if ($env:DMTOOLS_PLAY_TRACK) { $env:DMTOOLS_PLAY_TRACK } else { "production" }
+            $listingImagesArgs = if ($UploadListingImages) { @("--listing-images", $listingImagesDir) } else { @() }
             dotnet run (Join-Path $releaseDir "PlayPublisher.cs") -- `
                 --key $playKey `
+                @listingImagesArgs `
                 --package "com.narfedome.resonance" `
                 --aab $aabPath `
                 --track $playTrack `
@@ -345,6 +470,7 @@ try {
 
     if ($SkipWindows -or $assets.Count -eq 0) {
         Write-Host "Pas d'installeur Windows : ni GitHub Release ni redeploiement du site (l'AAB passe par la Play Console)." -ForegroundColor Yellow
+        if (-not $NoPause) { Read-Host "`nTermine. Appuie sur Entree pour fermer" }
         exit 0
     }
 
@@ -369,9 +495,10 @@ try {
     } else {
         Write-Warning "DMTOOLS_NETLIFY_BUILD_HOOK non defini dans Deploy\Build-Release.local.ps1 : le site ne se redeploiera pas tout seul, il faudra pousser sur master ou redeployer a la main depuis Netlify."
     }
+    if (-not $NoPause) { Read-Host "`nTermine. Appuie sur Entree pour fermer" }
 }
 catch {
     Write-Host "`nECHEC : $($_.Exception.Message)" -ForegroundColor Red
-    Read-Host "`nAppuie sur Entree pour fermer"
+    if (-not $NoPause) { Read-Host "`nAppuie sur Entree pour fermer" }
     exit 1
 }
