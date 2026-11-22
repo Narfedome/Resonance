@@ -521,6 +521,7 @@ namespace Resonance.Features.Library
                 return;
 
             StopAudio();
+            WeakReferenceMessenger.Default.Send(new TracksDeletingMessage(ids));
 
             var deleted = await _libraryDataService.DeleteItemsAsync(typeof(Track), ids);
 

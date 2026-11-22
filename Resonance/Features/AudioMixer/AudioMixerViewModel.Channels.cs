@@ -201,6 +201,22 @@ namespace Resonance.Features.AudioMixer
             CurrentChannels.Clear();
         }
 
+        /// <summary>
+        /// Retire les canaux qui jouent l'une de ces pistes (supprimées de la Bibliothèque, cf.
+        /// TracksDeletingMessage) : arrêt, libération du player (et du verrou sur son fichier), sans
+        /// toucher à la base - la suppression de la piste emporte déjà ses SceneTrack.
+        /// </summary>
+        public void RemoveChannelsForTracks(IReadOnlyCollection<int> trackIds)
+        {
+            foreach (var channel in CurrentChannels.Where(c => c.Track is { Id: > 0 } t && trackIds.Contains(t.Id)).ToList())
+            {
+                UnsubscribeChannel(channel);
+                channel.Stop();
+                channel.DisposePlayer();
+                CurrentChannels.Remove(channel);
+            }
+        }
+
         // Appelée depuis le code-behind d'AudioMixerPage (gestionnaire Drop) pour réordonner les
         // channel strips par glisser-déposer. Seuls les strips déjà persistés (SceneTrackId > 0)
         // sont inclus dans la sauvegarde : un strip tout juste ajouté (aucune piste assignée) n'a
