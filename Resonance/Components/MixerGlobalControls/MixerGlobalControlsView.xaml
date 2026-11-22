@@ -22,7 +22,8 @@
             <Border.Behaviors>
                 <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerGlobalKey}"/>
             </Border.Behaviors>
-            <HorizontalStackLayout Spacing="10" Margin="10">
+            <VerticalStackLayout Margin="10" Spacing="4">
+            <HorizontalStackLayout Spacing="10">
                 <Label Text="{loc:Loc MixerGlobal}" VerticalOptions="Center"/>
                 <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Play}"
                                              Command="{Binding PlayAllCommand}"
@@ -34,6 +35,20 @@
                                              Command="{Binding StopAllCommand}"
                                              Tooltip="{loc:Loc MixerStopAll}" />
             </HorizontalStackLayout>
+            <!-- Volume général : multiplie le volume de chaque canal sans modifier leurs réglages. Sur
+                 sa propre ligne (largeur des boutons au-dessus) : à côté d'eux, il ne tenait pas sur
+                 un écran de téléphone avec les boutons "sans scène" et "+". -->
+            <Grid ColumnDefinitions="auto,*,auto" ColumnSpacing="6">
+                <Label Grid.Column="0" Text="{x:Static icons:SolidFont.VolumeHigh}" FontFamily="FontSolid"
+                       VerticalOptions="Center" TextColor="{DynamicResource AppTextMuted}"/>
+                <Slider Grid.Column="1" Minimum="0" Maximum="1" VerticalOptions="Center"
+                        Value="{Binding MasterVolume}"
+                        ToolTipProperties.Text="{loc:Loc MixerMasterVolume}"
+                        SemanticProperties.Description="{loc:Loc MixerMasterVolume}" />
+                <Label Grid.Column="2" Text="{Binding DisplayMasterVolume}" VerticalOptions="Center"
+                       HorizontalTextAlignment="End" MinimumWidthRequest="28"/>
+            </Grid>
+            </VerticalStackLayout>
         </Border>
 
         <!-- Bascule sur la scène orpheline (sans campagne/chapitre) : utiliser le Mixer sans

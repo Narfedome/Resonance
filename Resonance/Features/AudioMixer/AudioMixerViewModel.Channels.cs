@@ -21,10 +21,29 @@ namespace Resonance.Features.AudioMixer
         [ObservableProperty]
         private ObservableCollection<ChannelStripViewModel> currentChannels = new();
 
+        private const string MasterVolumeKey = "mixer_master_volume";
+
+        /// <summary>
+        /// Volume général (0 à 1) : baisse tout le mixeur d'un coup, par exemple quand les joueurs
+        /// parlent, sans toucher aux volumes réglés pour chaque canal. Gardé d'un lancement à l'autre.
+        /// </summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DisplayMasterVolume))]
+        private double masterVolume = Preferences.Default.Get(MasterVolumeKey, 1.0);
+
+        public int DisplayMasterVolume => (int)Math.Round(MasterVolume * 100);
+
+        partial void OnMasterVolumeChanged(double value)
+        {
+            foreach (var channel in CurrentChannels.Concat(_outgoingChannels))
+                channel.MasterVolume = value;
+            Preferences.Default.Set(MasterVolumeKey, value);
+        }
+
         [RelayCommand]
         public void AddChannel()
         {
-            var channel = new ChannelStripViewModel() { DisplayTrackName = (LocalizationService.Instance["ChannelNew"] + " " + (CurrentChannels.Count + 1)), IsPlaying = false };
+            var channel = new ChannelStripViewModel() { DisplayTrackName = (LocalizationService.Instance["ChannelNew"] + " " + (CurrentChannels.Count + 1)), IsPlaying = false, MasterVolume = MasterVolume };
             CurrentChannels.Add(channel);
         }
 
@@ -369,6 +388,7 @@ namespace Resonance.Features.AudioMixer
                 IsFadeIn = st.FadeIn,
                 IsFadeOut = st.FadeOut,
                 IsAutoPlay = st.AutoPlay,
+                MasterVolume = MasterVolume,
                 IsLoading = true
             }).ToList();
 

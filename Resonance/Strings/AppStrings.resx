@@ -995,4 +995,7 @@
   <data name="TrackChangeFile" xml:space="preserve">
     <value>Changer de fichier</value>
   </data>
+  <data name="MixerMasterVolume" xml:space="preserve">
+    <value>Volume général</value>
+  </data>
 </root>

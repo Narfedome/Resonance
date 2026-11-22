@@ -49,7 +49,7 @@ namespace Resonance.Components
                 _player = value;
                 if (_player != null)
                 {
-                    _player.Volume = Volume;
+                    _player.Volume = Volume * MasterVolume;
                     _player.Loop = IsLooping;
                     _player.PlaybackEnded += OnPlaybackEnded;
                 }
@@ -163,10 +163,25 @@ namespace Resonance.Components
         // scène : c'est là que vivent les réglages édités par SceneTracksPage.
         public bool HasSceneTrack => SceneTrackId > 0;
 
+        /// <summary>
+        /// Volume général du mixeur (0 à 1), appliqué par-dessus le volume du canal : le lecteur reçoit
+        /// Volume × MasterVolume. Ni Volume ni LiveVolume n'en tiennent compte, pour que le slider et
+        /// le réglage enregistré du canal restent ceux choisis pour la scène.
+        /// </summary>
+        [ObservableProperty]
+        private double masterVolume = 1;
+
+        partial void OnMasterVolumeChanged(double value)
+        {
+            // Pendant un fondu, le palier suivant applique déjà le nouveau volume général.
+            if (Player != null && _fadeCts == null)
+                Player.Volume = Volume * value;
+        }
+
         partial void OnVolumeChanged(double oldValue, double newValue)
         {
             if (Player != null)
-                Player.Volume = newValue;
+                Player.Volume = newValue * MasterVolume;
 
             if (Track != null)
                 Track.Volume = newValue;
@@ -214,7 +229,7 @@ namespace Resonance.Components
                 return;
             }
 
-            Player.Volume = Volume;
+            Player.Volume = Volume * MasterVolume;
             LiveVolume = Volume;
             Player.Play();
             IsPlaying = true;
@@ -252,14 +267,14 @@ namespace Resonance.Components
                     if (Player != null)
                     {
                         var stepVolume = Math.Min(targetVolume, volumeStep * (i + 1));
-                        Player.Volume = stepVolume;
+                        Player.Volume = stepVolume * MasterVolume;
                         LiveVolume = stepVolume;
                     }
                 }
 
                 if (Player != null)
                 {
-                    Player.Volume = targetVolume;
+                    Player.Volume = targetVolume * MasterVolume;
                     LiveVolume = targetVolume;
                 }
             }
@@ -267,7 +282,7 @@ namespace Resonance.Components
             {
                 if (Player != null)
                 {
-                    Player.Volume = targetVolume;
+                    Player.Volume = targetVolume * MasterVolume;
                     LiveVolume = targetVolume;
                 }
             }
@@ -346,7 +361,7 @@ namespace Resonance.Components
                     if (Player != null)
                     {
                         var stepVolume = Math.Max(0, startVolume - volumeStep * (i + 1));
-                        Player.Volume = stepVolume;
+                        Player.Volume = stepVolume * MasterVolume;
                         LiveVolume = stepVolume;
                     }
                 }
@@ -354,7 +369,7 @@ namespace Resonance.Components
                 if (Player != null)
                 {
                     Player.Stop();
-                    Player.Volume = startVolume;
+                    Player.Volume = startVolume * MasterVolume;
                     LiveVolume = startVolume;
                     IsPlaying = false;
                 }
@@ -363,7 +378,7 @@ namespace Resonance.Components
             {
                 if (Player != null)
                 {
-                    Player.Volume = startVolume;
+                    Player.Volume = startVolume * MasterVolume;
                     LiveVolume = startVolume;
                 }
             }
