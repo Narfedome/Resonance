@@ -16,7 +16,13 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <Grid ColumnDefinitions="*,auto" Grid.Row="0" Margin="8,0,8,8" ColumnSpacing="4" VerticalOptions="Center">
+        <Grid ColumnDefinitions="*,auto" RowDefinitions="auto,auto" Grid.Row="0" Margin="8,0,8,8" ColumnSpacing="4" VerticalOptions="Center">
+            <!-- Recherche par titre, combinée au filtre de catégorie. Aussi dans le sélecteur de piste
+                 du mixeur (IsCrud=False), où retrouver une piste parmi des centaines est le plus utile. -->
+            <SearchBar Grid.Row="1" Grid.ColumnSpan="2"
+                       Text="{Binding SearchText}"
+                       Placeholder="{loc:Loc LibSearchPlaceholder}"
+                       SemanticProperties.Description="{loc:Loc LibSearchPlaceholder}"/>
             <Button Text="{Binding SelectedCategory}"
                     Command="{Binding SelectCategoryCommand}"
                     Grid.Column="0"
@@ -77,6 +83,14 @@
                     Style="{StaticResource SectionCardBorderStyle}" WidthRequest="340"
                     HorizontalOptions="Center" VerticalOptions="Center">
                 <Label Text="{loc:Loc LibEmptyCategoryMessage}" TextColor="{DynamicResource AppTextMuted}"
+                       HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+            </Border>
+
+            <!-- Recherche sans résultat : même carte, message dédié. -->
+            <Border IsVisible="{Binding ShowNoSearchResults}"
+                    Style="{StaticResource SectionCardBorderStyle}" WidthRequest="340"
+                    HorizontalOptions="Center" VerticalOptions="Center">
+                <Label Text="{loc:Loc LibSearchNoResults}" TextColor="{DynamicResource AppTextMuted}"
                        HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
             </Border>
 

@@ -998,4 +998,10 @@
   <data name="MixerMasterVolume" xml:space="preserve">
     <value>Volume général</value>
   </data>
+  <data name="LibSearchNoResults" xml:space="preserve">
+    <value>Aucune piste ne correspond à cette recherche.</value>
+  </data>
+  <data name="LibSearchPlaceholder" xml:space="preserve">
+    <value>Rechercher une piste</value>
+  </data>
 </root>

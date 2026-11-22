@@ -998,4 +998,10 @@
   <data name="MixerMasterVolume" xml:space="preserve">
     <value>Master volume</value>
   </data>
+  <data name="LibSearchNoResults" xml:space="preserve">
+    <value>No track matches this search.</value>
+  </data>
+  <data name="LibSearchPlaceholder" xml:space="preserve">
+    <value>Search tracks</value>
+  </data>
 </root>
