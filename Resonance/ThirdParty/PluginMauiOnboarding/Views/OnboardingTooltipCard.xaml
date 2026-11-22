@@ -32,7 +32,10 @@
             <Shadow Brush="#000000" Offset="0,4" Radius="14" Opacity="0.35" />
         </Border.Shadow>
 
-        <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*">
+        <!-- Ajout Resonance : SafeAreaEdges="None", comme RootGrid dans OnboardingOverlayView - sous
+             Android, la valeur par défaut des Layouts en .NET 10 (Container) ajoutait la hauteur de la
+             barre d'état (~24dp) en marge au-dessus du titre de chaque bulle. -->
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*" SafeAreaEdges="None">
             <Label Text="{Binding Source={x:Reference this}, Path=Title}"
                    FontSize="16" FontFamily="OpenSansSemibold"
                    TextColor="{DynamicResource AppText}"

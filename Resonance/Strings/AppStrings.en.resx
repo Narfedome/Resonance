@@ -112,7 +112,7 @@
     <value>Campaigns</value>
   </data>
   <data name="TabAudiomixer" xml:space="preserve">
-    <value>AudioMixer</value>
+    <value>Mixer</value>
   </data>
   <data name="TabLibrary" xml:space="preserve">
     <value>Library</value>
@@ -976,5 +976,23 @@
   </data>
   <data name="ImportExportLoadingCovers" xml:space="preserve">
     <value>Loading covers…</value>
+  </data>
+  <data name="SizeUnits" xml:space="preserve">
+    <value>B|KB|MB|GB</value>
+  </data>
+  <data name="PaletteNuitEtOr" xml:space="preserve">
+    <value>Night &amp; Gold</value>
+  </data>
+  <data name="PaletteForetProfonde" xml:space="preserve">
+    <value>Deep Forest</value>
+  </data>
+  <data name="PaletteTaverneAmbre" xml:space="preserve">
+    <value>Amber Tavern</value>
+  </data>
+  <data name="PaletteAcierBrume" xml:space="preserve">
+    <value>Steel &amp; Mist</value>
+  </data>
+  <data name="TrackChangeFile" xml:space="preserve">
+    <value>Change file</value>
   </data>
 </root>

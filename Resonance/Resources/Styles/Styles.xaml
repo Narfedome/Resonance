@@ -318,7 +318,8 @@
                     <VisualState x:Name="Normal" />
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
-                            <Setter Property="TextColor" Value="{DynamicResource AppTextMuted}" />
+                            <!-- Opacité plutôt que TextColor=AppTextMuted : un setter de couleur d'état visuel figeait l'ancienne couleur quand le thème changeait pendant que le libellé était désactivé (ex. "Global" du mixeur, nom de piste du canal, désactivés le temps d'un chargement), qui restait alors dans l'ancien thème jusqu'au redémarrage. -->
+                            <Setter Property="Opacity" Value="0.55" />
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>
@@ -349,7 +350,8 @@
                     <VisualState x:Name="Normal" />
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
-                            <Setter Property="TextColor" Value="{DynamicResource AppTextMuted}" />
+                            <!-- Opacité plutôt que TextColor=AppTextMuted : un setter de couleur d'état visuel figeait l'ancienne couleur quand le thème changeait pendant que le libellé était désactivé (ex. "Global" du mixeur, nom de piste du canal, désactivés le temps d'un chargement), qui restait alors dans l'ancien thème jusqu'au redémarrage. -->
+                            <Setter Property="Opacity" Value="0.55" />
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>

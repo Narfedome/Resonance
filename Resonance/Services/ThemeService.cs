@@ -124,6 +124,22 @@ namespace Resonance.Services
             var res = Application.Current.Resources;
             foreach (var kv in tokens)
                 res[kv.Key] = kv.Value;
+            ApplySystemBars(IsDark());
+        }
+
+        /// <summary>
+        /// Icônes de la barre d'état/navigation Android : claires sur thème sombre, sombres sur thème clair.
+        /// Android ne les recalcule qu'au lancement de l'activité, donc un changement de thème à chaud
+        /// laissait des icônes blanches illisibles sur le fond clair jusqu'au redémarrage.
+        /// </summary>
+        private static void ApplySystemBars(bool dark)
+        {
+#if ANDROID
+            if (Microsoft.Maui.ApplicationModel.Platform.CurrentActivity?.Window is not { } window) return;
+            var controller = AndroidX.Core.View.WindowCompat.GetInsetsController(window, window.DecorView);
+            controller.AppearanceLightStatusBars = !dark;
+            controller.AppearanceLightNavigationBars = !dark;
+#endif
         }
 
         public Color CurrentAccent => GetPaletteTokens(_palette, IsDark()).GetValueOrDefault("AppAccent", Colors.Gray);

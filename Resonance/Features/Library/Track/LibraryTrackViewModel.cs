@@ -77,6 +77,9 @@ namespace Resonance.Features.Library
         // renommable/supprimable (cf. CategoryListViewModel).
         private string NoFolderLabel => Loc["LibImportNoCategory"];
 
+        private string _shownAllLabel = string.Empty;
+        private string _shownNoFolderLabel = string.Empty;
+
         [ObservableProperty]
         public ObservableCollection<TrackGroup> trackItems = new();
 
@@ -195,6 +198,21 @@ namespace Resonance.Features.Library
                     });
                 });
             });
+
+            // Les entrées "Toutes les catégories"/"Aucun dossier" du filtre et les en-têtes de groupe
+            // sont du texte traduit figé au chargement : sans ce rechargement, changer de langue
+            // laissait l'ancien libellé affiché (et sélectionné) jusqu'au prochain import/édition.
+            WeakReferenceMessenger.Default.Register<LanguageChangedMessage>(this, (r, m) =>
+            {
+                var vm = (LibraryTrackViewModel)r;
+                if (!vm._hasLoadedOnce) return;
+                MainThread.BeginInvokeOnMainThread(async () =>
+                    await UiErrors.RunAsync(() => vm.Loading.RunAsync(async () =>
+                    {
+                        await vm.RefreshCategoriesAsync();
+                        await vm.ReloadAsync();
+                    }), "LibraryTrackViewModel.LanguageChanged"));
+            });
         }
 
         // Stop any playing audio when leaving the view
@@ -244,13 +262,17 @@ namespace Resonance.Features.Library
         private async Task RefreshCategoriesAsync()
         {
             var existing = await _libraryDataService.GetCategoryNamesAsync(typeof(Track));
-            var previousSelection = string.IsNullOrEmpty(SelectedCategory) ? AllCategoriesLabel : SelectedCategory;
+            // Les deux entrées système sont comparées aux libellés affichés jusqu'ici (pas à ceux de la
+            // langue courante) pour que la sélection les suive à travers un changement de langue.
+            var previousSelection = string.IsNullOrEmpty(SelectedCategory) || SelectedCategory == _shownAllLabel ? AllCategoriesLabel
+                : SelectedCategory == _shownNoFolderLabel ? NoFolderLabel
+                : SelectedCategory;
 
             _suppressCategoryReload = true;
 
             Categories.Clear();
-            Categories.Add(AllCategoriesLabel);
-            Categories.Add(NoFolderLabel);
+            Categories.Add(_shownAllLabel = AllCategoriesLabel);
+            Categories.Add(_shownNoFolderLabel = NoFolderLabel);
             foreach (var c in existing)
                 Categories.Add(c);
 

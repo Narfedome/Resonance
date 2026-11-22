@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:loc="clr-namespace:Resonance.Extensions"
              x:Class="Resonance.Components.PalettePickerView">
     <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
 
@@ -15,7 +16,7 @@
                     <BoxView Grid.Column="1" Color="#F0EDF8"/>
                 </Grid>
                 <BoxView Grid.Row="0" HeightRequest="5" VerticalOptions="End" Color="#C9A84C"/>
-                <Label Grid.Row="1" Text="Nuit &amp; or" FontSize="{OnIdiom Default=10, Desktop=9}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                <Label Grid.Row="1" Text="{loc:Loc PaletteNuitEtOr}" FontSize="{OnIdiom Default=10, Desktop=9}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
             </Grid>
         </Border>
 
@@ -30,7 +31,7 @@
                     <BoxView Grid.Column="1" Color="#EDF4E8"/>
                 </Grid>
                 <BoxView Grid.Row="0" HeightRequest="5" VerticalOptions="End" Color="#7AAF5C"/>
-                <Label Grid.Row="1" Text="Forêt profonde" FontSize="{OnIdiom Default=10, Desktop=9}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                <Label Grid.Row="1" Text="{loc:Loc PaletteForetProfonde}" FontSize="{OnIdiom Default=10, Desktop=9}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
             </Grid>
         </Border>
 
@@ -45,7 +46,7 @@
                     <BoxView Grid.Column="1" Color="#FAF0E0"/>
                 </Grid>
                 <BoxView Grid.Row="0" HeightRequest="5" VerticalOptions="End" Color="#C47B3A"/>
-                <Label Grid.Row="1" Text="Taverne &amp; ambre" FontSize="{OnIdiom Default=10, Desktop=9}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                <Label Grid.Row="1" Text="{loc:Loc PaletteTaverneAmbre}" FontSize="{OnIdiom Default=10, Desktop=9}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
             </Grid>
         </Border>
 
@@ -60,7 +61,7 @@
                     <BoxView Grid.Column="1" Color="#EBF2F7"/>
                 </Grid>
                 <BoxView Grid.Row="0" HeightRequest="5" VerticalOptions="End" Color="#5B8FA8"/>
-                <Label Grid.Row="1" Text="Acier &amp; brume" FontSize="{OnIdiom Default=10, Desktop=9}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                <Label Grid.Row="1" Text="{loc:Loc PaletteAcierBrume}" FontSize="{OnIdiom Default=10, Desktop=9}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
             </Grid>
         </Border>
 

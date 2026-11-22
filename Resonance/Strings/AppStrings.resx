@@ -112,7 +112,7 @@
     <value>Campagnes</value>
   </data>
   <data name="TabAudiomixer" xml:space="preserve">
-    <value>AudioMixer</value>
+    <value>Mixeur</value>
   </data>
   <data name="TabLibrary" xml:space="preserve">
     <value>Bibliothèque</value>
@@ -199,16 +199,16 @@
     <value>Global</value>
   </data>
   <data name="MixerPlayAll" xml:space="preserve">
-    <value>Play All</value>
+    <value>Tout lancer</value>
   </data>
   <data name="MixerFadeOutAll" xml:space="preserve">
-    <value>Fade Out All</value>
+    <value>Tout couper en fondu</value>
   </data>
   <data name="MixerStopAll" xml:space="preserve">
-    <value>Stop All</value>
+    <value>Tout arrêter</value>
   </data>
   <data name="ChannelLoop" xml:space="preserve">
-    <value>Loop</value>
+    <value>Boucle</value>
   </data>
   <data name="ChannelSettings" xml:space="preserve">
     <value>Paramètres du canal</value>
@@ -223,16 +223,16 @@
     <value>Canal</value>
   </data>
   <data name="SceneAuto" xml:space="preserve">
-    <value>Autoplay</value>
+    <value>Lecture auto</value>
   </data>
   <data name="SceneFadeIn" xml:space="preserve">
-    <value>Fade in</value>
+    <value>Fondu d&apos;entrée</value>
   </data>
   <data name="SceneFadeOut" xml:space="preserve">
-    <value>Fade out</value>
+    <value>Fondu de sortie</value>
   </data>
   <data name="ChannelStop" xml:space="preserve">
-    <value>Stop</value>
+    <value>Arrêter</value>
   </data>
   <data name="SceneVolume" xml:space="preserve">
     <value>Volume</value>
@@ -571,25 +571,25 @@
     <value>Le volume de ce canal dans la scène, le même que celui de la tranche.</value>
   </data>
   <data name="TourSettingsLoopTitle" xml:space="preserve">
-    <value>Loop</value>
+    <value>Boucle</value>
   </data>
   <data name="TourSettingsLoopBody" xml:space="preserve">
     <value>La piste repart du début quand elle se termine, pour une ambiance sans fin.</value>
   </data>
   <data name="TourSettingsFadeInTitle" xml:space="preserve">
-    <value>Fade in</value>
+    <value>Fondu d&apos;entrée</value>
   </data>
   <data name="TourSettingsFadeInBody" xml:space="preserve">
     <value>Au lancement, le volume monte progressivement au lieu de démarrer d'un coup.</value>
   </data>
   <data name="TourSettingsFadeOutTitle" xml:space="preserve">
-    <value>Fade out</value>
+    <value>Fondu de sortie</value>
   </data>
   <data name="TourSettingsFadeOutBody" xml:space="preserve">
     <value>À l'arrêt ou au changement de scène, le volume baisse progressivement avant de couper.</value>
   </data>
   <data name="TourSettingsAutoPlayTitle" xml:space="preserve">
-    <value>Autoplay</value>
+    <value>Lecture auto</value>
   </data>
   <data name="TourSettingsAutoPlayBody" xml:space="preserve">
     <value>La piste démarre toute seule quand la scène est lancée.</value>
@@ -976,5 +976,23 @@
   </data>
   <data name="ImportExportLoadingCovers" xml:space="preserve">
     <value>Chargement des pochettes…</value>
+  </data>
+  <data name="SizeUnits" xml:space="preserve">
+    <value>o|Ko|Mo|Go</value>
+  </data>
+  <data name="PaletteNuitEtOr" xml:space="preserve">
+    <value>Nuit &amp; or</value>
+  </data>
+  <data name="PaletteForetProfonde" xml:space="preserve">
+    <value>Forêt profonde</value>
+  </data>
+  <data name="PaletteTaverneAmbre" xml:space="preserve">
+    <value>Taverne &amp; ambre</value>
+  </data>
+  <data name="PaletteAcierBrume" xml:space="preserve">
+    <value>Acier &amp; brume</value>
+  </data>
+  <data name="TrackChangeFile" xml:space="preserve">
+    <value>Changer de fichier</value>
   </data>
 </root>
