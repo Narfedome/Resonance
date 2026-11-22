@@ -480,10 +480,15 @@ namespace Resonance.Features.AudioMixer
         {
             await SaveCurrentSceneAsync();
 
-            var fadeTasks = CurrentChannels.Where(c => c.IsPlaying).Select(c => c.FadeOut()).ToArray();
-            await Task.WhenAll(fadeTasks);
-
-            ClearChannels();
+            // Fondu croisé : les canaux de la scène quittée disparaissent tout de suite du mixeur mais
+            // finissent leur fondu de sortie en arrière-plan (cf. FadeOutAndReleaseAsync), pendant que
+            // ceux de la nouvelle scène démarrent. On n'attend plus la fin du fondu avant de charger :
+            // le blanc entre deux scènes s'entendait à la table.
+            var outgoing = CurrentChannels.ToList();
+            foreach (var channel in outgoing)
+                UnsubscribeChannel(channel);
+            CurrentChannels.Clear();
+            _ = FadeOutAndReleaseAsync(outgoing);
 
             _activeScene = scene;
             OnPropertyChanged(nameof(HasActiveScene));

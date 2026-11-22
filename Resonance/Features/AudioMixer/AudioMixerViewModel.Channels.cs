@@ -40,6 +40,8 @@ namespace Resonance.Features.AudioMixer
         {
             foreach (var c in CurrentChannels)
                 c.Stop();
+            // "Tout arrêter" coupe aussi ce qui finit de s'éteindre de la scène précédente.
+            ReleaseOutgoingChannels(_ => true);
         }
 
         [RelayCommand]
@@ -199,6 +201,38 @@ namespace Resonance.Features.AudioMixer
                 c.DisposePlayer();
             }
             CurrentChannels.Clear();
+            ReleaseOutgoingChannels(_ => true);
+        }
+
+        // Canaux de la scène précédente qui finissent leur fondu de sortie après un changement de
+        // scène (fondu croisé, cf. PrepareSceneTracksAsync) : plus affichés, mais leur player tourne
+        // encore. Vider le mixer, tout arrêter ou supprimer leur piste doit aussi les couper.
+        private readonly List<ChannelStripViewModel> _outgoingChannels = new();
+
+        private async Task FadeOutAndReleaseAsync(List<ChannelStripViewModel> channels)
+        {
+            _outgoingChannels.AddRange(channels);
+            try
+            {
+                await Task.WhenAll(channels.Where(c => c.IsPlaying).Select(c => c.FadeOut()));
+            }
+            catch (Exception ex)
+            {
+                CrashLogger.LogException("Fondu de sortie au changement de scène", ex);
+            }
+            finally
+            {
+                ReleaseOutgoingChannels(channels.Contains);
+            }
+        }
+
+        private void ReleaseOutgoingChannels(Func<ChannelStripViewModel, bool> match)
+        {
+            foreach (var channel in _outgoingChannels.Where(match).ToList())
+            {
+                _outgoingChannels.Remove(channel);
+                channel.DisposePlayer();
+            }
         }
 
         /// <summary>
@@ -215,6 +249,8 @@ namespace Resonance.Features.AudioMixer
                 channel.DisposePlayer();
                 CurrentChannels.Remove(channel);
             }
+
+            ReleaseOutgoingChannels(c => c.Track is { Id: > 0 } t && trackIds.Contains(t.Id));
         }
 
         // Appelée depuis le code-behind d'AudioMixerPage (gestionnaire Drop) pour réordonner les
