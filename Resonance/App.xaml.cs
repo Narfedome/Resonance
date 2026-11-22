@@ -56,8 +56,14 @@ namespace Resonance
             window.HandlerChanged += (_, _) =>
             {
                 var iconPath = Path.Combine(AppContext.BaseDirectory, "appicon.ico");
-                if (window.Handler?.PlatformView is Microsoft.UI.Xaml.Window nativeWindow && File.Exists(iconPath))
+                if (window.Handler?.PlatformView is not Microsoft.UI.Xaml.Window nativeWindow) return;
+                if (File.Exists(iconPath))
                     nativeWindow.AppWindow.SetIcon(iconPath);
+                // Titre de fenêtre aux couleurs du thème de l'appli (cf. ThemeService.ApplyWindowTitle).
+                // Mis en file plutôt qu'appliqué tout de suite : MAUI recolore lui-même le titre à chaque
+                // activation, et passait après nous (titre resté blanc au lancement en thème clair).
+                nativeWindow.Activated += (_, _) => nativeWindow.DispatcherQueue.TryEnqueue(
+                    Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => ThemeService.ApplyWindowTitle(window));
             };
 #endif
             return window;

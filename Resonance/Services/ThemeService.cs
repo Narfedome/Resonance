@@ -139,8 +139,40 @@ namespace Resonance.Services
             var controller = AndroidX.Core.View.WindowCompat.GetInsetsController(window, window.DecorView);
             controller.AppearanceLightStatusBars = !dark;
             controller.AppearanceLightNavigationBars = !dark;
+#elif WINDOWS
+            foreach (var window in Application.Current?.Windows ?? [])
+                ApplyWindowTitle(window);
 #endif
         }
+
+#if WINDOWS
+        /// <summary>
+        /// Titre de la fenêtre Windows ("AppTitle", dans la barre de titre que MAUI dessine lui-même) :
+        /// il suit le thème de Windows et non celui de l'appli, d'où un titre blanc presque invisible
+        /// sur la barre claire quand l'appli est en clair et Windows en sombre. On lui impose AppText.
+        /// Appelé aussi à l'activation de la fenêtre (cf. App.xaml.cs) : au premier Apply, la barre de
+        /// titre n'existe pas encore.
+        /// </summary>
+        public static void ApplyWindowTitle(Window window)
+        {
+            if (window.Handler?.PlatformView is not Microsoft.UI.Xaml.Window { Content: { } root }) return;
+            if (FindByName(root, "AppTitle") is not Microsoft.UI.Xaml.Controls.TextBlock title) return;
+            if (Application.Current?.Resources.TryGetValue("AppText", out var value) != true || value is not Color color) return;
+            title.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.Maui.Platform.ColorExtensions.ToWindowsColor(color));
+        }
+
+        private static Microsoft.UI.Xaml.FrameworkElement? FindByName(Microsoft.UI.Xaml.DependencyObject parent, string name)
+        {
+            int count = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < count; i++)
+            {
+                var child = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChild(parent, i);
+                if (child is Microsoft.UI.Xaml.FrameworkElement fe && fe.Name == name) return fe;
+                if (FindByName(child, name) is { } found) return found;
+            }
+            return null;
+        }
+#endif
 
         public Color CurrentAccent => GetPaletteTokens(_palette, IsDark()).GetValueOrDefault("AppAccent", Colors.Gray);
         public Color CurrentAccentSecondary => GetPaletteTokens(_palette, IsDark()).GetValueOrDefault("AppAccentSecondary", Colors.Gray);
