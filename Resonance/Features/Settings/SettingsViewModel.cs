@@ -134,7 +134,8 @@ namespace Resonance.Features.Settings
                 unitIndex++;
             }
 
-            return $"{size:0.#} {units[unitIndex]}";
+            // Séparateur décimal de la langue de l'appli, pas du système (cf. LocalizationService.Culture).
+            return $"{size.ToString("0.#", Loc.Culture)} {units[unitIndex]}";
         }
 
         [RelayCommand]
