@@ -187,10 +187,10 @@
     <value>Scene</value>
   </data>
   <data name="MixerPrevScene" xml:space="preserve">
-    <value>Previous scene</value>
+    <value>Previous scene (Ctrl+←)</value>
   </data>
   <data name="MixerNextScene" xml:space="preserve">
-    <value>Next scene</value>
+    <value>Next scene (Ctrl+→)</value>
   </data>
   <data name="MixerFreeform" xml:space="preserve">
     <value>Freeform scene</value>
@@ -199,13 +199,13 @@
     <value>Global</value>
   </data>
   <data name="MixerPlayAll" xml:space="preserve">
-    <value>Play All</value>
+    <value>Play All (Ctrl+Enter)</value>
   </data>
   <data name="MixerFadeOutAll" xml:space="preserve">
-    <value>Fade Out All</value>
+    <value>Fade Out All (Ctrl+Space)</value>
   </data>
   <data name="MixerStopAll" xml:space="preserve">
-    <value>Stop All</value>
+    <value>Stop All (Ctrl+Backspace)</value>
   </data>
   <data name="ChannelLoop" xml:space="preserve">
     <value>Loop</value>
@@ -996,7 +996,7 @@
     <value>Change file</value>
   </data>
   <data name="MixerMasterVolume" xml:space="preserve">
-    <value>Master volume</value>
+    <value>Master volume (Ctrl+↑ / Ctrl+↓)</value>
   </data>
   <data name="LibSearchNoResults" xml:space="preserve">
     <value>No track matches this search.</value>
