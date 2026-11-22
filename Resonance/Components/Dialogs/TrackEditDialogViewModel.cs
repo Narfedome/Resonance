@@ -103,6 +103,7 @@ namespace Resonance.Components.Dialogs
                 Item.Duration = duration;
                 _pendingCoverBytes = coverBytes;
                 _filePicked = true;
+                _pickedFileName = result.FileName;
 
                 Name = title;
                 UpdateFileButtonText();
