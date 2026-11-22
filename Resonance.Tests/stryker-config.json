@@ -1,0 +1,19 @@
+{
+  "stryker-config": {
+    "project": "Resonance.Core.csproj",
+    "mutate": [
+      "**/Services/LibraryDataService.cs",
+      "**/Services/SceneDataService.cs",
+      "**/Services/ImportExportService.cs",
+      "**/Services/TrackTagHelper.cs",
+      "**/Features/AudioMixer/ChannelStripViewModel.cs",
+      "**/Features/Library/LibraryMultiSelection.cs",
+      "**/Data/EntityMapping.cs",
+      "**/Data/AppDatabase.cs"
+    ],
+    "coverage-analysis": "off",
+    "reporters": [ "html", "json", "progress" ],
+    "concurrency": 4,
+    "thresholds": { "high": 90, "low": 75, "break": 0 }
+  }
+}

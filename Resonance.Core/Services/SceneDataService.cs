@@ -18,6 +18,7 @@ namespace Resonance.Services
         public async Task<List<Campaign>> GetCampaignsAsync()
         {
             await _db.Initialization;
+            // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
             var entities = await _db.Connection.Table<CampaignEntity>().OrderBy(e => e.Position).ToListAsync();
             return entities.Select(e => e.ToModel()).ToList();
         }
@@ -66,6 +67,7 @@ namespace Resonance.Services
         public async Task<List<Session>> GetSessionsAsync(int campaignId)
         {
             await _db.Initialization;
+            // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
             var entities = await _db.Connection.Table<SessionEntity>()
                 .Where(e => e.CampaignId == campaignId)
                 .OrderBy(e => e.Position)
@@ -107,6 +109,7 @@ namespace Resonance.Services
         public async Task<List<Scene>> GetScenesAsync(int sessionId)
         {
             await _db.Initialization;
+            // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
             var entities = await _db.Connection.Table<SceneEntity>()
                 .Where(e => e.SessionId == sessionId)
                 .OrderBy(e => e.Position)
@@ -142,6 +145,7 @@ namespace Resonance.Services
         public async Task<Scene> GetOrCreateOrphanSceneAsync()
         {
             await _db.Initialization;
+            // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
             var existing = await _db.Connection.Table<SceneEntity>()
                 .Where(e => e.SessionId == OrphanSceneSessionId)
                 .FirstOrDefaultAsync();
@@ -168,6 +172,7 @@ namespace Resonance.Services
         public async Task<List<SceneTrack>> GetSceneTracksAsync(int sceneId)
         {
             await _db.Initialization;
+            // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
             var sceneTrackEntities = await _db.Connection.Table<SceneTrackEntity>()
                 .Where(e => e.SceneId == sceneId)
                 .OrderBy(e => e.Position)
@@ -177,6 +182,7 @@ namespace Resonance.Services
 
             foreach (var ste in sceneTrackEntities)
             {
+                // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
                 var trackEntity = await _db.Connection.Table<TrackEntity>()
                     .Where(t => t.Id == ste.TrackId)
                     .FirstOrDefaultAsync();

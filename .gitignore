@@ -391,3 +391,6 @@ FodyWeavers.xsd
 # APK de test generes par Build-Test.ps1, a installer sur un telephone (jamais commites).
 /Deploy/Telephone/
 /Deploy/DemoPack
+
+# Rapports Stryker (tests de mutation)
+StrykerOutput/
