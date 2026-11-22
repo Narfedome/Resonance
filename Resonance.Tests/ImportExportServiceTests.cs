@@ -491,9 +491,8 @@ public class ImportExportServiceTests : IDisposable
                 }
             }
 
-            var manifestEntry = zip.CreateEntry("manifest.json", CompressionLevel.Optimal);
-            using var manifestStream = manifestEntry.Open();
-            await JsonSerializer.SerializeAsync(manifestStream, new ExportManifest { FormatVersion = 1, ExportLevel = 3 });
+            // Manifeste signé et valide : seule la taille de l'entrée peut faire rejeter l'archive.
+            WriteSignedManifest(zip, new ExportManifest { FormatVersion = 1, ExportLevel = 3 });
         }
 
         await using var ctx = await ImportExportTestContext.CreateAsync();
@@ -553,8 +552,282 @@ public class ImportExportServiceTests : IDisposable
         var result = await service.ImportAsync(zipStream);
 
         Assert.Equal(1, result.TracksRejected);
+        Assert.Equal(1, result.TracksRejectedOther);
         Assert.Equal(0, result.TracksCopied);
         Assert.Single(dest.Store.CopiedFiles);
         Assert.False(File.Exists(dest.Store.CopiedFiles[0]));
+    }
+
+    // --- Tests ajoutés pour les mutants survivants de Stryker ---
+
+    /// <summary>Progression enregistrée de façon synchrone (Progress&lt;T&gt; passe par le pool de threads, dans le désordre).</summary>
+    private sealed class RecordingProgress<T> : IProgress<T>
+    {
+        public List<T> Reports { get; } = new();
+        public void Report(T value) { lock (Reports) Reports.Add(value); }
+    }
+
+    private async Task<Track> AddTrackAsync(ImportExportTestContext ctx, string title, string category = "", bool withHash = true)
+    {
+        var path = CreateWavFile();
+        var track = new Track { Title = title, Category = category, FilePath = path, Hash = withHash ? TrackTagHelper.ComputeSha256(path) : "" };
+        await ctx.Library.SaveLibraryItemAsync(track);
+        return track;
+    }
+
+    private static async Task<ExportManifest> ReadManifestAsync(MemoryStream zipStream)
+    {
+        zipStream.Position = 0;
+        using var zip = new ZipArchive(zipStream, ZipArchiveMode.Read, leaveOpen: true);
+        await using var s = zip.GetEntry("manifest.json")!.Open();
+        return (await JsonSerializer.DeserializeAsync<ExportManifest>(s))!;
+    }
+
+    private static MemoryStream SignedArchive(ExportManifest manifest, params (string Name, byte[] Content)[] entries)
+    {
+        var zipStream = new MemoryStream();
+        using (var zip = new ZipArchive(zipStream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            foreach (var (name, content) in entries)
+            {
+                using var s = zip.CreateEntry(name, CompressionLevel.NoCompression).Open();
+                s.Write(content);
+            }
+            WriteSignedManifest(zip, manifest);
+        }
+        zipStream.Position = 0;
+        return zipStream;
+    }
+
+    private static string Sha256Hex(byte[] content) => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(content));
+
+    [Fact]
+    public async Task FullBackup_KeepsChannels_UnusedTracks_SpellsAndSpellCategories()
+    {
+        await using var source = await ImportExportTestContext.CreateAsync();
+        var used = await AddTrackAsync(source, "Utilisée");
+        await AddTrackAsync(source, "Jamais utilisée");
+        var campaign = new Campaign { Title = "C" };
+        await source.Scenes.SaveCampaignAsync(campaign);
+        var session = new Session { CampaignId = campaign.Id, Title = "Chapitre 1" };
+        await source.Scenes.SaveSessionAsync(session);
+        var scene = new Scene { SessionId = session.Id, Title = "Taverne" };
+        await source.Scenes.SaveSceneAsync(scene);
+        await source.Scenes.SaveSceneTrackAsync(new SceneTrack { SceneId = scene.Id, Track = used, Volume = 0.5 });
+        await source.Library.SaveLibraryItemAsync(new Spell { Title = "Boule de feu", Description = "8d6 de feu" });
+        await source.Library.EnsureCategoryAsync(typeof(Spell), "Évocation");
+
+        using var zipStream = new MemoryStream();
+        await source.Service.ExportAsync(new ExportRequest { Level = ExportLevel.FullBackup }, zipStream);
+
+        await using var dest = await ImportExportTestContext.CreateAsync();
+        zipStream.Position = 0;
+        var result = await dest.Service.ImportAsync(zipStream);
+
+        Assert.Equal(2, result.TracksCopied);
+        var importedSession = (await dest.Scenes.GetSessionsAsync((await dest.Scenes.GetCampaignsAsync()).Single().Id)).Single();
+        Assert.Equal("Chapitre 1", importedSession.Title);
+        var importedScene = (await dest.Scenes.GetScenesAsync(importedSession.Id)).Single();
+        Assert.Equal("Utilisée", (await dest.Scenes.GetSceneTracksAsync(importedScene.Id)).Single().Track.Title);
+        var spell = (await dest.Library.GetAllItemsTypeAsync(typeof(Spell))).OfType<Spell>().Single();
+        Assert.Equal(("Boule de feu", "8d6 de feu"), (spell.Title, spell.Description));
+        Assert.Contains("Évocation", await dest.Library.GetCategoryNamesAsync(typeof(Spell)));
+        Assert.DoesNotContain("Évocation", await dest.Library.GetCategoryNamesAsync(typeof(Track)));
+    }
+
+    [Fact]
+    public async Task Export_SkipsTracksWhoseFileIsGone_AndImportDropsTheirChannels()
+    {
+        await using var source = await ImportExportTestContext.CreateAsync();
+        var kept = await AddTrackAsync(source, "Présente");
+        var gone = await AddTrackAsync(source, "Disparue");
+        File.Delete(gone.FilePath);
+        var noFile = new Track { Title = "Sans fichier", FilePath = "" };
+        await source.Library.SaveLibraryItemAsync(noFile);
+        var campaign = new Campaign { Title = "C" };
+        await source.Scenes.SaveCampaignAsync(campaign);
+        var session = new Session { CampaignId = campaign.Id, Title = "S" };
+        await source.Scenes.SaveSessionAsync(session);
+        var scene = new Scene { SessionId = session.Id, Title = "Sc" };
+        await source.Scenes.SaveSceneAsync(scene);
+        foreach (var t in new[] { kept, gone, noFile })
+            await source.Scenes.SaveSceneTrackAsync(new SceneTrack { SceneId = scene.Id, Track = t });
+
+        using var zipStream = new MemoryStream();
+        await source.Service.ExportAsync(new ExportRequest { Level = ExportLevel.StructureWithChannels, CampaignId = campaign.Id }, zipStream);
+
+        Assert.Equal(new[] { "Présente" }, (await ReadManifestAsync(zipStream)).Tracks.Select(t => t.Title));
+
+        await using var dest = await ImportExportTestContext.CreateAsync();
+        zipStream.Position = 0;
+        await dest.Service.ImportAsync(zipStream);
+        var importedSession = (await dest.Scenes.GetSessionsAsync((await dest.Scenes.GetCampaignsAsync()).Single().Id)).Single();
+        var importedScene = (await dest.Scenes.GetScenesAsync(importedSession.Id)).Single();
+        Assert.Equal("Présente", (await dest.Scenes.GetSceneTracksAsync(importedScene.Id)).Single().Track.Title);
+        // Omis en base, pas seulement ignoré au chargement de la scène.
+        Assert.Equal(1, await dest.Db.Connection.Table<Resonance.Data.Entities.SceneTrackEntity>().CountAsync());
+    }
+
+    [Fact]
+    public async Task Export_ComputesTheHashOfTracksSavedWithoutOne()
+    {
+        await using var source = await ImportExportTestContext.CreateAsync();
+        var track = await AddTrackAsync(source, "Ancienne", withHash: false);
+
+        using var zipStream = new MemoryStream();
+        await source.Service.ExportAsync(new ExportRequest { Level = ExportLevel.AudioLibraryOnly }, zipStream);
+
+        var exported = (await ReadManifestAsync(zipStream)).Tracks.Single();
+        Assert.Equal(TrackTagHelper.ComputeSha256(track.FilePath), exported.Hash, ignoreCase: true);
+        Assert.Equal($"tracks/{exported.Hash}.wav", exported.FileEntry);
+    }
+
+    [Fact]
+    public async Task Export_ReportsProgressPerTrack()
+    {
+        await using var source = await ImportExportTestContext.CreateAsync();
+        await AddTrackAsync(source, "A");
+        await AddTrackAsync(source, "B");
+        var progress = new RecordingProgress<ExportProgress>();
+
+        using var zipStream = new MemoryStream();
+        await source.Service.ExportAsync(new ExportRequest { Level = ExportLevel.AudioLibraryOnly }, zipStream, progress);
+
+        Assert.Equal(new[] { ("A", 1, 2), ("B", 2, 2) }, progress.Reports.Select(p => (p.CurrentItem, p.Processed, p.Total)));
+    }
+
+    [Fact]
+    public async Task Import_ReportsExtractionThenVerificationProgress_AndMeasuresDurations()
+    {
+        await using var source = await ImportExportTestContext.CreateAsync();
+        await AddTrackAsync(source, "A");
+        await AddTrackAsync(source, "B");
+        using var zipStream = new MemoryStream();
+        await source.Service.ExportAsync(new ExportRequest { Level = ExportLevel.AudioLibraryOnly }, zipStream);
+
+        await using var dest = await ImportExportTestContext.CreateAsync();
+        var progress = new RecordingProgress<ImportProgress>();
+        zipStream.Position = 0;
+        var result = await dest.Service.ImportAsync(zipStream, progress);
+
+        var extraction = progress.Reports.Where(p => !p.IsVerifyingTracks).ToList();
+        Assert.Equal(new[] { ("A", 1, 2), ("B", 2, 2) }, extraction.Select(p => (p.CurrentItem, p.Processed, p.Total)));
+        var verification = progress.Reports.Where(p => p.IsVerifyingTracks).ToList();
+        Assert.Equal(new[] { 1, 2 }, verification.Select(p => p.Processed).Order());
+        Assert.All(verification, p => Assert.Equal(2, p.Total));
+        Assert.True(result.ExtractionDuration > TimeSpan.Zero);
+        Assert.True(result.DatabaseSaveDuration > TimeSpan.Zero);
+    }
+
+    [Fact]
+    public async Task Import_CountsAHashMismatchAsSuch()
+    {
+        var real = Encoding.UTF8.GetBytes("contenu réel");
+        var declaredHash = new string('a', 64);
+        using var archive = SignedArchive(
+            new ExportManifest { ExportLevel = 3, Tracks = { new TrackExport { Id = 1, Title = "X", Hash = declaredHash, FileEntry = $"tracks/{declaredHash}.wav" } } },
+            ($"tracks/{declaredHash}.wav", real));
+
+        await using var dest = await ImportExportTestContext.CreateAsync();
+        var result = await dest.Service.ImportAsync(archive);
+
+        Assert.Equal((1, 1, 0), (result.TracksRejected, result.TracksRejectedHashMismatch, result.TracksCopied));
+        Assert.All(dest.Store.CopiedFiles, f => Assert.False(File.Exists(f)));
+    }
+
+    [Fact]
+    public async Task Import_CountsAMissingAudioEntry_AndKeepsTheRest()
+    {
+        var hash = new string('b', 64);
+        using var archive = SignedArchive(new ExportManifest
+        {
+            ExportLevel = 4,
+            Tracks = { new TrackExport { Id = 1, Title = "Absente", Hash = hash, FileEntry = $"tracks/{hash}.wav" } },
+            Campaigns = { new CampaignExport { Title = "C" } }
+        });
+
+        await using var dest = await ImportExportTestContext.CreateAsync();
+        var result = await dest.Service.ImportAsync(archive);
+
+        Assert.Equal((1, 1, 1), (result.TracksRejected, result.TracksRejectedMissingEntry, result.CampaignsImported));
+    }
+
+    [Fact]
+    public async Task Import_RejectsAFileThatIsNotAudio_AndDeletesIt()
+    {
+        var content = Encoding.UTF8.GetBytes("ceci n'est pas un fichier audio, mais le hash est bon");
+        var hash = Sha256Hex(content);
+        using var archive = SignedArchive(
+            new ExportManifest { ExportLevel = 3, Tracks = { new TrackExport { Id = 1, Title = "Faux", Hash = hash, FileEntry = $"tracks/{hash}.wav" } } },
+            ($"tracks/{hash}.wav", content));
+
+        await using var dest = await ImportExportTestContext.CreateAsync();
+        var result = await dest.Service.ImportAsync(archive);
+
+        Assert.Equal((1, 1, 0), (result.TracksRejected, result.TracksRejectedNotDecodable, result.TracksCopied));
+        Assert.Empty(await dest.Library.GetAllItemsTypeAsync(typeof(Track)));
+        Assert.False(File.Exists(dest.Store.CopiedFiles.Single()));
+    }
+
+    [Fact]
+    public async Task Import_RejectsAnUnexpectedEntry_EvenInAValidlySignedArchive()
+    {
+        using var archive = SignedArchive(new ExportManifest { ExportLevel = 1 }, ("notes.txt", Encoding.UTF8.GetBytes("?")));
+
+        await using var dest = await ImportExportTestContext.CreateAsync();
+        await Assert.ThrowsAsync<InvalidDataException>(() => dest.Service.ImportAsync(archive));
+    }
+
+    public static TheoryData<string> InvalidManifests => new() { "level0", "level5", "shortHash", "entryOtherHash", "entryBadName" };
+
+    [Theory]
+    [MemberData(nameof(InvalidManifests))]
+    public async Task Import_RejectsAnInconsistentManifest(string kind)
+    {
+        var hash = new string('c', 64);
+        var other = new string('d', 64);
+        var manifest = kind switch
+        {
+            "level0" => new ExportManifest { ExportLevel = 0 },
+            "level5" => new ExportManifest { ExportLevel = 5 },
+            "shortHash" => new ExportManifest { ExportLevel = 3, Tracks = { new TrackExport { Hash = "abc", FileEntry = $"tracks/{hash}.wav" } } },
+            "entryOtherHash" => new ExportManifest { ExportLevel = 3, Tracks = { new TrackExport { Hash = hash, FileEntry = $"tracks/{other}.wav" } } },
+            _ => new ExportManifest { ExportLevel = 3, Tracks = { new TrackExport { Hash = hash, FileEntry = $"audio/{hash}.wav" } } },
+        };
+        using var archive = SignedArchive(manifest);
+
+        await using var dest = await ImportExportTestContext.CreateAsync();
+        await Assert.ThrowsAsync<InvalidDataException>(() => dest.Service.ImportAsync(archive));
+        Assert.Empty(await dest.Scenes.GetCampaignsAsync());
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(4)]
+    public async Task Import_AcceptsTheBoundaryExportLevels(int level)
+    {
+        using var archive = SignedArchive(new ExportManifest { ExportLevel = level, Campaigns = { new CampaignExport { Title = "C" } } });
+
+        await using var dest = await ImportExportTestContext.CreateAsync();
+        var result = await dest.Service.ImportAsync(archive);
+
+        Assert.Equal(1, result.CampaignsImported);
+    }
+
+    [Theory]
+    [InlineData(ExportLevel.StructureOnly)]
+    [InlineData(ExportLevel.AudioLibraryOnly)]
+    [InlineData(ExportLevel.FullBackup)]
+    public async Task Export_StopsWhenCancelled(ExportLevel level)
+    {
+        await using var source = await ImportExportTestContext.CreateAsync();
+        await AddTrackAsync(source, "A");
+        var campaign = new Campaign { Title = "C" };
+        await source.Scenes.SaveCampaignAsync(campaign);
+        await source.Scenes.SaveSessionAsync(new Session { CampaignId = campaign.Id, Title = "S" });
+
+        using var zipStream = new MemoryStream();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => source.Service.ExportAsync(
+            new ExportRequest { Level = level, CampaignId = campaign.Id }, zipStream, cancellationToken: new CancellationToken(canceled: true)));
     }
 }
