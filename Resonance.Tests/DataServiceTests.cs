@@ -309,6 +309,171 @@ public class SceneDataServiceTests : DatabaseTestBase
         Assert.Equal(kept.Id, (await Service.GetSceneTracksAsync(1)).Single().Id);
         Assert.Single(await library.GetAllItemsTypeAsync(typeof(Track)));
     }
+
+    // --- Tests ajoutés pour les mutants survivants de Stryker ---
+
+    [Fact]
+    public async Task SaveSession_WithExistingId_Updates()
+    {
+        var session = new Session { CampaignId = 1, Title = "Avant" };
+        await Service.SaveSessionAsync(session);
+
+        session.Title = "Après";
+        await Service.SaveSessionAsync(session);
+
+        Assert.Equal("Après", (await Service.GetSessionsAsync(1)).Single().Title);
+    }
+
+    [Fact]
+    public async Task SaveScene_WithExistingId_Updates()
+    {
+        var scene = new Scene { SessionId = 1, Title = "Avant" };
+        await Service.SaveSceneAsync(scene);
+
+        scene.Title = "Après";
+        await Service.SaveSceneAsync(scene);
+
+        Assert.Equal("Après", (await Service.GetScenesAsync(1)).Single().Title);
+    }
+
+    [Fact]
+    public async Task SaveSceneTrack_WithExistingId_Updates()
+    {
+        var library = new LibraryDataService(Db);
+        var track = new Track { Title = "Rain" };
+        await library.SaveLibraryItemAsync(track);
+        var sceneTrack = new SceneTrack { SceneId = 1, Track = track, Volume = 1.0 };
+        await Service.SaveSceneTrackAsync(sceneTrack);
+
+        sceneTrack.Volume = 0.2;
+        await Service.SaveSceneTrackAsync(sceneTrack);
+
+        Assert.Equal(0.2, (await Service.GetSceneTracksAsync(1)).Single().Volume);
+    }
+
+    [Fact]
+    public async Task UpdateSceneTrackVolume_PersistsVolume()
+    {
+        var library = new LibraryDataService(Db);
+        var track = new Track { Title = "Rain" };
+        await library.SaveLibraryItemAsync(track);
+        var sceneTrack = new SceneTrack { SceneId = 1, Track = track, Volume = 1.0 };
+        await Service.SaveSceneTrackAsync(sceneTrack);
+
+        await Service.UpdateSceneTrackVolumeAsync(sceneTrack.Id, 0.25f);
+
+        Assert.Equal(0.25, (await Service.GetSceneTracksAsync(1)).Single().Volume, 6);
+    }
+
+    [Fact]
+    public async Task DeleteCampaign_SessionAndScene_RemoveTheItemItself()
+    {
+        var campaign = new Campaign { Title = "C" };
+        await Service.SaveCampaignAsync(campaign);
+        var session = new Session { CampaignId = campaign.Id, Title = "S" };
+        await Service.SaveSessionAsync(session);
+        var scene = new Scene { SessionId = session.Id, Title = "Sc" };
+        await Service.SaveSceneAsync(scene);
+
+        await Service.DeleteSceneAsync(scene);
+        Assert.Empty(await Service.GetScenesAsync(session.Id));
+
+        await Service.DeleteSessionAsync(session);
+        Assert.Empty(await Service.GetSessionsAsync(campaign.Id));
+
+        await Service.DeleteCampaignAsync(campaign);
+        Assert.Empty(await Service.GetCampaignsAsync());
+    }
+
+    [Fact]
+    public async Task GetSceneTracks_SkipsALinkWhoseTrackNoLongerExists()
+    {
+        // Lien vers une piste absente (base abîmée, suppression interrompue) : ignoré au chargement
+        // de la scène au lieu de la faire planter.
+        var library = new LibraryDataService(Db);
+        var track = new Track { Title = "Rain" };
+        await library.SaveLibraryItemAsync(track);
+        await Service.SaveSceneTrackAsync(new SceneTrack { SceneId = 1, Track = track, Position = 0 });
+        await Db.Connection.InsertAsync(new SceneTrackEntity { SceneId = 1, TrackId = 9999, Position = 1 });
+
+        var loaded = await Service.GetSceneTracksAsync(1);
+
+        Assert.Equal("Rain", loaded.Single().Track.Title);
+    }
+}
+
+/// <summary>
+/// Appels faits juste après l'ouverture de la base, sans attendre son initialisation (premier
+/// lancement : la page affichée interroge déjà la base) : chaque service doit attendre lui-même la
+/// création des tables au lieu de tomber sur "no such table".
+/// </summary>
+public class FreshDatabaseTests
+{
+    public static TheoryData<string> Calls => new()
+    {
+        "GetCampaigns", "SaveCampaign", "DeleteCampaign", "GetSessions", "SaveSession", "DeleteSession",
+        "GetScenes", "SaveScene", "DeleteScene", "OrphanScene", "GetSceneTracks", "SaveSceneTrack",
+        "DeleteSceneTrack", "UpdateSceneTrack", "UpdateSceneTrackSettings", "UpdateSceneTrackVolume", "Reorder",
+        "GetAllItems", "GetItemsPage", "FindTrackByHash", "GetCategoryNames", "EnsureCategory", "RenameCategory",
+        "DeleteCategory", "CountTracksUsingFile", "GetReferencedFilePaths", "SaveLibraryItem", "DeleteAllTracks",
+        "GetItemIds", "DeleteItems", "DeleteLibraryItem", "UpdateTrackImagePath",
+    };
+
+    [Theory]
+    [MemberData(nameof(Calls))]
+    public async Task ServiceCall_RightAfterOpening_WaitsForTheTables(string call)
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"resonance-tests-{Guid.NewGuid():N}.db3");
+        var db = new AppDatabase(path);
+        var scenes = new SceneDataService(db);
+        var library = new LibraryDataService(db);
+        try
+        {
+            Task task = call switch
+            {
+                "GetCampaigns" => scenes.GetCampaignsAsync(),
+                "SaveCampaign" => scenes.SaveCampaignAsync(new Campaign { Title = "C" }),
+                "DeleteCampaign" => scenes.DeleteCampaignAsync(new Campaign { Id = 1 }),
+                "GetSessions" => scenes.GetSessionsAsync(1),
+                "SaveSession" => scenes.SaveSessionAsync(new Session { CampaignId = 1 }),
+                "DeleteSession" => scenes.DeleteSessionAsync(new Session { Id = 1 }),
+                "GetScenes" => scenes.GetScenesAsync(1),
+                "SaveScene" => scenes.SaveSceneAsync(new Scene { SessionId = 1 }),
+                "DeleteScene" => scenes.DeleteSceneAsync(new Scene { Id = 1 }),
+                "OrphanScene" => scenes.GetOrCreateOrphanSceneAsync(),
+                "GetSceneTracks" => scenes.GetSceneTracksAsync(1),
+                "SaveSceneTrack" => scenes.SaveSceneTrackAsync(new SceneTrack { SceneId = 1, Track = new Track { Id = 1 } }),
+                "DeleteSceneTrack" => scenes.DeleteSceneTrackAsync(new SceneTrack { Id = 1, Track = new Track() }),
+                "UpdateSceneTrack" => scenes.UpdateSceneTrackAsync(1, 0.5, true, true, true, true),
+                "UpdateSceneTrackSettings" => scenes.UpdateSceneTrackSettingsAsync(1, 0.5, true, true, true),
+                "UpdateSceneTrackVolume" => scenes.UpdateSceneTrackVolumeAsync(1, 0.5f),
+                "Reorder" => scenes.ReorderScenesAsync(new List<int> { 1 }),
+                "GetAllItems" => library.GetAllItemsTypeAsync(typeof(Track)),
+                "GetItemsPage" => library.GetItemsPageAsync(typeof(Track), 0, 10),
+                "FindTrackByHash" => library.FindTrackByHashAsync("abc", 0),
+                "GetCategoryNames" => library.GetCategoryNamesAsync(typeof(Track)),
+                "EnsureCategory" => library.EnsureCategoryAsync(typeof(Track), "Ambiance"),
+                "RenameCategory" => library.RenameCategoryAsync(typeof(Track), "A", "B"),
+                "DeleteCategory" => library.DeleteCategoryAsync(typeof(Track), "A"),
+                "CountTracksUsingFile" => library.CountTracksWithFilePathAsync(@"C:\a.mp3", 0),
+                "GetItemIds" => library.GetItemIdsAsync(typeof(Track), null),
+                "DeleteItems" => library.DeleteItemsAsync(typeof(Track), new[] { 1 }),
+                "DeleteLibraryItem" => library.DeleteLibraryItem(new Track { Id = 1 }),
+                "UpdateTrackImagePath" => library.UpdateTrackImagePathAsync(1, "a.png"),
+                "GetReferencedFilePaths" => library.GetAllReferencedFilePathsAsync(),
+                "SaveLibraryItem" => library.SaveLibraryItemAsync(new Track { Title = "T" }),
+                "DeleteAllTracks" => library.DeleteAllTracksAsync(),
+                _ => throw new ArgumentOutOfRangeException(nameof(call)),
+            };
+            await task;
+        }
+        finally
+        {
+            await db.Initialization;
+            await db.Connection.CloseAsync();
+            File.Delete(path);
+        }
+    }
 }
 
 public class AppDatabaseMigrationTests
@@ -791,6 +956,92 @@ public class LibraryDataServiceTests : DatabaseTestBase
         var links = await Db.Connection.Table<CharacterSpellEntity>().ToListAsync();
         Assert.Equal(other.Id, links.Single().SpellId);
         Assert.Equal("Soins", (await Service.GetAllItemsTypeAsync(typeof(Spell))).Single().Title);
+    }
+
+    // --- Tests ajoutés pour les mutants survivants de Stryker ---
+
+    [Fact]
+    public async Task DeleteLibraryItem_RemovesTheTrackOrSpellItself()
+    {
+        var track = MakeTrack("Doomed");
+        var spell = new Spell { Title = "Boule de feu" };
+        await Service.SaveLibraryItemAsync(track);
+        await Service.SaveLibraryItemAsync(spell);
+
+        await Service.DeleteLibraryItem(track);
+        await Service.DeleteLibraryItem(spell);
+
+        Assert.Empty(await Service.GetAllItemsTypeAsync(typeof(Track)));
+        Assert.Empty(await Service.GetAllItemsTypeAsync(typeof(Spell)));
+    }
+
+    [Fact]
+    public async Task DeleteItems_RemovesTheSceneLinksOfDeletedTracks_FromTheDatabase()
+    {
+        // GetSceneTracksAsync ignore déjà les liens vers une piste absente : on vérifie la table elle-même.
+        var sceneService = new SceneDataService(Db);
+        var doomed = MakeTrack("Doomed");
+        var kept = MakeTrack("Kept");
+        await Service.SaveLibraryItemAsync(doomed);
+        await Service.SaveLibraryItemAsync(kept);
+        await sceneService.SaveSceneTrackAsync(new SceneTrack { SceneId = 1, Track = doomed });
+        await sceneService.SaveSceneTrackAsync(new SceneTrack { SceneId = 1, Track = kept });
+
+        await Service.DeleteItemsAsync(typeof(Track), new[] { doomed.Id });
+
+        var links = await Db.Connection.Table<SceneTrackEntity>().ToListAsync();
+        Assert.Equal(kept.Id, links.Single().TrackId);
+    }
+
+    [Fact]
+    public async Task GetItemIds_FiltersTracksByCategory_AndListsSpellsSeparately()
+    {
+        var ambiance = MakeTrack("Pluie", category: "Ambiance");
+        var music = MakeTrack("Thème", category: "Musique");
+        var spell = new Spell { Title = "Boule de feu" };
+        await Service.SaveLibraryItemAsync(ambiance);
+        await Service.SaveLibraryItemAsync(music);
+        await Service.SaveLibraryItemAsync(spell);
+
+        Assert.Equal(new[] { ambiance.Id, music.Id }, await Service.GetItemIdsAsync(typeof(Track), null));
+        Assert.Equal(new[] { ambiance.Id }, await Service.GetItemIdsAsync(typeof(Track), "Ambiance"));
+        Assert.Equal(new[] { spell.Id }, await Service.GetItemIdsAsync(typeof(Spell), null));
+        Assert.Empty(await Service.GetItemIdsAsync(typeof(LibraryItem), null));
+    }
+
+    [Fact]
+    public async Task SaveSpell_WithExistingId_Updates()
+    {
+        var spell = new Spell { Title = "Avant" };
+        await Service.SaveLibraryItemAsync(spell);
+
+        spell.Title = "Après";
+        await Service.SaveLibraryItemAsync(spell);
+
+        Assert.Equal("Après", (await Service.GetAllItemsTypeAsync(typeof(Spell))).Single().Title);
+    }
+
+    [Fact]
+    public async Task GetItemsPage_PaginatesSpells_WithoutMixingInTracks()
+    {
+        await Service.SaveLibraryItemAsync(MakeTrack("Pluie"));
+        foreach (var title in new[] { "A", "B", "C" })
+            await Service.SaveLibraryItemAsync(new Spell { Title = title });
+
+        var page = await Service.GetItemsPageAsync(typeof(Spell), skip: 1, take: 2);
+
+        Assert.Equal(new[] { "B", "C" }, page.Select(s => s.Title));
+        Assert.All(page, item => Assert.IsType<Spell>(item));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task EnsureCategory_WithBlankName_CreatesNothing(string name)
+    {
+        await Service.EnsureCategoryAsync(typeof(Track), name);
+
+        Assert.Empty(await Service.GetCategoryNamesAsync(typeof(Track)));
     }
 }
 
