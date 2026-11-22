@@ -5,6 +5,9 @@ public partial class ChannelVolumeSliderView : ContentView
     public ChannelVolumeSliderView()
     {
         InitializeComponent();
+        // Même raison que RotatedLabelView : suivre le thème à chaud plutôt que garder la couleur
+        // lue une fois à la création (valeur "100" restée claire après passage au thème clair).
+        SetDynamicResource(TextColorProperty, "AppText");
 
 #if WINDOWS
         // Sur Windows, InnerSlider est bascule sur l'orientation verticale native de WinUI (cf.
