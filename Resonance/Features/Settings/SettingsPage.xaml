@@ -207,19 +207,40 @@
 
             <!-- Signaler un bug -->
             <Border Style="{StaticResource SectionCardBorderStyle}">
-                <Grid ColumnDefinitions="*,auto">
-                    <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
-                        <Label Text="{loc:Loc SettingsReportBugTitle}" FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
-                    </VerticalStackLayout>
-                    <Label Grid.Column="1"
-                           Text="{loc:Loc SettingsReportBugDesc}"
-                           TextColor="{DynamicResource AppAccent}"
-                           VerticalOptions="Center">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding ReportBugCommand}"/>
-                        </Label.GestureRecognizers>
-                    </Label>
-                </Grid>
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*,auto">
+                        <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                            <Label Text="{loc:Loc SettingsReportBugTitle}" FontSize="{DynamicResource AppFontSizeSectionTitle}"/>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1"
+                               Text="{loc:Loc SettingsReportBugDesc}"
+                               TextColor="{DynamicResource AppAccent}"
+                               VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ReportBugCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+
+                    <!-- Journal d'erreurs (crash.log) : affiché seulement s'il contient quelque chose, pour
+                         pouvoir le joindre au signalement (le formulaire ne prend pas de fichier). -->
+                    <BoxView HeightRequest="1" Color="{DynamicResource AppBorder}" IsVisible="{Binding HasCrashLog}"/>
+
+                    <Grid ColumnDefinitions="*,auto" IsVisible="{Binding HasCrashLog}">
+                        <Label Grid.Column="0" Text="{loc:Loc SettingsCrashLogDesc}"
+                               VerticalOptions="Center" FontSize="{OnIdiom Default=13, Desktop=11}"
+                               TextColor="{DynamicResource AppTextMuted}"/>
+                        <Button Grid.Column="1"
+                                Text="{loc:Loc SettingsCrashLogShare}"
+                                Command="{Binding ShareCrashLogCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{DynamicResource AppAccent}"
+                                FontSize="{OnIdiom Default=15, Desktop=13}"
+                                Padding="8,4"
+                                MinimumHeightRequest="{DynamicResource AppInlineButtonMinSize}"
+                                MinimumWidthRequest="{DynamicResource AppInlineButtonMinSize}"/>
+                    </Grid>
+                </VerticalStackLayout>
             </Border>
 
         </VerticalStackLayout>

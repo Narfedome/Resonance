@@ -41,6 +41,7 @@ namespace Resonance.Features.Settings
         {
             _storageUsedBytes = await _storageService.GetTotalLibrarySizeAsync();
             StorageUsedText = FormatSize(_storageUsedBytes);
+            HasCrashLog = CrashLogger.HasEntries;
         }
 
         [RelayCommand]
@@ -160,6 +161,29 @@ namespace Resonance.Features.Settings
         [RelayCommand]
         public async Task ReportBug() =>
             await Launcher.OpenAsync(new Uri("https://docs.google.com/forms/d/e/1FAIpQLSdg2q1o01eGZsFvd0qIwOqYEVKDwBikQ0g7FWLSWHenKqeW0g/viewform?usp=dialog"));
+
+        /// <summary>Relu à chaque affichage de la page (cf. InitializeAsync) : le journal grossit pendant l'utilisation.</summary>
+        [ObservableProperty]
+        private bool hasCrashLog;
+
+        // Partage système (e-mail, messagerie, enregistrement...) : le formulaire de signalement ne
+        // prend pas de pièce jointe, l'utilisateur envoie ainsi le journal par le canal de son choix.
+        [RelayCommand]
+        public async Task ShareCrashLog()
+        {
+            try
+            {
+                await Share.Default.RequestAsync(new ShareFileRequest
+                {
+                    Title = Loc["SettingsCrashLogShareTitle"],
+                    File = new ShareFile(CrashLogger.CreateShareableCopy(), "text/plain")
+                });
+            }
+            catch (Exception ex)
+            {
+                await ShowErrorAsync(ex);
+            }
+        }
 
         [RelayCommand]
         public async Task OpenImportExport() =>
