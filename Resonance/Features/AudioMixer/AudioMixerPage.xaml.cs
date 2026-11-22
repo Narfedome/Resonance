@@ -1,4 +1,5 @@
 using Resonance.Components;
+using Resonance.Services;
 
 namespace Resonance.Features.AudioMixer;
 
@@ -41,7 +42,7 @@ public partial class AudioMixerPage : ContentPage
         }
 
         if (!_vm.HasActiveScene)
-            await _vm.SelectFreeformScene();
+            await UiErrors.RunAsync(_vm.SelectFreeformScene, "AudioMixerPage.OnAppearing");
     }
 
     // DragHighlightBorder est un Border transparent superposé à chaque carte (cf. XAML) :
@@ -87,7 +88,7 @@ public partial class AudioMixerPage : ContentPage
         if (!e.Data.Properties.TryGetValue("Channel", out var draggedObj) || draggedObj is not ChannelStripViewModel dragged)
             return;
 
-        await _vm.ReorderChannelsAsync(dragged, target);
+        await UiErrors.RunAsync(() => _vm.ReorderChannelsAsync(dragged, target), "AudioMixerPage.OnChannelDrop");
     }
 
     private void UpdateAutoScroll(DragEventArgs e, ChannelStripViewModel hovered)

@@ -1,4 +1,5 @@
 using CommunityToolkit.Maui.Extensions;
+using Resonance.Services;
 
 namespace Resonance.Features.Library;
 
@@ -21,6 +22,6 @@ public partial class LibrarySpellPage : ContentPage
             return;
 
         if (BindingContext is LibrarySpellViewModel vm)
-            await vm.InitializeAsync();
+            await UiErrors.RunAsync(vm.InitializeAsync, "LibrarySpellPage.OnNavigatedTo");
     }
 }

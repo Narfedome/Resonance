@@ -72,7 +72,13 @@ namespace Resonance.Services
             switch (libraryItem)
             {
                 case Track track:
-                    await _db.Connection.DeleteAsync<TrackEntity>(track.Id);
+                    // Les pistes de scène qui l'utilisaient partent avec elle (pas de FK ON DELETE CASCADE
+                    // avec sqlite-net) : sinon elles restaient orphelines jusqu'à la purge du lancement suivant.
+                    await _db.Connection.RunInTransactionAsync(conn =>
+                    {
+                        conn.Execute("DELETE FROM SceneTrackEntity WHERE TrackId = ?", track.Id);
+                        conn.Delete<TrackEntity>(track.Id);
+                    });
                     break;
                 case Spell spell:
                     await _db.Connection.DeleteAsync<SpellEntity>(spell.Id);
@@ -87,8 +93,11 @@ namespace Resonance.Services
             await _db.Initialization;
             var tracks = await _db.Connection.Table<TrackEntity>().ToListAsync();
 
-            await _db.Connection.DeleteAllAsync<SceneTrackEntity>();
-            await _db.Connection.DeleteAllAsync<TrackEntity>();
+            await _db.Connection.RunInTransactionAsync(conn =>
+            {
+                conn.DeleteAll<SceneTrackEntity>();
+                conn.DeleteAll<TrackEntity>();
+            });
 
             return tracks.Select(t => t.ToModel()).ToList();
         }
@@ -130,35 +139,32 @@ namespace Resonance.Services
             await _db.Initialization;
             var deleted = new List<LibraryItem>();
 
-            foreach (var id in ids)
+            // Une seule transaction pour tout le lot : une erreur au milieu ne laisse ni une sélection
+            // à moitié supprimée, ni des pistes de scène / sorts de personnage orphelins.
+            await _db.Connection.RunInTransactionAsync(conn =>
             {
-                if (currentLibraryType == typeof(Track))
+                foreach (var id in ids)
                 {
-                    var entity = await _db.Connection.FindAsync<TrackEntity>(id);
-                    if (entity == null) continue;
+                    if (currentLibraryType == typeof(Track))
+                    {
+                        var entity = conn.Find<TrackEntity>(id);
+                        if (entity == null) continue;
 
-                    await _db.Connection.DeleteAsync<TrackEntity>(id);
+                        conn.Execute("DELETE FROM SceneTrackEntity WHERE TrackId = ?", id);
+                        conn.Delete<TrackEntity>(id);
+                        deleted.Add(entity.ToModel());
+                    }
+                    else if (currentLibraryType == typeof(Spell))
+                    {
+                        var entity = conn.Find<SpellEntity>(id);
+                        if (entity == null) continue;
 
-                    var sceneTracks = await _db.Connection.Table<SceneTrackEntity>().Where(st => st.TrackId == id).ToListAsync();
-                    foreach (var sceneTrack in sceneTracks)
-                        await _db.Connection.DeleteAsync<SceneTrackEntity>(sceneTrack.Id);
-
-                    deleted.Add(entity.ToModel());
+                        conn.Execute("DELETE FROM CharacterSpellEntity WHERE SpellId = ?", id);
+                        conn.Delete<SpellEntity>(id);
+                        deleted.Add(entity.ToModel());
+                    }
                 }
-                else if (currentLibraryType == typeof(Spell))
-                {
-                    var entity = await _db.Connection.FindAsync<SpellEntity>(id);
-                    if (entity == null) continue;
-
-                    await _db.Connection.DeleteAsync<SpellEntity>(id);
-
-                    var characterSpells = await _db.Connection.Table<CharacterSpellEntity>().Where(cs => cs.SpellId == id).ToListAsync();
-                    foreach (var characterSpell in characterSpells)
-                        await _db.Connection.DeleteAsync<CharacterSpellEntity>(characterSpell.Id);
-
-                    deleted.Add(entity.ToModel());
-                }
-            }
+            });
 
             return deleted;
         }
@@ -261,27 +267,25 @@ namespace Resonance.Services
             if (entity == null)
                 return;
 
-            if (currentLibraryType == typeof(Track))
+            // Transaction : interrompu entre les deux étapes, des pistes se retrouvaient rangées sous un
+            // nom de catégorie qui n'existe pas (ou plus) dans la liste des catégories.
+            await _db.Connection.RunInTransactionAsync(conn =>
             {
-                var tracks = await _db.Connection.Table<TrackEntity>().Where(t => t.Category == oldName).ToListAsync();
-                foreach (var track in tracks)
-                {
-                    track.Category = newName;
-                    await _db.Connection.UpdateAsync(track);
-                }
-            }
+                if (currentLibraryType == typeof(Track))
+                    conn.Execute("UPDATE TrackEntity SET Category = ? WHERE Category = ?", newName, oldName);
 
-            // Si le nom cible existe déjà (même type), on fusionne au lieu de créer un doublon.
-            var targetExists = await _db.Connection.Table<CategoryEntity>().Where(c => c.Name == newName && c.LibraryType == typeName).CountAsync() > 0;
-            if (targetExists)
-            {
-                await _db.Connection.DeleteAsync<CategoryEntity>(entity.Id);
-            }
-            else
-            {
-                entity.Name = newName;
-                await _db.Connection.UpdateAsync(entity);
-            }
+                // Si le nom cible existe déjà (même type), on fusionne au lieu de créer un doublon.
+                var targetExists = conn.Table<CategoryEntity>().Where(c => c.Name == newName && c.LibraryType == typeName).Count() > 0;
+                if (targetExists)
+                {
+                    conn.Delete<CategoryEntity>(entity.Id);
+                }
+                else
+                {
+                    entity.Name = newName;
+                    conn.Update(entity);
+                }
+            });
         }
 
         public async Task DeleteCategoryAsync(Type currentLibraryType, string name)
@@ -289,19 +293,15 @@ namespace Resonance.Services
             await _db.Initialization;
             var typeName = currentLibraryType.Name;
             var entity = await _db.Connection.Table<CategoryEntity>().Where(c => c.Name == name && c.LibraryType == typeName).FirstOrDefaultAsync();
-            if (entity != null)
-                await _db.Connection.DeleteAsync<CategoryEntity>(entity.Id);
-
-            if (currentLibraryType == typeof(Track))
+            await _db.Connection.RunInTransactionAsync(conn =>
             {
+                if (entity != null)
+                    conn.Delete<CategoryEntity>(entity.Id);
+
                 // La catégorie est un simple tag : on détache les tracks sans les supprimer.
-                var tracks = await _db.Connection.Table<TrackEntity>().Where(t => t.Category == name).ToListAsync();
-                foreach (var track in tracks)
-                {
-                    track.Category = string.Empty;
-                    await _db.Connection.UpdateAsync(track);
-                }
-            }
+                if (currentLibraryType == typeof(Track))
+                    conn.Execute("UPDATE TrackEntity SET Category = '' WHERE Category = ?", name);
+            });
         }
 
         /// <summary>

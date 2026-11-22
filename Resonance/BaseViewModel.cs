@@ -39,6 +39,9 @@ public abstract partial class BaseViewModel : ObservableObject
 
     protected Task ShowErrorAsync(Exception ex)
     {
+        // Toute erreur montrée à l'utilisateur est aussi journalisée (crash.log), pour pouvoir la diagnostiquer
+        // après coup avec sa pile d'appel - le message n'en montre que le texte.
+        CrashLogger.LogException($"{GetType().Name}.ShowErrorAsync", ex);
         var popup = new ConfirmDialog(new ConfirmDialogViewModel(Loc["ErrorTitle"], ex.Message, Loc["DialogOk"], null));
         return CurrentPage.ShowPopupAsync<bool>(popup, new PopupOptions { CanBeDismissedByTappingOutsideOfPopup = true }, CancellationToken.None);
     }

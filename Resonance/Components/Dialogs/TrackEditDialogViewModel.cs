@@ -63,7 +63,11 @@ namespace Resonance.Components.Dialogs
         }
 
         private void UpdateFileButtonText() =>
-            FileButtonText = string.IsNullOrEmpty(Item.FilePath) ? Loc["TrackSelectFile"] : Path.GetFileName(Item.FilePath);
+            // Une piste déjà importée n'a plus que sa copie locale, nommée par un GUID : afficher ce
+            // nom n'apprenait rien à l'utilisateur. Le nom d'origine n'est connu que juste après un choix.
+            FileButtonText = _pickedFileName ?? Loc[string.IsNullOrEmpty(Item.FilePath) ? "TrackSelectFile" : "TrackChangeFile"];
+
+        private string? _pickedFileName;
 
         private void UpdateCategoryButtonText() =>
             CategoryButtonText = string.IsNullOrEmpty(Item.Category) ? Loc["LibImportNoCategory"] : Item.Category;
@@ -99,6 +103,7 @@ namespace Resonance.Components.Dialogs
                 Item.Duration = duration;
                 _pendingCoverBytes = coverBytes;
                 _filePicked = true;
+                _pickedFileName = result.FileName;
 
                 Name = title;
                 UpdateFileButtonText();

@@ -1,3 +1,5 @@
+using Resonance.Services;
+
 namespace Resonance.Features.Library;
 
 public partial class LibraryTrackSelectorPage : ContentPage
@@ -14,7 +16,7 @@ public partial class LibraryTrackSelectorPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await viewModel.InitializeAsync();
+        await UiErrors.RunAsync(viewModel.InitializeAsync, "LibraryTrackSelectorPage.OnAppearing");
     }
 
     protected override void OnDisappearing()

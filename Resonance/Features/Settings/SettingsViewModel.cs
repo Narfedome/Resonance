@@ -35,10 +35,12 @@ namespace Resonance.Features.Settings
         [ObservableProperty]
         private string storageUsedText = string.Empty;
 
+        private long _storageUsedBytes;
+
         public async Task InitializeAsync()
         {
-            var totalBytes = await _storageService.GetTotalLibrarySizeAsync();
-            StorageUsedText = FormatSize(totalBytes);
+            _storageUsedBytes = await _storageService.GetTotalLibrarySizeAsync();
+            StorageUsedText = FormatSize(_storageUsedBytes);
         }
 
         [RelayCommand]
@@ -118,9 +120,11 @@ namespace Resonance.Features.Settings
             }
         }
 
-        private static string FormatSize(long bytes)
+        // Unités traduites (o/Ko/Mo/Go en français, B/KB/MB/GB en anglais) : codées en dur, l'interface
+        // anglaise affichait "1.6 Mo".
+        private string FormatSize(long bytes)
         {
-            string[] units = ["o", "Ko", "Mo", "Go"];
+            string[] units = Loc["SizeUnits"].Split('|');
             double size = bytes;
             int unitIndex = 0;
 
@@ -226,7 +230,12 @@ namespace Resonance.Features.Settings
             selectedThemeOption = ThemeOptions[(int)_theme.ThemePreference];
 
             WeakReferenceMessenger.Default.Register<LanguageChangedMessage>(this,
-                (r, m) => ((SettingsViewModel)r).RebuildThemeOptions());
+                (r, m) =>
+                {
+                    var vm = (SettingsViewModel)r;
+                    vm.RebuildThemeOptions();
+                    vm.StorageUsedText = vm.FormatSize(vm._storageUsedBytes);
+                });
         }
 
         private void RebuildThemeOptions()

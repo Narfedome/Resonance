@@ -41,6 +41,9 @@ namespace Resonance.Features.AudioMixer
                 vm.OnPropertyChanged(nameof(SelectedSceneLabel));
             });
 
+            WeakReferenceMessenger.Default.Register<Library.TracksDeletingMessage>(this, (r, m) =>
+                ((AudioMixerViewModel)r).RemoveChannelsForTracks(m.TrackIds));
+
             // Les repères visuels du channel strip (fond "en lecture", bandes de fade) lisent leur
             // couleur directement depuis ThemeService dans leurs converters, en contournant le
             // mécanisme DynamicResource qui se rafraîchit tout seul (cf. AppAccent/AppBorder) : sans

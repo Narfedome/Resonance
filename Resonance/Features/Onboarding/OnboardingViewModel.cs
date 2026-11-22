@@ -127,7 +127,7 @@ namespace Resonance.Features.Onboarding
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[Onboarding] {ex}");
+                CrashLogger.LogException("Onboarding navigation", ex);
             }
         }
     }

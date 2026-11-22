@@ -28,7 +28,7 @@ public partial class ChannelSettingsDialog : Popup<bool>
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[Tour] {ex}");
+                CrashLogger.LogException("ChannelSettingsDialog tour", ex);
             }
         };
     }

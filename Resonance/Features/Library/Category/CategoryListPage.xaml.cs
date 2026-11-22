@@ -1,4 +1,5 @@
 using CommunityToolkit.Maui.Extensions;
+using Resonance.Services;
 
 namespace Resonance.Features.Library;
 
@@ -39,6 +40,6 @@ public partial class CategoryListPage : ContentPage
         if (args.WasPreviousPageACommunityToolkitPopupPage())
             return;
 
-        await _vm.InitializeAsync();
+        await UiErrors.RunAsync(_vm.InitializeAsync, "CategoryListPage.OnNavigatedTo");
     }
 }

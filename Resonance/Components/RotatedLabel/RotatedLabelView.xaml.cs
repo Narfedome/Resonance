@@ -5,6 +5,10 @@ public partial class RotatedLabelView : ContentView
     public RotatedLabelView()
     {
         InitializeComponent();
+        // DynamicResource plutôt qu'une valeur lue une seule fois : sinon le nom de piste du channel
+        // strip gardait la couleur du thème de lancement après un changement de thème à chaud.
+        // Une couleur passée explicitement (TextColor="...") reste prioritaire.
+        SetDynamicResource(TextColorProperty, "AppText");
         Loaded += (_, _) => UpdateSize();
     }
 

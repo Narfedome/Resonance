@@ -25,7 +25,7 @@ public partial class LibraryTrackPage : ContentPage
             return;
 
         if (BindingContext is LibraryTrackViewModel vm)
-            await vm.InitializeAsync();
+            await UiErrors.RunAsync(vm.InitializeAsync, "LibraryTrackPage.OnNavigatedTo");
 
         // Visite de cet écran, la première fois qu'on y arrive (cf. AppTourService).
         if (_tourService.IsLibraryTourPending)
@@ -37,7 +37,7 @@ public partial class LibraryTrackPage : ContentPage
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[Tour] {ex}");
+                CrashLogger.LogException("LibraryTrackPage tour", ex);
             }
         }
     }
