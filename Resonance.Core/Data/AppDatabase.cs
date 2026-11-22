@@ -30,20 +30,12 @@ namespace Resonance.Data
 
         private async Task InitializeAsync()
         {
-            await _db.CreateTableAsync<CampaignEntity>();
-            await _db.CreateTableAsync<SessionEntity>();
-            await _db.CreateTableAsync<SceneEntity>();
-            await _db.CreateTableAsync<CharacterEntity>();
-            await _db.CreateTableAsync<SpellEntity>();
-            await _db.CreateTableAsync<TrackEntity>();
-            await _db.CreateTableAsync<SceneTrackEntity>();
-            await _db.CreateTableAsync<CharacterSpellEntity>();
-            await _db.CreateTableAsync<CategoryEntity>();
-
-            // Migrations : ajout des colonnes manquantes sur les DB existantes. Le catch ne cible
-            // que l'erreur "duplicate column" (colonne déjà présente) : un vrai problème (disque
-            // plein, DB corrompue...) doit remonter au lieu d'être avalé silencieusement, sans quoi
-            // l'appli planterait plus loin de façon incompréhensible.
+            // Migrations : ajout des colonnes manquantes sur les DB existantes, AVANT CreateTableAsync.
+            // CreateTableAsync complète lui-même une table existante, mais avec des colonnes nullables
+            // sans valeur par défaut : passé en premier, il rendait ces migrations sans effet (colonne
+            // déjà là), si bien qu'une ancienne base gardait NULL partout (IsLooping lu comme faux,
+            // Position jamais rattrapée). Une table absente est ignorée ici : CreateTableAsync la crée
+            // ensuite complète.
             await AddColumnIfMissingAsync("SceneTrackEntity", "IsLooping INTEGER NOT NULL DEFAULT 1");
             await AddColumnIfMissingAsync("SceneTrackEntity", "FadeIn INTEGER NOT NULL DEFAULT 0");
             await AddColumnIfMissingAsync("SceneTrackEntity", "FadeOut INTEGER NOT NULL DEFAULT 0");
@@ -55,11 +47,25 @@ namespace Resonance.Data
             // une DB existante, toutes les lignes prendraient sinon Position=0 (le DEFAULT de
             // l'ALTER TABLE), et l'ordre affiché deviendrait indéterminé (dépendant de l'ordre de
             // retour SQLite, non garanti) au lieu de rester celui d'avant la mise à jour. D'où le
-            // backfill par Id ci-dessous, exécuté une seule fois (uniquement quand la colonne vient
-            // d'être ajoutée, cf. AddColumnIfMissingAsync).
+            // backfill par Id ci-dessous : quand la colonne vient d'être ajoutée, ou quand une
+            // migration passée par l'ancien ordre (cf. plus haut) l'a laissée à NULL.
             bool campaignPositionAdded = await AddColumnIfMissingAsync("CampaignEntity", "Position INTEGER NOT NULL DEFAULT 0");
             bool sessionPositionAdded = await AddColumnIfMissingAsync("SessionEntity", "Position INTEGER NOT NULL DEFAULT 0");
             bool scenePositionAdded = await AddColumnIfMissingAsync("SceneEntity", "Position INTEGER NOT NULL DEFAULT 0");
+
+            await _db.CreateTableAsync<CampaignEntity>();
+            await _db.CreateTableAsync<SessionEntity>();
+            await _db.CreateTableAsync<SceneEntity>();
+            await _db.CreateTableAsync<CharacterEntity>();
+            await _db.CreateTableAsync<SpellEntity>();
+            await _db.CreateTableAsync<TrackEntity>();
+            await _db.CreateTableAsync<SceneTrackEntity>();
+            await _db.CreateTableAsync<CharacterSpellEntity>();
+            await _db.CreateTableAsync<CategoryEntity>();
+
+            campaignPositionAdded |= await HasNullPositionAsync("CampaignEntity");
+            sessionPositionAdded |= await HasNullPositionAsync("SessionEntity");
+            scenePositionAdded |= await HasNullPositionAsync("SceneEntity");
 
             // Purge + seed regroupés dans une transaction : plusieurs etapes liees (purge des
             // orphelins puis rattachement retroactif puis seed conditionne par le resultat de la
@@ -112,18 +118,26 @@ namespace Resonance.Data
             });
         }
 
+        /// <summary>
+        /// Ajoute la colonne si la table existe et ne l'a pas encore. Renvoie vrai si elle vient
+        /// d'être ajoutée. Présence testée via PRAGMA table_info plutôt qu'en interceptant l'erreur
+        /// "duplicate column" : un vrai problème (disque plein, DB corrompue...) remonte tel quel.
+        /// </summary>
         private async Task<bool> AddColumnIfMissingAsync(string table, string columnDefinition)
         {
-            try
-            {
-                await _db.ExecuteAsync($"ALTER TABLE {table} ADD COLUMN {columnDefinition}");
-                return true;
-            }
-            catch (SQLiteException ex) when (ex.Message.Contains("duplicate column", StringComparison.OrdinalIgnoreCase))
-            {
-                // Colonne déjà présente (DB déjà migrée) : rien à faire.
+            var columns = await _db.GetTableInfoAsync(table);
+            if (columns.Count == 0)
+                return false; // table absente : CreateTableAsync la crée ensuite avec toutes ses colonnes
+
+            var column = columnDefinition.Split(' ')[0];
+            if (columns.Any(c => string.Equals(c.Name, column, StringComparison.OrdinalIgnoreCase)))
                 return false;
-            }
+
+            await _db.ExecuteAsync($"ALTER TABLE {table} ADD COLUMN {columnDefinition}");
+            return true;
         }
+
+        private async Task<bool> HasNullPositionAsync(string table) =>
+            await _db.ExecuteScalarAsync<int>($"SELECT COUNT(*) FROM {table} WHERE Position IS NULL") > 0;
     }
 }

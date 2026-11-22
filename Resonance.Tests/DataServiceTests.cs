@@ -341,6 +341,174 @@ public class AppDatabaseMigrationTests
             File.Delete(path);
         }
     }
+
+    // --- Bases créées par d'anciennes versions de l'appli (colonnes ajoutées depuis absentes) ---
+
+    /// <summary>
+    /// Crée une base au format d'une ancienne version (SQL brut, avant tout passage d'AppDatabase),
+    /// l'ouvre avec AppDatabase puis passe la connexion migrée au test.
+    /// </summary>
+    private static async Task WithLegacyDatabaseAsync(string legacySql, Func<SQLite.SQLiteConnection, Task> assert)
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"resonance-tests-{Guid.NewGuid():N}.db3");
+        var raw = new SQLite.SQLiteConnection(path);
+        foreach (var statement in legacySql.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            raw.Execute(statement);
+        raw.Close();
+
+        var db = new AppDatabase(path);
+        try
+        {
+            await db.Initialization;
+            await assert(db.Connection.GetConnection());
+        }
+        finally
+        {
+            await db.Connection.CloseAsync();
+            File.Delete(path);
+        }
+    }
+
+    private static List<string> Column(SQLite.SQLiteConnection c, string sql) =>
+        c.QueryScalars<string>(sql).Select(v => v ?? "NULL").ToList();
+
+    private const string LegacyStructure = """
+        CREATE TABLE CampaignEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, Title VARCHAR);
+        CREATE TABLE SessionEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, CampaignId INTEGER, Title VARCHAR);
+        CREATE TABLE SceneEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, SessionId INTEGER, Title VARCHAR);
+        INSERT INTO CampaignEntity (Title) VALUES ('A'), ('B'), ('C');
+        INSERT INTO SessionEntity (CampaignId, Title) VALUES (1, 'A1'), (2, 'B1'), (1, 'A2'), (2, 'B2'), (1, 'A3');
+        INSERT INTO SceneEntity (SessionId, Title) VALUES (1, 'A1a'), (1, 'A1b'), (2, 'B1a')
+        """;
+
+    [Fact]
+    public async Task LegacyDatabase_GetsPositionsBackfilledInCreationOrder()
+    {
+        await WithLegacyDatabaseAsync(LegacyStructure, c =>
+        {
+            Assert.Equal(new[] { "0", "1", "2" }, Column(c, "SELECT CAST(Position AS TEXT) FROM CampaignEntity ORDER BY Id"));
+            // Numérotées par campagne : A1, A2, A3 → 0, 1, 2 ; B1, B2 → 0, 1.
+            Assert.Equal(new[] { "0", "0", "1", "1", "2" }, Column(c, "SELECT CAST(Position AS TEXT) FROM SessionEntity ORDER BY Id"));
+            Assert.Equal(new[] { "0", "1", "0" }, Column(c, "SELECT CAST(Position AS TEXT) FROM SceneEntity ORDER BY Id"));
+            // Colonne ajoutée par la migration (NOT NULL DEFAULT 0), pas complétée en nullable par SQLite-net.
+            foreach (var table in new[] { "CampaignEntity", "SessionEntity", "SceneEntity" })
+                Assert.Equal(new[] { "1|0" }, Column(c, $"SELECT \"notnull\" || '|' || dflt_value FROM pragma_table_info('{table}') WHERE name = 'Position'"));
+            return Task.CompletedTask;
+        });
+    }
+
+    [Fact]
+    public async Task DatabaseMigratedWithNullPositions_GetsThemBackfilled()
+    {
+        // Base déjà passée par l'ancien ordre de migration : colonne Position présente mais à NULL.
+        await WithLegacyDatabaseAsync("""
+            CREATE TABLE CampaignEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, Title VARCHAR, Position INTEGER);
+            CREATE TABLE SessionEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, CampaignId INTEGER, Title VARCHAR, Position INTEGER);
+            CREATE TABLE SceneEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, SessionId INTEGER, Title VARCHAR, Position INTEGER);
+            INSERT INTO CampaignEntity (Title) VALUES ('A'), ('B');
+            INSERT INTO SessionEntity (CampaignId, Title) VALUES (1, 'A1'), (1, 'A2');
+            INSERT INTO SceneEntity (SessionId, Title) VALUES (1, 'A1a'), (1, 'A1b')
+            """, c =>
+        {
+            Assert.Equal(new[] { "0", "1" }, Column(c, "SELECT CAST(Position AS TEXT) FROM CampaignEntity ORDER BY Id"));
+            Assert.Equal(new[] { "0", "1" }, Column(c, "SELECT CAST(Position AS TEXT) FROM SessionEntity ORDER BY Id"));
+            Assert.Equal(new[] { "0", "1" }, Column(c, "SELECT CAST(Position AS TEXT) FROM SceneEntity ORDER BY Id"));
+            return Task.CompletedTask;
+        });
+    }
+
+    [Fact]
+    public async Task UpToDateDatabase_KeepsItsCustomOrder()
+    {
+        // Ordre choisi par glisser-déposer : un redémarrage ne doit pas le remplacer par l'ordre de création.
+        await WithLegacyDatabaseAsync("""
+            CREATE TABLE CampaignEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, Title VARCHAR, Position INTEGER NOT NULL DEFAULT 0);
+            CREATE TABLE SessionEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, CampaignId INTEGER, Title VARCHAR, Position INTEGER NOT NULL DEFAULT 0);
+            CREATE TABLE SceneEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, SessionId INTEGER, Title VARCHAR, Position INTEGER NOT NULL DEFAULT 0);
+            INSERT INTO CampaignEntity (Title, Position) VALUES ('A', 2), ('B', 0), ('C', 1);
+            INSERT INTO SessionEntity (CampaignId, Title, Position) VALUES (1, 'A1', 1), (1, 'A2', 0);
+            INSERT INTO SceneEntity (SessionId, Title, Position) VALUES (1, 'A1a', 1), (1, 'A1b', 0)
+            """, c =>
+        {
+            Assert.Equal(new[] { "2", "0", "1" }, Column(c, "SELECT CAST(Position AS TEXT) FROM CampaignEntity ORDER BY Id"));
+            Assert.Equal(new[] { "1", "0" }, Column(c, "SELECT CAST(Position AS TEXT) FROM SessionEntity ORDER BY Id"));
+            Assert.Equal(new[] { "1", "0" }, Column(c, "SELECT CAST(Position AS TEXT) FROM SceneEntity ORDER BY Id"));
+            return Task.CompletedTask;
+        });
+    }
+
+    [Fact]
+    public async Task LegacySceneTracks_GetLoopOnAndFadesOff()
+    {
+        await WithLegacyDatabaseAsync(LegacyStructure + """
+            ;
+            CREATE TABLE TrackEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, Title VARCHAR, ImagePath VARCHAR, FilePath VARCHAR, Duration BIGINT, DefaultVolume FLOAT);
+            INSERT INTO TrackEntity (Title, ImagePath, FilePath, Duration, DefaultVolume) VALUES ('Taverne', '', 'a.mp3', 0, 1);
+            CREATE TABLE SceneTrackEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, SceneId INTEGER, TrackId INTEGER, Volume FLOAT, Position INTEGER, AutoPlay INTEGER);
+            INSERT INTO SceneTrackEntity (SceneId, TrackId, Volume, Position, AutoPlay) VALUES (1, 1, 1, 0, 0)
+            """, c =>
+        {
+            // La boucle était le comportement par défaut avant l'ajout du réglage : elle doit le rester.
+            Assert.Equal(new[] { "1|0|0" }, Column(c, "SELECT IsLooping || '|' || FadeIn || '|' || FadeOut FROM SceneTrackEntity"));
+            Assert.Equal(new[] { "|" }, Column(c, "SELECT Hash || '|' || Category FROM TrackEntity"));
+            return Task.CompletedTask;
+        });
+    }
+
+    [Fact]
+    public async Task LegacyCategories_AreAttachedToTracks()
+    {
+        await WithLegacyDatabaseAsync("""
+            CREATE TABLE CategoryEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name VARCHAR);
+            INSERT INTO CategoryEntity (Name) VALUES ('Ambiance')
+            """, c =>
+        {
+            Assert.Equal(new[] { "Ambiance|Track" }, Column(c, "SELECT Name || '|' || LibraryType FROM CategoryEntity"));
+            return Task.CompletedTask;
+        });
+    }
+
+    [Fact]
+    public async Task Initialization_PurgesSceneTracksWithoutSceneOrWithoutTrack_Separately()
+    {
+        await WithLegacyDatabaseAsync(LegacyStructure + """
+            ;
+            CREATE TABLE TrackEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, Title VARCHAR, ImagePath VARCHAR, FilePath VARCHAR, Duration BIGINT, DefaultVolume FLOAT);
+            INSERT INTO TrackEntity (Title, ImagePath, FilePath, Duration, DefaultVolume) VALUES ('Taverne', '', 'a.mp3', 0, 1);
+            CREATE TABLE SceneTrackEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, SceneId INTEGER, TrackId INTEGER, Volume FLOAT, Position INTEGER, AutoPlay INTEGER);
+            INSERT INTO SceneTrackEntity (SceneId, TrackId, Volume, Position, AutoPlay) VALUES (1, 1, 1, 0, 0), (999, 1, 1, 1, 0), (1, 999, 1, 2, 0)
+            """, c =>
+        {
+            Assert.Equal(new[] { "1" }, Column(c, "SELECT CAST(Id AS TEXT) FROM SceneTrackEntity"));
+            return Task.CompletedTask;
+        });
+    }
+
+    [Fact]
+    public async Task NewDatabase_CreatesEveryTable_AndReopensWithoutChange()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"resonance-tests-{Guid.NewGuid():N}.db3");
+        var db = new AppDatabase(path);
+        try
+        {
+            await db.Initialization;
+            var tables = db.Connection.GetConnection()
+                .QueryScalars<string>("SELECT name FROM sqlite_master WHERE type = 'table' AND name LIKE '%Entity' ORDER BY name");
+            Assert.Equal(new[] { "CampaignEntity", "CategoryEntity", "CharacterEntity", "CharacterSpellEntity", "SceneEntity",
+                                 "SceneTrackEntity", "SessionEntity", "SpellEntity", "TrackEntity" }, tables);
+
+            await db.Connection.InsertAsync(new CampaignEntity { Title = "A", Position = 3 });
+            var reopened = new AppDatabase(path);
+            await reopened.Initialization;
+
+            Assert.Equal(3, (await reopened.Connection.Table<CampaignEntity>().FirstAsync()).Position);
+        }
+        finally
+        {
+            await db.Connection.CloseAsync();
+            File.Delete(path);
+        }
+    }
 }
 
 public class LibraryDataServiceTests : DatabaseTestBase
