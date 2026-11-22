@@ -530,7 +530,7 @@ namespace Resonance.Features.Campaigns
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[Tour] {ex}");
+                    CrashLogger.LogException("Mixer tour", ex);
                 }
             }
         }

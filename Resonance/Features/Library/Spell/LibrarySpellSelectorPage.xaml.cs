@@ -17,6 +17,6 @@ public partial class LibrarySpellSelectorPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await viewModel.InitializeAsync();
+        await UiErrors.RunAsync(viewModel.InitializeAsync, "LibrarySpellSelectorPage.OnAppearing");
     }
 }

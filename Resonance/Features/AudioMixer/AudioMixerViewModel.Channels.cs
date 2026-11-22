@@ -339,8 +339,7 @@ namespace Resonance.Features.AudioMixer
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine(
-                        $"[AudioMixerViewModel] Échec de création du lecteur pour '{st.Track.Title}' : {ex}");
+                    CrashLogger.LogException($"Création du lecteur pour '{st.Track.Title}'", ex);
                     failedTracks.Add(st.Track.Title);
                     CurrentChannels.Remove(channel);
                 }

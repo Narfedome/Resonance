@@ -792,6 +792,11 @@
   <data name="ErrorTitle" xml:space="preserve">
     <value>Erreur</value>
   </data>
+  <data name="UnexpectedErrorMessage" xml:space="preserve">
+    <value>Une erreur inattendue est survenue : l'écran n'a peut-être pas fini de se charger. Quittez cet écran puis revenez pour réessayer.
+
+({0})</value>
+  </data>
   <data name="ErrorChapterHasNoScenes" xml:space="preserve">
     <value>Ce chapitre n'a aucune scène.</value>
   </data>

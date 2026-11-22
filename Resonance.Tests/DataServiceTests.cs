@@ -234,6 +234,81 @@ public class SceneDataServiceTests : DatabaseTestBase
         Assert.Single(await Service.GetScenesAsync(otherSession.Id));
         Assert.Single(await Service.GetSceneTracksAsync(otherScene.Id));
     }
+
+    [Fact]
+    public async Task GetOrCreateOrphanScene_ReusesTheSameScene_AndSurvivesStartupPurge()
+    {
+        var first = await Service.GetOrCreateOrphanSceneAsync();
+        var second = await Service.GetOrCreateOrphanSceneAsync();
+
+        Assert.Equal(first.Id, second.Id);
+        Assert.Equal(SceneDataService.OrphanSceneSessionId, first.SessionId);
+
+        // La purge des orphelins au lancement exclut volontairement SessionId = 0 (session libre).
+        var reopened = new AppDatabase(Db.Connection.DatabasePath);
+        await reopened.Initialization;
+        Assert.Equal(1, await reopened.Connection.Table<SceneEntity>().Where(s => s.Id == first.Id).CountAsync());
+    }
+
+    [Fact]
+    public async Task ReorderScenes_AssignsPositionsInGivenOrder_AndSkipsUnknownIds()
+    {
+        var a = new Scene { SessionId = 1, Title = "A" };
+        var b = new Scene { SessionId = 1, Title = "B" };
+        var c = new Scene { SessionId = 1, Title = "C" };
+        await Service.SaveSceneAsync(a);
+        await Service.SaveSceneAsync(b);
+        await Service.SaveSceneAsync(c);
+
+        await Service.ReorderScenesAsync(new List<int> { c.Id, 9999, a.Id, b.Id });
+
+        var titles = (await Service.GetScenesAsync(1)).Select(s => s.Title).ToArray();
+        Assert.Equal(new[] { "C", "A", "B" }, titles);
+    }
+
+    [Fact]
+    public async Task ReorderSceneTracks_ChangesLoadOrder()
+    {
+        var library = new LibraryDataService(Db);
+        var track = new Track { Title = "Loop" };
+        await library.SaveLibraryItemAsync(track);
+        var first = new SceneTrack { SceneId = 1, Track = track, Position = 0, Volume = 0.1 };
+        var second = new SceneTrack { SceneId = 1, Track = track, Position = 1, Volume = 0.2 };
+        await Service.SaveSceneTrackAsync(first);
+        await Service.SaveSceneTrackAsync(second);
+
+        await Service.ReorderSceneTracksAsync(new List<int> { second.Id, first.Id });
+
+        var loaded = await Service.GetSceneTracksAsync(1);
+        Assert.Equal(new[] { second.Id, first.Id }, loaded.Select(st => st.Id).ToArray());
+    }
+
+    [Fact]
+    public async Task UpdateSceneTrack_WithUnknownId_IsANoOp()
+    {
+        await Service.UpdateSceneTrackAsync(9999, 0.5, true, true, true, true);
+        await Service.UpdateSceneTrackSettingsAsync(9999, 0.5, true, true, true);
+        await Service.UpdateSceneTrackVolumeAsync(9999, 0.5f);
+
+        Assert.Equal(0, await Db.Connection.Table<SceneTrackEntity>().CountAsync());
+    }
+
+    [Fact]
+    public async Task DeleteSceneTrack_RemovesOnlyThatStrip()
+    {
+        var library = new LibraryDataService(Db);
+        var track = new Track { Title = "Rain" };
+        await library.SaveLibraryItemAsync(track);
+        var kept = new SceneTrack { SceneId = 1, Track = track, Position = 0 };
+        var removed = new SceneTrack { SceneId = 1, Track = track, Position = 1 };
+        await Service.SaveSceneTrackAsync(kept);
+        await Service.SaveSceneTrackAsync(removed);
+
+        await Service.DeleteSceneTrackAsync(removed);
+
+        Assert.Equal(kept.Id, (await Service.GetSceneTracksAsync(1)).Single().Id);
+        Assert.Single(await library.GetAllItemsTypeAsync(typeof(Track)));
+    }
 }
 
 public class AppDatabaseMigrationTests
@@ -450,6 +525,104 @@ public class LibraryDataServiceTests : DatabaseTestBase
         Assert.Empty(await Service.GetCategoryNamesAsync(typeof(Track)));
         var loaded = (await Service.GetAllItemsTypeAsync(typeof(Track))).OfType<Track>().Single();
         Assert.Equal(string.Empty, loaded.Category);
+    }
+
+    [Fact]
+    public async Task DeleteCategory_LeavesTracksOfOtherCategoriesAlone()
+    {
+        await Service.EnsureCategoryAsync(typeof(Track), "Temp");
+        await Service.EnsureCategoryAsync(typeof(Track), "Musique");
+        await Service.SaveLibraryItemAsync(MakeTrack("Detached", category: "Temp"));
+        await Service.SaveLibraryItemAsync(MakeTrack("Untouched", category: "Musique"));
+
+        await Service.DeleteCategoryAsync(typeof(Track), "Temp");
+
+        Assert.Equal(new[] { "Musique" }, await Service.GetCategoryNamesAsync(typeof(Track)));
+        var untouched = (await Service.GetAllItemsTypeAsync(typeof(Track))).OfType<Track>().Single(t => t.Title == "Untouched");
+        Assert.Equal("Musique", untouched.Category);
+    }
+
+    [Fact]
+    public async Task RenameCategory_ToNewName_RenamesInPlace_AndRetagsOnlyItsTracks()
+    {
+        await Service.EnsureCategoryAsync(typeof(Track), "Zik");
+        await Service.EnsureCategoryAsync(typeof(Track), "Ambiance");
+        await Service.SaveLibraryItemAsync(MakeTrack("Song", category: "Zik"));
+        await Service.SaveLibraryItemAsync(MakeTrack("Rain", category: "Ambiance"));
+
+        await Service.RenameCategoryAsync(typeof(Track), "Zik", "Musique");
+
+        Assert.Equal(new[] { "Ambiance", "Musique" }, await Service.GetCategoryNamesAsync(typeof(Track)));
+        var tracks = (await Service.GetAllItemsTypeAsync(typeof(Track))).OfType<Track>().ToList();
+        Assert.Equal("Musique", tracks.Single(t => t.Title == "Song").Category);
+        Assert.Equal("Ambiance", tracks.Single(t => t.Title == "Rain").Category);
+    }
+
+    [Fact]
+    public async Task RenameCategory_UnknownName_ChangesNothing()
+    {
+        await Service.SaveLibraryItemAsync(MakeTrack("Song", category: "Ghost"));
+
+        await Service.RenameCategoryAsync(typeof(Track), "Ghost", "Musique");
+
+        var loaded = (await Service.GetAllItemsTypeAsync(typeof(Track))).OfType<Track>().Single();
+        Assert.Equal("Ghost", loaded.Category);
+    }
+
+    [Fact]
+    public async Task DeleteLibraryItem_Track_RemovesItsSceneLinks_ButNotOtherTracksLinks()
+    {
+        var sceneService = new SceneDataService(Db);
+        var doomed = MakeTrack("Doomed");
+        var kept = MakeTrack("Kept");
+        await Service.SaveLibraryItemAsync(doomed);
+        await Service.SaveLibraryItemAsync(kept);
+        await sceneService.SaveSceneTrackAsync(new SceneTrack { SceneId = 1, Track = doomed });
+        await sceneService.SaveSceneTrackAsync(new SceneTrack { SceneId = 1, Track = kept });
+
+        await Service.DeleteLibraryItem(doomed);
+
+        // Vérifié directement en base : GetSceneTracksAsync masquait déjà les liens orphelins.
+        var links = await Db.Connection.Table<SceneTrackEntity>().ToListAsync();
+        Assert.Equal(kept.Id, links.Single().TrackId);
+    }
+
+    [Fact]
+    public async Task DeleteAllTracks_RemovesTracksAndSceneLinks_AndReturnsThem()
+    {
+        var sceneService = new SceneDataService(Db);
+        var t1 = MakeTrack("One");
+        var t2 = MakeTrack("Two");
+        await Service.SaveLibraryItemAsync(t1);
+        await Service.SaveLibraryItemAsync(t2);
+        await sceneService.SaveSceneTrackAsync(new SceneTrack { SceneId = 1, Track = t1 });
+        var spell = new Spell { Title = "Boule de feu" };
+        await Service.SaveLibraryItemAsync(spell);
+
+        var deleted = await Service.DeleteAllTracksAsync();
+
+        Assert.Equal(new[] { "One", "Two" }, deleted.Select(t => t.Title).OrderBy(t => t).ToArray());
+        Assert.Equal(0, await Db.Connection.Table<TrackEntity>().CountAsync());
+        Assert.Equal(0, await Db.Connection.Table<SceneTrackEntity>().CountAsync());
+        Assert.Single(await Service.GetAllItemsTypeAsync(typeof(Spell)));
+    }
+
+    [Fact]
+    public async Task DeleteItems_Spells_RemovesCharacterLinks_AndIgnoresUnknownIds()
+    {
+        var spell = new Spell { Title = "Boule de feu" };
+        var other = new Spell { Title = "Soins" };
+        await Service.SaveLibraryItemAsync(spell);
+        await Service.SaveLibraryItemAsync(other);
+        await Db.Connection.InsertAsync(new CharacterSpellEntity { CharacterId = 1, SpellId = spell.Id });
+        await Db.Connection.InsertAsync(new CharacterSpellEntity { CharacterId = 1, SpellId = other.Id });
+
+        var deleted = await Service.DeleteItemsAsync(typeof(Spell), new[] { spell.Id, 9999 });
+
+        Assert.Equal("Boule de feu", deleted.Single().Title);
+        var links = await Db.Connection.Table<CharacterSpellEntity>().ToListAsync();
+        Assert.Equal(other.Id, links.Single().SpellId);
+        Assert.Equal("Soins", (await Service.GetAllItemsTypeAsync(typeof(Spell))).Single().Title);
     }
 }
 

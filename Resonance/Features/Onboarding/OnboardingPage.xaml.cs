@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Resonance.Services;
 
 namespace Resonance.Features.Onboarding;
 
@@ -17,6 +18,17 @@ public partial class OnboardingPage : ContentPage
         if (e.PropertyName != nameof(OnboardingViewModel.CurrentStep)) return;
 
         StepsHost.Opacity = 0;
-        await StepsHost.FadeToAsync(1, 200, Easing.CubicOut);
+        // Effet purement visuel : un échec est journalisé sans message, la diapo reste juste visible.
+        await UiErrors.RunAsync(async () =>
+        {
+            try
+            {
+                await StepsHost.FadeToAsync(1, 200, Easing.CubicOut);
+            }
+            finally
+            {
+                StepsHost.Opacity = 1;
+            }
+        }, "OnboardingPage fade", showMessage: false);
     }
 }

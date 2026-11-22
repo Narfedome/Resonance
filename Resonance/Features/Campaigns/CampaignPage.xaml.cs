@@ -40,7 +40,7 @@ public partial class CampaignPage : ContentPage
         if (!_initialized)
         {
             _initialized = true;
-            await _vm.InitializeAsync();
+            await UiErrors.RunAsync(_vm.InitializeAsync, "CampaignPage.OnNavigatedTo");
         }
 
         // Visite de cet écran, la première fois qu'on y arrive avec au moins une campagne (cf.
@@ -56,7 +56,7 @@ public partial class CampaignPage : ContentPage
             catch (Exception ex)
             {
                 // Une visite qui échoue ne doit jamais bloquer l'appli : on la perd, sans plus.
-                System.Diagnostics.Debug.WriteLine($"[Tour] {ex}");
+                CrashLogger.LogException("CampaignPage tour", ex);
             }
         }
     }
@@ -128,7 +128,7 @@ public partial class CampaignPage : ContentPage
         if (!e.Data.Properties.TryGetValue("Row", out var draggedObj) || draggedObj is not ExplorerRow dragged)
             return;
 
-        await _vm.ReorderRowsAsync(dragged, target);
+        await UiErrors.RunAsync(() => _vm.ReorderRowsAsync(dragged, target), "CampaignPage.OnRowDrop");
     }
 
     private void ResetDraggingState()

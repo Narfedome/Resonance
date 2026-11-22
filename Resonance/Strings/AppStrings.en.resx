@@ -792,6 +792,11 @@
   <data name="ErrorTitle" xml:space="preserve">
     <value>Error</value>
   </data>
+  <data name="UnexpectedErrorMessage" xml:space="preserve">
+    <value>An unexpected error occurred: the screen may not have finished loading. Leave this screen and come back to try again.
+
+({0})</value>
+  </data>
   <data name="ErrorChapterHasNoScenes" xml:space="preserve">
     <value>This chapter has no scenes.</value>
   </data>

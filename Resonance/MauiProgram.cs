@@ -22,6 +22,16 @@ namespace Resonance
 
         public static MauiApp CreateMauiApp()
         {
+            // Dernier filet : ce qui échappe à UiErrors (code natif, tâche jamais attendue) est au moins écrit
+            // dans crash.log (cf. CrashLogger), y compris en Release hors débogueur.
+            AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+                CrashLogger.Log($"AppDomain.UnhandledException (IsTerminating={e.IsTerminating}): {e.ExceptionObject}");
+            TaskScheduler.UnobservedTaskException += (_, e) =>
+            {
+                CrashLogger.LogException("TaskScheduler.UnobservedTaskException", e.Exception);
+                e.SetObserved();
+            };
+
             string tracksDir = Path.Combine(FileSystem.AppDataDirectory, "Tracks");
             Directory.CreateDirectory(tracksDir);
             var builder = MauiApp.CreateBuilder();

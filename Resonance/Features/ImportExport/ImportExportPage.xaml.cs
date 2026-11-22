@@ -39,7 +39,7 @@ public partial class ImportExportPage : ContentPage
             return;
 
         if (BindingContext is ImportExportViewModel vm)
-            await vm.InitializeAsync();
+            await UiErrors.RunAsync(vm.InitializeAsync, "ImportExportPage.OnNavigatedTo");
 
         // Visite de cet écran, la première fois qu'on y arrive (cf. AppTourService).
         if (_tourService.IsImportExportTourPending)
@@ -50,7 +50,7 @@ public partial class ImportExportPage : ContentPage
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[Tour] {ex}");
+                CrashLogger.LogException("ImportExportPage tour", ex);
             }
         }
     }
