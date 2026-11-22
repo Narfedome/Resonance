@@ -114,6 +114,7 @@ namespace Resonance.Services
             {
                 var query = _db.Connection.Table<TrackEntity>();
                 if (category != null)
+                    // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
                     query = query.Where(t => t.Category == category);
 
                 var tracks = await query.ToListAsync();
@@ -195,12 +196,14 @@ namespace Resonance.Services
                 var query = _db.Connection.Table<TrackEntity>();
 
                 if (category != null)
+                    // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
                     query = query.Where(t => t.Category == category);
 
                 // Trié par catégorie (Id en repli à égalité) plutôt que par simple ordre d'insertion :
                 // permet à l'appelant (LibraryTrackViewModel) de regrouper visuellement les pistes par
                 // catégorie au fil de la pagination, les pistes d'une même catégorie sortant toujours
                 // consécutives quelle que soit la page.
+                // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
                 var tracks = await query
                     .OrderBy(t => t.Category)
                     .ThenBy(t => t.Id)
@@ -213,6 +216,7 @@ namespace Resonance.Services
 
             if (currentLibraryType == typeof(Spell))
             {
+                // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
                 var spells = await _db.Connection.Table<SpellEntity>()
                     .OrderBy(s => s.Id)
                     .Skip(skip)
@@ -232,6 +236,7 @@ namespace Resonance.Services
 
             await _db.Initialization;
 
+            // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
             var entity = await _db.Connection.Table<TrackEntity>()
                 .Where(t => t.Hash == hash && t.Id != excludeId)
                 .FirstOrDefaultAsync();
@@ -243,6 +248,7 @@ namespace Resonance.Services
         {
             await _db.Initialization;
             var typeName = currentLibraryType.Name;
+            // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
             var categories = await _db.Connection.Table<CategoryEntity>().Where(c => c.LibraryType == typeName).ToListAsync();
             return categories.Select(c => c.Name).OrderBy(c => c, StringComparer.OrdinalIgnoreCase).ToList();
         }
@@ -254,6 +260,7 @@ namespace Resonance.Services
 
             await _db.Initialization;
             var typeName = currentLibraryType.Name;
+            // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
             var existing = await _db.Connection.Table<CategoryEntity>().Where(c => c.Name == name && c.LibraryType == typeName).FirstOrDefaultAsync();
             if (existing == null)
                 await _db.Connection.InsertAsync(new CategoryEntity { Name = name, LibraryType = typeName });
@@ -263,6 +270,7 @@ namespace Resonance.Services
         {
             await _db.Initialization;
             var typeName = currentLibraryType.Name;
+            // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
             var entity = await _db.Connection.Table<CategoryEntity>().Where(c => c.Name == oldName && c.LibraryType == typeName).FirstOrDefaultAsync();
             if (entity == null)
                 return;
@@ -275,6 +283,7 @@ namespace Resonance.Services
                     conn.Execute("UPDATE TrackEntity SET Category = ? WHERE Category = ?", newName, oldName);
 
                 // Si le nom cible existe déjà (même type), on fusionne au lieu de créer un doublon.
+                // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
                 var targetExists = conn.Table<CategoryEntity>().Where(c => c.Name == newName && c.LibraryType == typeName).Count() > 0;
                 if (targetExists)
                 {
@@ -292,6 +301,7 @@ namespace Resonance.Services
         {
             await _db.Initialization;
             var typeName = currentLibraryType.Name;
+            // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
             var entity = await _db.Connection.Table<CategoryEntity>().Where(c => c.Name == name && c.LibraryType == typeName).FirstOrDefaultAsync();
             await _db.Connection.RunInTransactionAsync(conn =>
             {
@@ -320,6 +330,7 @@ namespace Resonance.Services
         public async Task<int> CountTracksWithFilePathAsync(string filePath, int excludeId)
         {
             await _db.Initialization;
+            // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
             return await _db.Connection.Table<TrackEntity>()
                 .Where(t => t.FilePath == filePath && t.Id != excludeId)
                 .CountAsync();

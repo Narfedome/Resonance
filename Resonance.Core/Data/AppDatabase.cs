@@ -88,6 +88,7 @@ namespace Resonance.Data
                 // 3 catégories par défaut + toute catégorie déjà utilisée par des tracks existantes (upgrade
                 // depuis une DB qui n'avait pas encore cette table). Si l'utilisateur en supprime une
                 // ensuite, elle ne revient pas au prochain lancement.
+                // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
                 if (conn.Table<CategoryEntity>().Where(c => c.LibraryType == nameof(Track)).Count() == 0)
                 {
                     var existingTrackCategories = conn.Table<TrackEntity>().ToList()
