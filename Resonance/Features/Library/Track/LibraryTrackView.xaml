@@ -62,11 +62,15 @@
                            HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
                     <Label Text="{loc:Loc EmptyTracksBody}" TextColor="{DynamicResource AppTextMuted}"
                            HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
-                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center" Margin="0,8,0,0"
-                                           IsVisible="{Binding Source={x:Reference root}, Path=IsCrud}">
-                        <Button Text="{loc:Loc LibImportOneTrackButton}" Command="{Binding CreateCommand}"/>
-                        <Button Text="{loc:Loc LibImportMultipleTracksButton}" Command="{Binding ImportMultipleTracksCommand}"/>
-                    </HorizontalStackLayout>
+                    <!-- FlexLayout qui passe à la ligne (pas un HorizontalStackLayout) : sur téléphone,
+                         "Importer plusieurs pistes" ne tenait pas à côté de l'autre bouton dans la carte de
+                         340 et sortait coupé à droite. Côte à côte quand la place suffit, l'un sous l'autre
+                         sinon. -->
+                    <FlexLayout Wrap="Wrap" JustifyContent="Center" AlignItems="Center" Margin="0,8,0,0"
+                                IsVisible="{Binding Source={x:Reference root}, Path=IsCrud}">
+                        <Button Text="{loc:Loc LibImportOneTrackButton}" Command="{Binding CreateCommand}" Margin="5"/>
+                        <Button Text="{loc:Loc LibImportMultipleTracksButton}" Command="{Binding ImportMultipleTracksCommand}" Margin="5"/>
+                    </FlexLayout>
                 </VerticalStackLayout>
             </Border>
 
