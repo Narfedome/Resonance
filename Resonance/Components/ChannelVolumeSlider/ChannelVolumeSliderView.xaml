@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:icons="clr-namespace:Resonance.Resources.Icons"
              x:Class="Resonance.Components.ChannelVolumeSliderView"
              x:Name="root"
              VerticalOptions="Fill">
@@ -14,11 +15,25 @@
          ligne "*" du Grid parent. -->
     <Grid RowDefinitions="Auto,*"
           WidthRequest="{Binding Source={x:Reference root}, Path=Thickness}">
-        <Label Grid.Row="0"
-               Text="{Binding Source={x:Reference root}, Path=ValueText}"
-               TextColor="{Binding Source={x:Reference root}, Path=TextColor}"
-               FontSize="{Binding Source={x:Reference root}, Path=FontSize}"
-               HorizontalOptions="Center" />
+        <!-- Valeur du volume, qui sert aussi d'interrupteur pour couper le son (ValueTappedCommand) :
+             un bouton à part prenait une ligne entière, et le curseur devenait minuscule sur
+             téléphone. Coupé, la valeur est remplacée par un haut-parleur barré. -->
+        <Grid Grid.Row="0" HorizontalOptions="Center"
+              ToolTipProperties.Text="{Binding Source={x:Reference root}, Path=ValueTooltip}">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding Source={x:Reference root}, Path=ValueTappedCommand}"/>
+            </Grid.GestureRecognizers>
+            <Label Text="{Binding Source={x:Reference root}, Path=ValueText}"
+                   TextColor="{Binding Source={x:Reference root}, Path=TextColor}"
+                   FontSize="{Binding Source={x:Reference root}, Path=FontSize}"
+                   IsVisible="{Binding Source={x:Reference root}, Path=IsMuted, Converter={StaticResource InverseBoolConverter}}"
+                   HorizontalOptions="Center" />
+            <Label Text="{x:Static icons:SolidFont.VolumeXmark}" FontFamily="FontSolid"
+                   TextColor="{DynamicResource AppDanger}"
+                   FontSize="{Binding Source={x:Reference root}, Path=FontSize}"
+                   IsVisible="{Binding Source={x:Reference root}, Path=IsMuted}"
+                   HorizontalOptions="Center" />
+        </Grid>
 
         <Grid x:Name="TrackHost" Grid.Row="1">
             <Slider x:Name="InnerSlider"

@@ -85,6 +85,7 @@ namespace Resonance.Data
             IsLooping = e.IsLooping,
             FadeIn = e.FadeIn,
             FadeOut = e.FadeOut,
+            IsOneShot = e.IsOneShot,
             Track = track
         };
 
@@ -98,7 +99,8 @@ namespace Resonance.Data
             AutoPlay = m.AutoPlay,
             IsLooping = m.IsLooping,
             FadeIn = m.FadeIn,
-            FadeOut = m.FadeOut
+            FadeOut = m.FadeOut,
+            IsOneShot = m.IsOneShot
         };
     }
 }

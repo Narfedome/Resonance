@@ -41,9 +41,38 @@ public partial class AudioMixerPage : ContentPage
     // scène orpheline automatiquement dans ce cas précis - jamais si une scène est déjà active,
     // ni si CampaignViewModel.Launch est en train de charger une vraie scène (cf.
     // SuppressNextFreeformAutoLoad, positionné avant la navigation - pas de race possible ici).
+    // Rafraîchit la barre de progression des canaux en lecture, seulement tant que le mixeur est
+    // affiché : le lecteur ne notifie pas sa position, il faut la relire.
+    private IDispatcherTimer? _progressTimer;
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        _progressTimer?.Stop();
+    }
+
+    private void StartProgressTimer()
+    {
+        if (_progressTimer == null)
+        {
+            _progressTimer = Dispatcher.CreateTimer();
+            _progressTimer.Interval = TimeSpan.FromMilliseconds(250);
+            _progressTimer.Tick += (_, _) =>
+            {
+                foreach (var channel in _vm.CurrentChannels)
+                {
+                    if (channel.IsPlaying && channel.ShowsProgress)
+                        channel.RefreshProgress();
+                }
+            };
+        }
+        _progressTimer.Start();
+    }
+
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        StartProgressTimer();
 
         if (_vm.SuppressNextFreeformAutoLoad)
         {

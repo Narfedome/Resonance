@@ -33,7 +33,10 @@ namespace Resonance.Components.Dialogs
         [ObservableProperty]
         private bool autoPlay;
 
-        public ChannelSettingsDialogViewModel(string trackName, double volume, bool isLooping, bool fadeIn, bool fadeOut, bool autoPlay)
+        [ObservableProperty]
+        private bool isOneShot;
+
+        public ChannelSettingsDialogViewModel(string trackName, double volume, bool isLooping, bool fadeIn, bool fadeOut, bool autoPlay, bool isOneShot)
         {
             TrackName = trackName;
             Volume = volume;
@@ -41,6 +44,7 @@ namespace Resonance.Components.Dialogs
             FadeIn = fadeIn;
             FadeOut = fadeOut;
             AutoPlay = autoPlay;
+            IsOneShot = isOneShot;
         }
 
         [RelayCommand]

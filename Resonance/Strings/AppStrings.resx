@@ -742,7 +742,7 @@
     <value>Volume</value>
   </data>
   <data name="TourMixerChannelVolumeBody" xml:space="preserve">
-    <value>Faites glisser pour régler le volume du canal : il est enregistré avec la scène.</value>
+    <value>Faites glisser pour régler le volume du canal : il est enregistré avec la scène. Touchez le nombre au-dessus pour couper le son sans arrêter la piste.</value>
   </data>
   <data name="TourMixerChannelTrackTitle" xml:space="preserve">
     <value>Choisir la piste</value>
@@ -1003,5 +1003,14 @@
   </data>
   <data name="SettingsCrashLogShow" xml:space="preserve">
     <value>Afficher le fichier</value>
+  </data>
+  <data name="ChannelOneShot" xml:space="preserve">
+    <value>Effet ponctuel</value>
+  </data>
+  <data name="ChannelTrigger" xml:space="preserve">
+    <value>Déclencher l&apos;effet</value>
+  </data>
+  <data name="ChannelMuteHint" xml:space="preserve">
+    <value>Touchez pour couper ou rétablir le son</value>
   </data>
 </root>

@@ -53,6 +53,7 @@ public class EntityMappingTests
             IsLooping = false,
             FadeIn = true,
             FadeOut = true,
+            IsOneShot = true,
             Track = track
         };
 
@@ -69,6 +70,7 @@ public class EntityMappingTests
         Assert.Equal(model.IsLooping, back.IsLooping);
         Assert.Equal(model.FadeIn, back.FadeIn);
         Assert.Equal(model.FadeOut, back.FadeOut);
+        Assert.True(back.IsOneShot);
         Assert.Same(track, back.Track);
     }
 

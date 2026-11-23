@@ -67,6 +67,11 @@
                     <Label Text="{loc:Loc SceneAuto}" VerticalOptions="Center"/>
                     <CheckBox Grid.Column="1" IsChecked="{Binding AutoPlay, Mode=TwoWay}"/>
                 </Grid>
+                <!-- Effet ponctuel : rejoué depuis le début à chaque appui, jamais en boucle. -->
+                <Grid ColumnDefinitions="*,auto">
+                    <Label Text="{loc:Loc ChannelOneShot}" VerticalOptions="Center"/>
+                    <CheckBox Grid.Column="1" IsChecked="{Binding IsOneShot, Mode=TwoWay}"/>
+                </Grid>
             </VerticalStackLayout>
 
             <Grid ColumnDefinitions="*,*" ColumnSpacing="10">

@@ -28,5 +28,9 @@ namespace Resonance.Models
 
         [ObservableProperty]
         private bool fadeOut = false;
+
+        // Effet ponctuel : rejoué depuis le début à chaque appui, jamais en boucle (cf. ChannelStripViewModel).
+        [ObservableProperty]
+        private bool isOneShot = false;
     }
 }
