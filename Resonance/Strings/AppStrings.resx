@@ -226,7 +226,7 @@
     <value>Lecture auto</value>
   </data>
   <data name="SceneFadeIn" xml:space="preserve">
-    <value>Fondu d&apos;entrée</value>
+    <value>Fondu d'entrée</value>
   </data>
   <data name="SceneFadeOut" xml:space="preserve">
     <value>Fondu de sortie</value>
@@ -577,7 +577,7 @@
     <value>La piste repart du début quand elle se termine, pour une ambiance sans fin.</value>
   </data>
   <data name="TourSettingsFadeInTitle" xml:space="preserve">
-    <value>Fondu d&apos;entrée</value>
+    <value>Fondu d'entrée</value>
   </data>
   <data name="TourSettingsFadeInBody" xml:space="preserve">
     <value>Au lancement, le volume monte progressivement au lieu de démarrer d'un coup.</value>
@@ -994,5 +994,17 @@
   </data>
   <data name="TrackChangeFile" xml:space="preserve">
     <value>Changer de fichier</value>
+  </data>
+  <data name="SettingsCrashLogDesc" xml:space="preserve">
+    <value>Journal d'erreurs, à joindre à votre signalement</value>
+  </data>
+  <data name="SettingsCrashLogShare" xml:space="preserve">
+    <value>Partager</value>
+  </data>
+  <data name="SettingsCrashLogShareTitle" xml:space="preserve">
+    <value>Journal d'erreurs de Resonance</value>
+  </data>
+  <data name="SettingsCrashLogShow" xml:space="preserve">
+    <value>Afficher le fichier</value>
   </data>
 </root>

@@ -621,6 +621,26 @@ public class AppDatabaseMigrationTests
     }
 
     [Fact]
+    public async Task DatabaseMigratedWithNullSettings_GetsTheIntendedDefaults_WithoutTouchingChosenOnes()
+    {
+        // Base passée par l'ancien ordre de migration : colonnes présentes mais NULL sur les lignes
+        // jamais réécrites depuis. Une valeur choisie par l'utilisateur (0 explicite) reste telle quelle.
+        await WithLegacyDatabaseAsync(LegacyStructure + """
+            ;
+            CREATE TABLE TrackEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, Title VARCHAR, ImagePath VARCHAR, FilePath VARCHAR, Duration BIGINT, DefaultVolume FLOAT, Hash VARCHAR, Category VARCHAR);
+            INSERT INTO TrackEntity (Title, ImagePath, FilePath, Duration, DefaultVolume) VALUES ('Taverne', '', 'a.mp3', 0, 1);
+            CREATE TABLE SceneTrackEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, SceneId INTEGER, TrackId INTEGER, Volume FLOAT, Position INTEGER, AutoPlay INTEGER, IsLooping INTEGER, FadeIn INTEGER, FadeOut INTEGER);
+            INSERT INTO SceneTrackEntity (SceneId, TrackId, Volume, Position, AutoPlay) VALUES (1, 1, 1, 0, 0);
+            INSERT INTO SceneTrackEntity (SceneId, TrackId, Volume, Position, AutoPlay, IsLooping, FadeIn, FadeOut) VALUES (1, 1, 1, 1, 0, 0, 1, 1)
+            """, c =>
+        {
+            Assert.Equal(new[] { "1|0|0", "0|1|1" }, Column(c, "SELECT IsLooping || '|' || FadeIn || '|' || FadeOut FROM SceneTrackEntity ORDER BY Id"));
+            Assert.Equal(new[] { "|" }, Column(c, "SELECT Hash || '|' || Category FROM TrackEntity"));
+            return Task.CompletedTask;
+        });
+    }
+
+    [Fact]
     public async Task LegacyCategories_AreAttachedToTracks()
     {
         await WithLegacyDatabaseAsync("""

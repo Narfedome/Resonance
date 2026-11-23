@@ -86,6 +86,17 @@ namespace Resonance.Data
                 conn.Execute("DELETE FROM SceneTrackEntity WHERE SceneId NOT IN (SELECT Id FROM SceneEntity)");
                 conn.Execute("DELETE FROM SceneTrackEntity WHERE TrackId NOT IN (SELECT Id FROM TrackEntity)");
 
+                // Bases déjà passées par l'ancien ordre de migration (cf. InitializeAsync) : colonnes
+                // ajoutées par SQLite-net, restées à NULL. Une piste de scène encore à NULL n'a jamais
+                // été rechargée dans le mixeur depuis (il réécrit ses réglages en quittant la scène) :
+                // elle reçoit les valeurs prévues, dont la boucle activée, au lieu d'une boucle
+                // désactivée que l'utilisateur n'a jamais choisie.
+                conn.Execute("UPDATE SceneTrackEntity SET IsLooping = 1 WHERE IsLooping IS NULL");
+                conn.Execute("UPDATE SceneTrackEntity SET FadeIn = 0 WHERE FadeIn IS NULL");
+                conn.Execute("UPDATE SceneTrackEntity SET FadeOut = 0 WHERE FadeOut IS NULL");
+                conn.Execute("UPDATE TrackEntity SET Hash = '' WHERE Hash IS NULL");
+                conn.Execute("UPDATE TrackEntity SET Category = '' WHERE Category IS NULL");
+
                 // Toute catégorie créée avant l'introduction de LibraryType ne pouvait être que pour des
                 // tracks (les sorts n'ont pas encore de catégories) : on les rattache rétroactivement.
                 conn.Execute($"UPDATE CategoryEntity SET LibraryType = '{nameof(Track)}' WHERE LibraryType = ''");

@@ -33,4 +33,26 @@ public static class CrashLogger
 
     public static void LogException(string context, Exception ex) =>
         Log($"EXCEPTION in {context}: {ex}");
+
+    /// <summary>Vrai si le journal contient au moins une entrée (cf. Paramètres › Signaler un bug).</summary>
+    public static bool HasEntries
+    {
+        get
+        {
+            try { return new FileInfo(LogPath).Length > 0; }
+            catch { return false; }
+        }
+    }
+
+    /// <summary>
+    /// Copie du journal à partager, sous un nom lisible dans le cache de l'appli : le partage ne
+    /// garde pas le fichier ouvert pendant que l'appli continue d'y écrire.
+    /// </summary>
+    public static string CreateShareableCopy()
+    {
+        var copy = Path.Combine(FileSystem.CacheDirectory, $"resonance-journal-{DateTime.Now:yyyyMMdd-HHmm}.txt");
+        lock (Lock)
+            File.Copy(LogPath, copy, overwrite: true);
+        return copy;
+    }
 }
