@@ -1,6 +1,6 @@
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Input;
+using KeyboardAccelerator = Microsoft.UI.Xaml.Input.KeyboardAccelerator;
 using Resonance.Features.AudioMixer;
 using Windows.System;
 
