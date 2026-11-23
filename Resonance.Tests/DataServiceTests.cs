@@ -641,6 +641,20 @@ public class AppDatabaseMigrationTests
     }
 
     [Fact]
+    public async Task TracksSavedBeforeSearch_GetTheirSearchTitleBackfilled()
+    {
+        await WithLegacyDatabaseAsync("""
+            CREATE TABLE TrackEntity (Id INTEGER PRIMARY KEY AUTOINCREMENT, Title VARCHAR, ImagePath VARCHAR, FilePath VARCHAR, Duration BIGINT, DefaultVolume FLOAT, Hash VARCHAR, Category VARCHAR);
+            INSERT INTO TrackEntity (Title, ImagePath, FilePath, Duration, DefaultVolume, Hash, Category) VALUES ('Écho de la Forêt', '', 'a.mp3', 0, 1, '', '');
+            INSERT INTO TrackEntity (Title, ImagePath, FilePath, Duration, DefaultVolume, Hash, Category) VALUES ('Cœur de taverne', '', 'b.mp3', 0, 1, '', '')
+            """, c =>
+        {
+            Assert.Equal(new[] { "echo de la foret", "coeur de taverne" }, Column(c, "SELECT SearchTitle FROM TrackEntity ORDER BY Id"));
+            return Task.CompletedTask;
+        });
+    }
+
+    [Fact]
     public async Task LegacyCategories_AreAttachedToTracks()
     {
         await WithLegacyDatabaseAsync("""
@@ -1071,6 +1085,34 @@ public class LibraryDataServiceTests : DatabaseTestBase
 
         Assert.Equal(new[] { rain.Id, tavernTheme.Id }, (await Service.GetItemIdsAsync(typeof(Track), null, "taverne")).Order());
         Assert.Equal(new[] { rain.Id }, await Service.GetItemIdsAsync(typeof(Track), "Ambiance", "taverne"));
+    }
+
+    [Theory]
+    [InlineData("évocation")]
+    [InlineData("EVOCATION")]
+    [InlineData("Évoc")]
+    public async Task Search_IgnoresAccentsAndCase(string search)
+    {
+        var evocation = MakeTrack("Écho d'Évocation");
+        await Service.SaveLibraryItemAsync(evocation);
+        await Service.SaveLibraryItemAsync(MakeTrack("Forêt"));
+
+        var page = await Service.GetItemsPageAsync(typeof(Track), 0, 10, search: search);
+
+        Assert.Equal(evocation.Id, page.Single().Id);
+    }
+
+    [Fact]
+    public async Task Search_FollowsARenamedTrack()
+    {
+        var track = MakeTrack("Ancien titre");
+        await Service.SaveLibraryItemAsync(track);
+
+        track.Title = "Nouvelle forêt";
+        await Service.SaveLibraryItemAsync(track);
+
+        Assert.Single(await Service.GetItemsPageAsync(typeof(Track), 0, 10, search: "foret"));
+        Assert.Empty(await Service.GetItemsPageAsync(typeof(Track), 0, 10, search: "ancien"));
     }
 
     [Theory]

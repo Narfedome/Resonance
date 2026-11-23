@@ -14,5 +14,8 @@ namespace Resonance.Data.Entities
         public string Hash { get; set; } = string.Empty;
 
         public string Category { get; set; } = string.Empty;
+
+        /// <summary>Titre en forme de recherche (cf. TextSearch.Normalize), tenu à jour à chaque sauvegarde.</summary>
+        public string SearchTitle { get; set; } = string.Empty;
     }
 }

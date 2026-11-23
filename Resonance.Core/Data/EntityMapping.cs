@@ -1,6 +1,7 @@
 using Resonance.Data.Entities;
 using Resonance.Models;
 using Resonance.Models.Library;
+using Resonance.Services;
 
 namespace Resonance.Data
 {
@@ -33,7 +34,8 @@ namespace Resonance.Data
             Duration = m.Duration,
             DefaultVolume = m.Volume,
             Hash = m.Hash,
-            Category = m.Category
+            Category = m.Category,
+            SearchTitle = TextSearch.Normalize(m.Title)
         };
 
         public static Spell ToModel(this SpellEntity e) => new()

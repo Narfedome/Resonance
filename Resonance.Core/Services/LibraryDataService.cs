@@ -188,8 +188,8 @@ namespace Resonance.Services
 
         /// <param name="category">null = pas de filtre (toutes catégories confondues), "" = piste sans
         /// catégorie ("Aucun dossier"), sinon le nom exact de la catégorie.</param>
-        /// <param name="search">Texte cherché dans le titre (sans tenir compte de la casse pour les
-        /// lettres non accentuées, comme le LIKE de SQLite) ; null ou vide = pas de recherche.</param>
+        /// <param name="search">Texte cherché dans le titre, sans tenir compte de la casse ni des accents
+        /// (cf. TextSearch) ; null ou vide = pas de recherche.</param>
         public async Task<List<LibraryItem>> GetItemsPageAsync(Type currentLibraryType, int skip, int take, string? category = null, string? search = null)
         {
             await _db.Initialization;
@@ -239,11 +239,11 @@ namespace Resonance.Services
             if (string.IsNullOrWhiteSpace(search))
                 return query;
 
-            // SQLite-net traduit Contains en instr(), sensible à la casse : on compare tout en minuscules.
-            // lower() de SQLite ne connaît que l'ASCII, d'où la limite aux lettres non accentuées.
-            var text = search.Trim().ToLowerInvariant();
+            // Comparaison sur la forme de recherche du titre (minuscules, sans accents, cf. TextSearch) :
+            // SQLite-net traduit Contains en instr(), sensible à la casse et aux accents.
+            var text = TextSearch.Normalize(search);
             // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
-            return query.Where(t => t.Title.ToLower().Contains(text));
+            return query.Where(t => t.SearchTitle.Contains(text));
         }
 
         public async Task<Track?> FindTrackByHashAsync(string hash, int excludeId)

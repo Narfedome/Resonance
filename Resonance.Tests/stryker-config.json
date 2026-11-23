@@ -6,6 +6,7 @@
       "**/Services/SceneDataService.cs",
       "**/Services/ImportExportService.cs",
       "**/Services/TrackTagHelper.cs",
+      "**/Services/TextSearch.cs",
       "**/Features/AudioMixer/ChannelStripViewModel.cs",
       "**/Features/Library/LibraryMultiSelection.cs",
       "**/Data/EntityMapping.cs",
