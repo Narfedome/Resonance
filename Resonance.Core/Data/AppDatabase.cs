@@ -1,5 +1,6 @@
 using Resonance.Data.Entities;
 using Resonance.Models.Library;
+using Resonance.Services;
 using SQLite;
 
 namespace Resonance.Data
@@ -41,6 +42,7 @@ namespace Resonance.Data
             await AddColumnIfMissingAsync("SceneTrackEntity", "FadeOut INTEGER NOT NULL DEFAULT 0");
             await AddColumnIfMissingAsync("TrackEntity", "Hash TEXT NOT NULL DEFAULT ''");
             await AddColumnIfMissingAsync("TrackEntity", "Category TEXT NOT NULL DEFAULT ''");
+            await AddColumnIfMissingAsync("TrackEntity", "SearchTitle TEXT NOT NULL DEFAULT ''");
             await AddColumnIfMissingAsync("CategoryEntity", "LibraryType TEXT NOT NULL DEFAULT ''");
 
             // Position ajoutée pour le glisser-déposer de l'accordéon Campagne/Chapitre/Scène : sur
@@ -96,6 +98,12 @@ namespace Resonance.Data
                 conn.Execute("UPDATE SceneTrackEntity SET FadeOut = 0 WHERE FadeOut IS NULL");
                 conn.Execute("UPDATE TrackEntity SET Hash = '' WHERE Hash IS NULL");
                 conn.Execute("UPDATE TrackEntity SET Category = '' WHERE Category IS NULL");
+
+                // Forme de recherche des titres (cf. TextSearch) pour les pistes enregistrées avant
+                // l'ajout de la colonne : calculée en C#, SQLite ne sait pas retirer les accents. Les
+                // pistes sauvegardées ensuite l'ont déjà (EntityMapping.ToEntity).
+                foreach (var track in conn.Query<TrackEntity>("SELECT * FROM TrackEntity WHERE SearchTitle IS NULL OR SearchTitle = ''"))
+                    conn.Execute("UPDATE TrackEntity SET SearchTitle = ? WHERE Id = ?", TextSearch.Normalize(track.Title), track.Id);
 
                 // Toute catégorie créée avant l'introduction de LibraryType ne pouvait être que pour des
                 // tracks (les sorts n'ont pas encore de catégories) : on les rattache rétroactivement.
