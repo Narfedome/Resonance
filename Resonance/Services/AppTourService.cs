@@ -74,7 +74,7 @@ namespace Resonance.Services
         // Seules plateformes où le plugin sait lire la position d'un contrôle à l'écran (cf.
         // OnboardingBoundsExtensions) : ailleurs, chaque étape attendrait 10 s pour rien.
 #if ANDROID || IOS || WINDOWS
-        public static bool IsSupported => true;
+        public static bool IsSupported => !E2EMode.IsEnabled; // pas de visite pendant les tests de bout en bout
 #else
         public static bool IsSupported => false;
 #endif

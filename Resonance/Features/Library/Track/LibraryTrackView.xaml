@@ -124,7 +124,7 @@
                          (toujours utile à LibrarySpellView, resté en sélection native) : ici, plus
                          besoin de masquer quoi que ce soit puisque la sélection native (et donc son
                          fond orange) n'est plus utilisée du tout. -->
-                    <Border Style="{StaticResource SelectableGridItemBorderStyle}" BackgroundColor="Transparent" Stroke="Grey">
+                    <Border Style="{StaticResource SelectableGridItemBorderStyle}" BackgroundColor="Transparent" Stroke="Grey" AutomationId="LibraryTrackTile">
                         <Border.Behaviors>
                             <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryTrackTileKey}"/>
                         </Border.Behaviors>
@@ -163,6 +163,7 @@
                             </CheckBox>
                             <!-- Label au lieu de l'image -->
                             <Label Text="{Binding Title}"
+                        AutomationId="LibraryTrackTitle"
                         HorizontalOptions="Center"
                         VerticalOptions="Center" Style="{StaticResource TruncatedLabelStyle}"
                         Grid.Row="1"/>
@@ -205,6 +206,7 @@
                     </components:FaIconButtonView.Behaviors>
                 </components:FaIconButtonView>
                 <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Trash}"
+                                             AutomationId="LibraryDeleteButton"
                                              Command="{Binding DeleteSelectedItemsCommand}"
                                              Tooltip="{Binding DeleteTooltip}"
                                              IsEnabled="{Binding CanDelete}">

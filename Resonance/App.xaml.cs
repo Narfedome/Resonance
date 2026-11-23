@@ -19,7 +19,8 @@ namespace Resonance
         {
             ThemeService.Instance.Initialize();
 
-            bool hasLaunched = Preferences.Default.Get("has_launched", false);
+            // Tests de bout en bout : pas d'écran d'accueil, l'appli s'ouvre directement sur l'AppShell.
+            bool hasLaunched = E2EMode.IsEnabled || Preferences.Default.Get("has_launched", false);
             var page = hasLaunched ? _shell : (Page)_services.GetRequiredService<OnboardingPage>();
 
             // L'UI est pensée pour un usage mobile (portrait), et rien dans la mise en page ne profite

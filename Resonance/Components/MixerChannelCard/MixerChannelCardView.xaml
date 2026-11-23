@@ -18,7 +18,7 @@
 
     <!-- IsEnabled global : le strip et ses boutons (livre/gear/X) restent désactivés tant que
          SON lecteur n'est pas prêt (IsLoading), sans dupliquer le binding sur chaque bouton. -->
-    <Grid Margin="10" IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
+    <Grid Margin="10" AutomationId="MixerChannel" IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
         <!-- Cible de la visite guidée : la tranche entière (strip + boutons), détaillée ensuite
              contrôle par contrôle (cf. AppTourService.StartMixerTourAsync). -->
         <Grid.Behaviors>
