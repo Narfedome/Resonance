@@ -42,6 +42,9 @@ namespace Resonance.Services
         private const string ManifestEntryName = "manifest.json";
         private const string SignatureEntryName = "manifest.sig";
 
+        // Type des catégories de sorts dans les .dmpack exportés avant leur retrait de l'appli.
+        private const string LegacySpellLibraryType = "Spell";
+
         private static readonly byte[] ManifestSignatureKey =
             Convert.FromHexString("61d46ee3f647bca5824870dc1330e22e9f5201b2b395c17cba19f27e790ef21e");
 
@@ -212,13 +215,8 @@ namespace Resonance.Services
         {
             var library = new LibraryExport();
 
-            foreach (var s in (await _libraryDataService.GetAllItemsTypeAsync(typeof(Spell))).OfType<Spell>())
-                library.Spells.Add(new SpellExport { Id = s.Id, Title = s.Title, Description = s.Description });
-
             foreach (var name in await _libraryDataService.GetCategoryNamesAsync(typeof(Track)))
                 library.Categories.Add(new CategoryExport { Name = name, LibraryType = nameof(Track) });
-            foreach (var name in await _libraryDataService.GetCategoryNamesAsync(typeof(Spell)))
-                library.Categories.Add(new CategoryExport { Name = name, LibraryType = nameof(Spell) });
 
             return library;
         }
@@ -332,17 +330,10 @@ namespace Resonance.Services
 
             if (manifest.Library != null)
             {
-                foreach (var spell in manifest.Library.Spells)
-                {
-                    await _libraryDataService.SaveLibraryItemAsync(new Spell { Title = spell.Title, Description = spell.Description });
-                    result.SpellsImported++;
-                }
-
-                foreach (var category in manifest.Library.Categories)
-                {
-                    var type = category.LibraryType == nameof(Spell) ? typeof(Spell) : typeof(Track);
-                    await _libraryDataService.EnsureCategoryAsync(type, category.Name);
-                }
+                // Les sorts ont été retirés de l'appli : un ancien .dmpack peut encore contenir des
+                // catégories de sorts ("Spell"), ignorées ici (ses sorts eux-mêmes ne sont plus lus).
+                foreach (var category in manifest.Library.Categories.Where(c => c.LibraryType != LegacySpellLibraryType))
+                    await _libraryDataService.EnsureCategoryAsync(typeof(Track), category.Name);
             }
 
             // (SceneExport importé, Id de la scène nouvellement créée) : accumulé pendant la création

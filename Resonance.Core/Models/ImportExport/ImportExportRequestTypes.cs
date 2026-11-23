@@ -64,8 +64,6 @@ namespace Resonance.Models.ImportExport
         public int TracksRejectedMissingEntry { get; set; }
         public int TracksRejectedOther { get; set; }
 
-        public int SpellsImported { get; set; }
-
         // Pistes tout juste créées (Track.Id/FilePath renseignés), exposées pour que l'appelant
         // (App, jamais Core) puisse pré-chauffer leur pochette via CoverArtService après l'import -
         // Core ne dépend pas de MAUI, donc cette extraction ne peut pas se faire ici.

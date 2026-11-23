@@ -75,27 +75,6 @@ public class EntityMappingTests
     }
 
     [Fact]
-    public void Spell_RoundTrip_PreservesAllFields()
-    {
-        var model = new Spell
-        {
-            Id = 9,
-            Title = "Fireball",
-            ImagePath = @"C:\img\fire.png",
-            FilePath = @"C:\spells\fire.pdf",
-            Description = "8d6 de dégâts de feu"
-        };
-
-        var back = model.ToEntity().ToModel();
-
-        Assert.Equal(model.Id, back.Id);
-        Assert.Equal(model.Title, back.Title);
-        Assert.Equal(model.ImagePath, back.ImagePath);
-        Assert.Equal(model.FilePath, back.FilePath);
-        Assert.Equal(model.Description, back.Description);
-    }
-
-    [Fact]
     public void CampaignSessionScene_RoundTrips_PreserveFields()
     {
         var campaign = new Campaign { Id = 1, Title = "Curse of Strahd" };

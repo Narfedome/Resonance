@@ -102,9 +102,6 @@ namespace Resonance
             builder.Services.AddTransient<LibraryTrackViewModel>();
             builder.Services.AddTransient<CategoryListViewModel>();
             builder.Services.AddTransient<CategoryListPage>();
-            builder.Services.AddTransient<LibrarySpellViewModel>();
-            builder.Services.AddTransient<LibrarySpellEditViewModel>();
-            builder.Services.AddTransient<LibrarySpellSelectorPage>();
             builder.Services.AddTransient<LibraryTrackSelectorPage>();
             builder.Services.AddSingleton<AudioMixerViewModel>();
             builder.Services.AddTransient<AudioMixerPage>();

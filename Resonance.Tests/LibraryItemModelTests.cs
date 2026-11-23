@@ -37,11 +37,8 @@ public class LibraryItemModelTests
     public void Clone_PreservesRuntimeType()
     {
         LibraryItem track = MakeTrack();
-        LibraryItem spell = new Spell { Id = 1, Title = "Fireball", Description = "Boom" };
 
         Assert.IsType<Track>(track.Clone());
-        Assert.IsType<Spell>(spell.Clone());
-        Assert.Equal("Boom", ((Spell)spell.Clone()).Description);
     }
 
     // Le flux d'édition (EditItem) repose sur ce contrat : on édite une copie, et l'original ne

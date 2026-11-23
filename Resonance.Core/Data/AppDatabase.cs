@@ -59,11 +59,8 @@ namespace Resonance.Data
             await _db.CreateTableAsync<CampaignEntity>();
             await _db.CreateTableAsync<SessionEntity>();
             await _db.CreateTableAsync<SceneEntity>();
-            await _db.CreateTableAsync<CharacterEntity>();
-            await _db.CreateTableAsync<SpellEntity>();
             await _db.CreateTableAsync<TrackEntity>();
             await _db.CreateTableAsync<SceneTrackEntity>();
-            await _db.CreateTableAsync<CharacterSpellEntity>();
             await _db.CreateTableAsync<CategoryEntity>();
 
             campaignPositionAdded |= await HasNullPositionAsync("CampaignEntity");

@@ -14,7 +14,6 @@ namespace Resonance
         public AppShell()
         {
             InitializeComponent();
-            Routing.RegisterRoute(nameof(LibrarySpellEditPage), typeof(LibrarySpellEditPage));
             Routing.RegisterRoute(nameof(CategoryListPage), typeof(CategoryListPage));
             Routing.RegisterRoute(nameof(ImportExportPage), typeof(ImportExportPage));
 
@@ -29,7 +28,6 @@ namespace Resonance
             AudioMixerTab.Title   = _loc["TabAudiomixer"];
             LibraryTab.Title      = _loc["TabLibrary"];
             TracksContent.Title   = _loc["TabTracks"];
-            SpellsContent.Title   = _loc["TabSpells"];
             SettingsTab.Title     = _loc["TabSettings"];
         }
     }

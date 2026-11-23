@@ -105,7 +105,6 @@ namespace Resonance.Services
                         continue;
 
                     await _libraryDataService.RenameCategoryAsync(typeof(Track), variant, canonical);
-                    await _libraryDataService.RenameCategoryAsync(typeof(Spell), variant, canonical);
                 }
             }
         }

@@ -66,17 +66,13 @@ namespace Resonance.Models.ImportExport
         public string FileEntry { get; set; } = string.Empty;
     }
 
+    /// <summary>
+    /// Catégories de la bibliothèque. Les .dmpack d'avant le retrait des sorts ont aussi une liste
+    /// "Spells" : propriété inconnue, ignorée à la lecture (comportement par défaut de System.Text.Json).
+    /// </summary>
     public class LibraryExport
     {
-        public List<SpellExport> Spells { get; set; } = new();
         public List<CategoryExport> Categories { get; set; } = new();
-    }
-
-    public class SpellExport
-    {
-        public int Id { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
     }
 
     public class CategoryExport
