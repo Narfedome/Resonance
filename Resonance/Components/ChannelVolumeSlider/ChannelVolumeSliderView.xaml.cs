@@ -102,6 +102,36 @@ public partial class ChannelVolumeSliderView : ContentView
         set => SetValue(ValueTextProperty, value);
     }
 
+    /// <summary>Commande lancée par un appui sur la valeur affichée (couper/rétablir le son du canal).</summary>
+    public static readonly BindableProperty ValueTappedCommandProperty =
+        BindableProperty.Create(nameof(ValueTappedCommand), typeof(System.Windows.Input.ICommand), typeof(ChannelVolumeSliderView));
+
+    public System.Windows.Input.ICommand? ValueTappedCommand
+    {
+        get => (System.Windows.Input.ICommand?)GetValue(ValueTappedCommandProperty);
+        set => SetValue(ValueTappedCommandProperty, value);
+    }
+
+    /// <summary>Son coupé : la valeur est remplacée par un haut-parleur barré.</summary>
+    public static readonly BindableProperty IsMutedProperty =
+        BindableProperty.Create(nameof(IsMuted), typeof(bool), typeof(ChannelVolumeSliderView), false);
+
+    public bool IsMuted
+    {
+        get => (bool)GetValue(IsMutedProperty);
+        set => SetValue(IsMutedProperty, value);
+    }
+
+    /// <summary>Infobulle de la valeur (Windows), qui explique l'appui pour couper le son.</summary>
+    public static readonly BindableProperty ValueTooltipProperty =
+        BindableProperty.Create(nameof(ValueTooltip), typeof(string), typeof(ChannelVolumeSliderView), null);
+
+    public string? ValueTooltip
+    {
+        get => (string?)GetValue(ValueTooltipProperty);
+        set => SetValue(ValueTooltipProperty, value);
+    }
+
     public static readonly BindableProperty TextColorProperty =
         BindableProperty.Create(
             nameof(TextColor),

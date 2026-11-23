@@ -757,7 +757,7 @@
     <value>Volume</value>
   </data>
   <data name="TourMixerChannelVolumeBody" xml:space="preserve">
-    <value>Drag to set the channel volume: it's saved with the scene.</value>
+    <value>Drag to set the channel volume: it's saved with the scene. Tap the number above it to mute the channel without stopping the track.</value>
   </data>
   <data name="TourMixerChannelTrackTitle" xml:space="preserve">
     <value>Pick the track</value>
@@ -1019,16 +1019,13 @@
   <data name="SettingsCrashLogShow" xml:space="preserve">
     <value>Show file</value>
   </data>
-  <data name="ChannelMute" xml:space="preserve">
-    <value>Mute</value>
-  </data>
   <data name="ChannelOneShot" xml:space="preserve">
     <value>One-shot effect</value>
   </data>
   <data name="ChannelTrigger" xml:space="preserve">
     <value>Trigger the effect</value>
   </data>
-  <data name="ChannelUnmute" xml:space="preserve">
-    <value>Unmute</value>
+  <data name="ChannelMuteHint" xml:space="preserve">
+    <value>Tap to mute or unmute</value>
   </data>
 </root>
