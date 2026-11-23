@@ -1007,4 +1007,16 @@
   <data name="MixerMasterVolumeName" xml:space="preserve">
     <value>Master volume</value>
   </data>
+  <data name="SettingsCrashLogDesc" xml:space="preserve">
+    <value>Error log, to attach to your report</value>
+  </data>
+  <data name="SettingsCrashLogShare" xml:space="preserve">
+    <value>Share</value>
+  </data>
+  <data name="SettingsCrashLogShareTitle" xml:space="preserve">
+    <value>Resonance error log</value>
+  </data>
+  <data name="SettingsCrashLogShow" xml:space="preserve">
+    <value>Show file</value>
+  </data>
 </root>

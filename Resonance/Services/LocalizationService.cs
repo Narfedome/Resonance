@@ -38,6 +38,13 @@ namespace Resonance.Services
         public static string GetString(string key, string languageCode) =>
             _rm.GetString(key, new CultureInfo(languageCode)) ?? key;
 
+        /// <summary>
+        /// Culture de la langue choisie dans l'appli, pour formater nombres et dates comme le texte
+        /// qui les entoure plutôt que selon la langue du système (ex. "861,4 KB" sur un Windows
+        /// français réglé en anglais).
+        /// </summary>
+        public CultureInfo Culture => _culture;
+
         public string Language
         {
             get => _culture.Name;

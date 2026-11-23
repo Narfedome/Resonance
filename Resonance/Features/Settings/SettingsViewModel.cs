@@ -41,6 +41,7 @@ namespace Resonance.Features.Settings
         {
             _storageUsedBytes = await _storageService.GetTotalLibrarySizeAsync();
             StorageUsedText = FormatSize(_storageUsedBytes);
+            HasCrashLog = CrashLogger.HasEntries;
         }
 
         [RelayCommand]
@@ -134,7 +135,8 @@ namespace Resonance.Features.Settings
                 unitIndex++;
             }
 
-            return $"{size:0.#} {units[unitIndex]}";
+            // Séparateur décimal de la langue de l'appli, pas du système (cf. LocalizationService.Culture).
+            return $"{size.ToString("0.#", Loc.Culture)} {units[unitIndex]}";
         }
 
         [RelayCommand]
@@ -160,6 +162,49 @@ namespace Resonance.Features.Settings
         [RelayCommand]
         public async Task ReportBug() =>
             await Launcher.OpenAsync(new Uri("https://docs.google.com/forms/d/e/1FAIpQLSdg2q1o01eGZsFvd0qIwOqYEVKDwBikQ0g7FWLSWHenKqeW0g/viewform?usp=dialog"));
+
+        /// <summary>Relu à chaque affichage de la page (cf. InitializeAsync) : le journal grossit pendant l'utilisation.</summary>
+        [ObservableProperty]
+        private bool hasCrashLog;
+
+        // Partage système (e-mail, messagerie, enregistrement...) : le formulaire de signalement ne
+        // prend pas de pièce jointe, l'utilisateur envoie ainsi le journal par le canal de son choix.
+        [RelayCommand]
+        public async Task ShareCrashLog()
+        {
+            try
+            {
+                await Share.Default.RequestAsync(new ShareFileRequest
+                {
+                    Title = Loc["SettingsCrashLogShareTitle"],
+                    File = new ShareFile(CrashLogger.CreateShareableCopy(), "text/plain")
+                });
+            }
+            catch (Exception ex)
+            {
+                await ShowErrorAsync(ex);
+            }
+        }
+
+        // Sous Windows, le partage système ne s'ouvre pas pour l'appli non empaquetée (rien ne se passe,
+        // sans erreur) : on ouvre plutôt l'Explorateur sur la copie du journal, déjà sélectionnée, prête
+        // à être glissée dans un e-mail.
+        [RelayCommand]
+        public async Task ShowCrashLog()
+        {
+            try
+            {
+#if WINDOWS
+                System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{CrashLogger.CreateShareableCopy()}\"");
+#else
+                await ShareCrashLog();
+#endif
+            }
+            catch (Exception ex)
+            {
+                await ShowErrorAsync(ex);
+            }
+        }
 
         [RelayCommand]
         public async Task OpenImportExport() =>
