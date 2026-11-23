@@ -230,9 +230,22 @@
                         <Label Grid.Column="0" Text="{loc:Loc SettingsCrashLogDesc}"
                                VerticalOptions="Center" FontSize="{OnIdiom Default=13, Desktop=11}"
                                TextColor="{DynamicResource AppTextMuted}"/>
+                        <!-- Partage système sur mobile ; sous Windows, l'Explorateur sur le fichier (cf.
+                             SettingsViewModel.ShowCrashLog : le partage n'y fonctionne pas). -->
                         <Button Grid.Column="1"
                                 Text="{loc:Loc SettingsCrashLogShare}"
                                 Command="{Binding ShareCrashLogCommand}"
+                                IsVisible="{OnPlatform Default=True, WinUI=False}"
+                                BackgroundColor="Transparent"
+                                TextColor="{DynamicResource AppAccent}"
+                                FontSize="{OnIdiom Default=15, Desktop=13}"
+                                Padding="8,4"
+                                MinimumHeightRequest="{DynamicResource AppInlineButtonMinSize}"
+                                MinimumWidthRequest="{DynamicResource AppInlineButtonMinSize}"/>
+                        <Button Grid.Column="1"
+                                Text="{loc:Loc SettingsCrashLogShow}"
+                                Command="{Binding ShowCrashLogCommand}"
+                                IsVisible="{OnPlatform Default=False, WinUI=True}"
                                 BackgroundColor="Transparent"
                                 TextColor="{DynamicResource AppAccent}"
                                 FontSize="{OnIdiom Default=15, Desktop=13}"

@@ -1004,4 +1004,7 @@
   <data name="SettingsCrashLogShareTitle" xml:space="preserve">
     <value>Journal d'erreurs de Resonance</value>
   </data>
+  <data name="SettingsCrashLogShow" xml:space="preserve">
+    <value>Afficher le fichier</value>
+  </data>
 </root>

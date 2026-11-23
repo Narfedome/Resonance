@@ -185,6 +185,26 @@ namespace Resonance.Features.Settings
             }
         }
 
+        // Sous Windows, le partage système ne s'ouvre pas pour l'appli non empaquetée (rien ne se passe,
+        // sans erreur) : on ouvre plutôt l'Explorateur sur la copie du journal, déjà sélectionnée, prête
+        // à être glissée dans un e-mail.
+        [RelayCommand]
+        public async Task ShowCrashLog()
+        {
+            try
+            {
+#if WINDOWS
+                System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{CrashLogger.CreateShareableCopy()}\"");
+#else
+                await ShareCrashLog();
+#endif
+            }
+            catch (Exception ex)
+            {
+                await ShowErrorAsync(ex);
+            }
+        }
+
         [RelayCommand]
         public async Task OpenImportExport() =>
             await Shell.Current.GoToAsync(nameof(ImportExportPage));
