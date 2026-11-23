@@ -120,9 +120,6 @@
   <data name="TabTracks" xml:space="preserve">
     <value>Pistes</value>
   </data>
-  <data name="TabSpells" xml:space="preserve">
-    <value>Sorts</value>
-  </data>
   <data name="TabSettings" xml:space="preserve">
     <value>Paramètres</value>
   </data>
@@ -330,18 +327,6 @@
   <data name="TrackSelectFiles" xml:space="preserve">
     <value>Sélectionner des fichiers audio</value>
   </data>
-  <data name="SpellTitlePh" xml:space="preserve">
-    <value>Titre</value>
-  </data>
-  <data name="SpellDescPh" xml:space="preserve">
-    <value>Description</value>
-  </data>
-  <data name="SpellEditTitle" xml:space="preserve">
-    <value>Modifier le sort</value>
-  </data>
-  <data name="SpellCreateTitle" xml:space="preserve">
-    <value>Créer un sort</value>
-  </data>
   <data name="SettingsTitle" xml:space="preserve">
     <value>Paramètres</value>
   </data>
@@ -424,7 +409,7 @@
     <value>Bienvenue dans Resonance</value>
   </data>
   <data name="OnboardingDesc" xml:space="preserve">
-    <value>Votre assistant numérique pour les maîtres du jeu. Gérez vos campagnes, pilotez vos ambiances sonores et consultez vos sorts — le tout depuis une interface sobre et thématique.</value>
+    <value>Votre assistant numérique pour les maîtres du jeu. Gérez vos campagnes et pilotez vos ambiances sonores, le tout depuis une interface sobre et thématique.</value>
   </data>
   <data name="OnboardingPalette" xml:space="preserve">
     <value>Choisissez votre palette</value>
@@ -966,7 +951,7 @@
     <value>Annulation…</value>
   </data>
   <data name="ImportExportImportSummary" xml:space="preserve">
-    <value>{0} campagne(s) importée(s), {1} piste(s) copiée(s), {2} réutilisée(s), {3} rejetée(s), {4} sort(s) importé(s).</value>
+    <value>{0} campagne(s) importée(s), {1} piste(s) copiée(s), {2} réutilisée(s), {3} rejetée(s).</value>
   </data>
   <data name="ImportExportRejectDetails" xml:space="preserve">
     <value>Détail des rejets : {0} hash invalide, {1} audio illisible, {2} entrée manquante, {3} autre.</value>

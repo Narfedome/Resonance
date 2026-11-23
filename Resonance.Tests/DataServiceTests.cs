@@ -693,8 +693,7 @@ public class AppDatabaseMigrationTests
             await db.Initialization;
             var tables = db.Connection.GetConnection()
                 .QueryScalars<string>("SELECT name FROM sqlite_master WHERE type = 'table' AND name LIKE '%Entity' ORDER BY name");
-            Assert.Equal(new[] { "CampaignEntity", "CategoryEntity", "CharacterEntity", "CharacterSpellEntity", "SceneEntity",
-                                 "SceneTrackEntity", "SessionEntity", "SpellEntity", "TrackEntity" }, tables);
+            Assert.Equal(new[] { "CampaignEntity", "CategoryEntity", "SceneEntity", "SceneTrackEntity", "SessionEntity", "TrackEntity" }, tables);
 
             await db.Connection.InsertAsync(new CampaignEntity { Title = "A", Position = 3 });
             var reopened = new AppDatabase(path);
@@ -814,21 +813,16 @@ public class LibraryDataServiceTests : DatabaseTestBase
     }
 
     [Fact]
-    public async Task GetAllReferencedFilePaths_IncludesTrackAndSpellFilePathsAndImagePaths()
+    public async Task GetAllReferencedFilePaths_IncludesTrackFilePathsAndImagePaths()
     {
         var track = MakeTrack("Tavern");
         track.ImagePath = @"C:\covers\tavern.jpg";
         await Service.SaveLibraryItemAsync(track);
 
-        var spell = new Spell { Title = "Boule de feu", FilePath = @"C:\spells\fireball.mp3", ImagePath = @"C:\covers\fireball.jpg" };
-        await Service.SaveLibraryItemAsync(spell);
-
         var referenced = await Service.GetAllReferencedFilePathsAsync();
 
         Assert.Contains(track.FilePath, referenced);
         Assert.Contains(track.ImagePath, referenced);
-        Assert.Contains(spell.FilePath, referenced);
-        Assert.Contains(spell.ImagePath, referenced);
     }
 
     [Fact]
@@ -854,14 +848,12 @@ public class LibraryDataServiceTests : DatabaseTestBase
     }
 
     [Fact]
-    public async Task EnsureCategory_IsIdempotent_AndScopedByLibraryType()
+    public async Task EnsureCategory_IsIdempotent()
     {
         await Service.EnsureCategoryAsync(typeof(Track), "Musique");
         await Service.EnsureCategoryAsync(typeof(Track), "Musique");
-        await Service.EnsureCategoryAsync(typeof(Spell), "Nécromancie");
 
         Assert.Equal(new[] { "Musique" }, await Service.GetCategoryNamesAsync(typeof(Track)));
-        Assert.Equal(new[] { "Nécromancie" }, await Service.GetCategoryNamesAsync(typeof(Spell)));
     }
 
     [Fact]
@@ -963,50 +955,39 @@ public class LibraryDataServiceTests : DatabaseTestBase
         await Service.SaveLibraryItemAsync(t1);
         await Service.SaveLibraryItemAsync(t2);
         await sceneService.SaveSceneTrackAsync(new SceneTrack { SceneId = 1, Track = t1 });
-        var spell = new Spell { Title = "Boule de feu" };
-        await Service.SaveLibraryItemAsync(spell);
 
         var deleted = await Service.DeleteAllTracksAsync();
 
         Assert.Equal(new[] { "One", "Two" }, deleted.Select(t => t.Title).OrderBy(t => t).ToArray());
         Assert.Equal(0, await Db.Connection.Table<TrackEntity>().CountAsync());
         Assert.Equal(0, await Db.Connection.Table<SceneTrackEntity>().CountAsync());
-        Assert.Single(await Service.GetAllItemsTypeAsync(typeof(Spell)));
-    }
-
-    [Fact]
-    public async Task DeleteItems_Spells_RemovesCharacterLinks_AndIgnoresUnknownIds()
-    {
-        var spell = new Spell { Title = "Boule de feu" };
-        var other = new Spell { Title = "Soins" };
-        await Service.SaveLibraryItemAsync(spell);
-        await Service.SaveLibraryItemAsync(other);
-        await Db.Connection.InsertAsync(new CharacterSpellEntity { CharacterId = 1, SpellId = spell.Id });
-        await Db.Connection.InsertAsync(new CharacterSpellEntity { CharacterId = 1, SpellId = other.Id });
-
-        var deleted = await Service.DeleteItemsAsync(typeof(Spell), new[] { spell.Id, 9999 });
-
-        Assert.Equal("Boule de feu", deleted.Single().Title);
-        var links = await Db.Connection.Table<CharacterSpellEntity>().ToListAsync();
-        Assert.Equal(other.Id, links.Single().SpellId);
-        Assert.Equal("Soins", (await Service.GetAllItemsTypeAsync(typeof(Spell))).Single().Title);
     }
 
     // --- Tests ajoutés pour les mutants survivants de Stryker ---
 
     [Fact]
-    public async Task DeleteLibraryItem_RemovesTheTrackOrSpellItself()
+    public async Task DeleteLibraryItem_RemovesTheTrackItself()
     {
         var track = MakeTrack("Doomed");
-        var spell = new Spell { Title = "Boule de feu" };
         await Service.SaveLibraryItemAsync(track);
-        await Service.SaveLibraryItemAsync(spell);
 
         await Service.DeleteLibraryItem(track);
-        await Service.DeleteLibraryItem(spell);
 
         Assert.Empty(await Service.GetAllItemsTypeAsync(typeof(Track)));
-        Assert.Empty(await Service.GetAllItemsTypeAsync(typeof(Spell)));
+    }
+
+    [Fact]
+    public async Task OtherLibraryTypes_ReturnAndDeleteNothing()
+    {
+        // Seules les pistes existent (les sorts ont été retirés) : un autre type ne touche à rien.
+        var track = MakeTrack("Pluie");
+        await Service.SaveLibraryItemAsync(track);
+
+        Assert.Empty(await Service.GetAllItemsTypeAsync(typeof(LibraryItem)));
+        Assert.Empty(await Service.GetItemIdsAsync(typeof(LibraryItem), null));
+        Assert.Empty(await Service.GetItemsPageAsync(typeof(LibraryItem), 0, 10));
+        Assert.Empty(await Service.DeleteItemsAsync(typeof(LibraryItem), new[] { track.Id }));
+        Assert.Single(await Service.GetAllItemsTypeAsync(typeof(Track)));
     }
 
     [Fact]
@@ -1028,44 +1009,15 @@ public class LibraryDataServiceTests : DatabaseTestBase
     }
 
     [Fact]
-    public async Task GetItemIds_FiltersTracksByCategory_AndListsSpellsSeparately()
+    public async Task GetItemIds_FiltersTracksByCategory()
     {
         var ambiance = MakeTrack("Pluie", category: "Ambiance");
         var music = MakeTrack("Thème", category: "Musique");
-        var spell = new Spell { Title = "Boule de feu" };
         await Service.SaveLibraryItemAsync(ambiance);
         await Service.SaveLibraryItemAsync(music);
-        await Service.SaveLibraryItemAsync(spell);
 
         Assert.Equal(new[] { ambiance.Id, music.Id }, await Service.GetItemIdsAsync(typeof(Track), null));
         Assert.Equal(new[] { ambiance.Id }, await Service.GetItemIdsAsync(typeof(Track), "Ambiance"));
-        Assert.Equal(new[] { spell.Id }, await Service.GetItemIdsAsync(typeof(Spell), null));
-        Assert.Empty(await Service.GetItemIdsAsync(typeof(LibraryItem), null));
-    }
-
-    [Fact]
-    public async Task SaveSpell_WithExistingId_Updates()
-    {
-        var spell = new Spell { Title = "Avant" };
-        await Service.SaveLibraryItemAsync(spell);
-
-        spell.Title = "Après";
-        await Service.SaveLibraryItemAsync(spell);
-
-        Assert.Equal("Après", (await Service.GetAllItemsTypeAsync(typeof(Spell))).Single().Title);
-    }
-
-    [Fact]
-    public async Task GetItemsPage_PaginatesSpells_WithoutMixingInTracks()
-    {
-        await Service.SaveLibraryItemAsync(MakeTrack("Pluie"));
-        foreach (var title in new[] { "A", "B", "C" })
-            await Service.SaveLibraryItemAsync(new Spell { Title = title });
-
-        var page = await Service.GetItemsPageAsync(typeof(Spell), skip: 1, take: 2);
-
-        Assert.Equal(new[] { "B", "C" }, page.Select(s => s.Title));
-        Assert.All(page, item => Assert.IsType<Spell>(item));
     }
 
     [Fact]
@@ -1151,6 +1103,5 @@ public class AppDatabaseSeedTests : DatabaseTestBase
         var categories = await service.GetCategoryNamesAsync(typeof(Track));
 
         Assert.Equal(new[] { "Ambiance", "Musique" }, categories); // tri alphabétique
-        Assert.Empty(await service.GetCategoryNamesAsync(typeof(Spell)));
     }
 }

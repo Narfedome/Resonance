@@ -38,24 +38,6 @@ namespace Resonance.Data
             SearchTitle = TextSearch.Normalize(m.Title)
         };
 
-        public static Spell ToModel(this SpellEntity e) => new()
-        {
-            Id = e.Id,
-            Title = e.Title,
-            ImagePath = e.ImagePath,
-            FilePath = e.FilePath,
-            Description = e.Description
-        };
-
-        public static SpellEntity ToEntity(this Spell m) => new()
-        {
-            Id = m.Id,
-            Title = m.Title,
-            ImagePath = m.ImagePath,
-            FilePath = m.FilePath,
-            Description = m.Description
-        };
-
         public static Campaign ToModel(this CampaignEntity e) => new() { Id = e.Id, Title = e.Title, Position = e.Position };
 
         public static CampaignEntity ToEntity(this Campaign m) => new() { Id = m.Id, Title = m.Title, Position = m.Position };
