@@ -267,7 +267,7 @@ namespace Resonance.Features.ImportExport
 
                 var summary = string.Format(
                     Loc["ImportExportImportSummary"],
-                    result.CampaignsImported, result.TracksCopied, result.TracksReused, result.TracksRejected, result.SpellsImported);
+                    result.CampaignsImported, result.TracksCopied, result.TracksReused, result.TracksRejected);
 
                 // Le détail des causes de rejet n'a d'intérêt que s'il y a effectivement des rejets -
                 // évite d'alourdir le message pour le cas normal (aucune piste rejetée).

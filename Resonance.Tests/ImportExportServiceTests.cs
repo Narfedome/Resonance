@@ -375,7 +375,6 @@ public class ImportExportServiceTests : IDisposable
         await source.Scenes.SaveCampaignAsync(c2);
         await source.Scenes.SaveSessionAsync(new Session { CampaignId = c2.Id, Title = "S2" });
 
-        await source.Library.SaveLibraryItemAsync(new Spell { Title = "Boule de feu", Description = "..." });
         await source.Library.EnsureCategoryAsync(typeof(Track), "Ambiance");
 
         using var zipStream = new MemoryStream();
@@ -386,7 +385,6 @@ public class ImportExportServiceTests : IDisposable
         var result = await dest.Service.ImportAsync(zipStream);
 
         Assert.Equal(2, result.CampaignsImported);
-        Assert.Equal(1, result.SpellsImported);
         Assert.Contains("Ambiance", await dest.Library.GetCategoryNamesAsync(typeof(Track)));
     }
 
@@ -602,7 +600,7 @@ public class ImportExportServiceTests : IDisposable
     private static string Sha256Hex(byte[] content) => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(content));
 
     [Fact]
-    public async Task FullBackup_KeepsChannels_UnusedTracks_SpellsAndSpellCategories()
+    public async Task FullBackup_KeepsChannels_AndUnusedTracks()
     {
         await using var source = await ImportExportTestContext.CreateAsync();
         var used = await AddTrackAsync(source, "Utilisée");
@@ -614,8 +612,6 @@ public class ImportExportServiceTests : IDisposable
         var scene = new Scene { SessionId = session.Id, Title = "Taverne" };
         await source.Scenes.SaveSceneAsync(scene);
         await source.Scenes.SaveSceneTrackAsync(new SceneTrack { SceneId = scene.Id, Track = used, Volume = 0.5 });
-        await source.Library.SaveLibraryItemAsync(new Spell { Title = "Boule de feu", Description = "8d6 de feu" });
-        await source.Library.EnsureCategoryAsync(typeof(Spell), "Évocation");
 
         using var zipStream = new MemoryStream();
         await source.Service.ExportAsync(new ExportRequest { Level = ExportLevel.FullBackup }, zipStream);
@@ -629,10 +625,32 @@ public class ImportExportServiceTests : IDisposable
         Assert.Equal("Chapitre 1", importedSession.Title);
         var importedScene = (await dest.Scenes.GetScenesAsync(importedSession.Id)).Single();
         Assert.Equal("Utilisée", (await dest.Scenes.GetSceneTracksAsync(importedScene.Id)).Single().Track.Title);
-        var spell = (await dest.Library.GetAllItemsTypeAsync(typeof(Spell))).OfType<Spell>().Single();
-        Assert.Equal(("Boule de feu", "8d6 de feu"), (spell.Title, spell.Description));
-        Assert.Contains("Évocation", await dest.Library.GetCategoryNamesAsync(typeof(Spell)));
-        Assert.DoesNotContain("Évocation", await dest.Library.GetCategoryNamesAsync(typeof(Track)));
+    }
+
+    [Fact]
+    public async Task Import_PackFromBeforeSpellsWereRemoved_IgnoresSpellsAndTheirCategories()
+    {
+        // Manifeste au format des anciens exports : liste "Spells" et catégories de type "Spell".
+        var manifestBytes = Encoding.UTF8.GetBytes("""
+            {"FormatVersion":1,"ExportLevel":4,"Campaigns":[{"Title":"C","Sessions":[]}],"Tracks":[],
+             "Library":{"Spells":[{"Id":1,"Title":"Boule de feu","Description":"8d6"}],
+                        "Categories":[{"Name":"Ambiance","LibraryType":"Track"},{"Name":"Évocation","LibraryType":"Spell"}]}}
+            """);
+        using var zipStream = new MemoryStream();
+        using (var zip = new ZipArchive(zipStream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            using (var s = zip.CreateEntry("manifest.json").Open())
+                s.Write(manifestBytes);
+            using (var s = zip.CreateEntry("manifest.sig").Open())
+                s.Write(Encoding.ASCII.GetBytes(Convert.ToHexString(ImportExportService.ComputeManifestSignature(manifestBytes))));
+        }
+
+        await using var dest = await ImportExportTestContext.CreateAsync();
+        zipStream.Position = 0;
+        var result = await dest.Service.ImportAsync(zipStream);
+
+        Assert.Equal(1, result.CampaignsImported);
+        Assert.Equal(new[] { "Ambiance" }, await dest.Library.GetCategoryNamesAsync(typeof(Track)));
     }
 
     [Fact]

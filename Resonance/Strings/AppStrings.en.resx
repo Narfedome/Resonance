@@ -120,9 +120,6 @@
   <data name="TabTracks" xml:space="preserve">
     <value>Tracks</value>
   </data>
-  <data name="TabSpells" xml:space="preserve">
-    <value>Spells</value>
-  </data>
   <data name="TabSettings" xml:space="preserve">
     <value>Settings</value>
   </data>
@@ -330,18 +327,6 @@
   <data name="TrackSelectFiles" xml:space="preserve">
     <value>Select audio files</value>
   </data>
-  <data name="SpellTitlePh" xml:space="preserve">
-    <value>Title</value>
-  </data>
-  <data name="SpellDescPh" xml:space="preserve">
-    <value>Description</value>
-  </data>
-  <data name="SpellEditTitle" xml:space="preserve">
-    <value>Edit Spell</value>
-  </data>
-  <data name="SpellCreateTitle" xml:space="preserve">
-    <value>Create Spell</value>
-  </data>
   <data name="SettingsTitle" xml:space="preserve">
     <value>Settings</value>
   </data>
@@ -424,7 +409,7 @@
     <value>Welcome to Resonance</value>
   </data>
   <data name="OnboardingDesc" xml:space="preserve">
-    <value>Your digital assistant for game masters. Manage your campaigns, control your soundscapes, and look up your spells — all from a clean, themed interface.</value>
+    <value>Your digital assistant for game masters. Manage your campaigns and control your soundscapes, all from a clean, themed interface.</value>
   </data>
   <data name="OnboardingPalette" xml:space="preserve">
     <value>Choose your palette</value>
@@ -966,7 +951,7 @@
     <value>Cancelling…</value>
   </data>
   <data name="ImportExportImportSummary" xml:space="preserve">
-    <value>{0} campaign(s) imported, {1} track(s) copied, {2} reused, {3} rejected, {4} spell(s) imported.</value>
+    <value>{0} campaign(s) imported, {1} track(s) copied, {2} reused, {3} rejected.</value>
   </data>
   <data name="ImportExportRejectDetails" xml:space="preserve">
     <value>Rejection detail: {0} invalid hash, {1} unreadable audio, {2} missing entry, {3} other.</value>

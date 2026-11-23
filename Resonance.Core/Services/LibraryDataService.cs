@@ -28,28 +28,14 @@ namespace Resonance.Services
                 result.AddRange(tracks.Select(t => t.ToModel()));
             }
 
-            if (currentLibraryType == typeof(Spell))
-            {
-                var spells = await _db.Connection.Table<SpellEntity>().ToListAsync();
-                result.AddRange(spells.Select(s => s.ToModel()));
-            }
-
             return result.OrderBy(x => x.Id).ToList();
         }
 
         public async Task SaveLibraryItemAsync(LibraryItem item)
         {
             await _db.Initialization;
-            switch (item)
-            {
-                case Track track:
-                    await SaveTrack(track);
-                    break;
-
-                case Spell spell:
-                    await SaveSpell(spell);
-                    break;
-            }
+            if (item is Track track)
+                await SaveTrack(track);
         }
 
         private async Task SaveTrack(Track track)
@@ -70,23 +56,16 @@ namespace Resonance.Services
         public async Task DeleteLibraryItem(LibraryItem libraryItem)
         {
             await _db.Initialization;
-            switch (libraryItem)
-            {
-                case Track track:
-                    // Les pistes de scène qui l'utilisaient partent avec elle (pas de FK ON DELETE CASCADE
-                    // avec sqlite-net) : sinon elles restaient orphelines jusqu'à la purge du lancement suivant.
-                    await _db.Connection.RunInTransactionAsync(conn =>
-                    {
-                        conn.Execute("DELETE FROM SceneTrackEntity WHERE TrackId = ?", track.Id);
-                        conn.Delete<TrackEntity>(track.Id);
-                    });
-                    break;
-                case Spell spell:
-                    await _db.Connection.DeleteAsync<SpellEntity>(spell.Id);
-                    break;
+            if (libraryItem is not Track track)
+                return;
 
-                    // autres types ici
-            }
+            // Les pistes de scène qui l'utilisaient partent avec elle (pas de FK ON DELETE CASCADE
+            // avec sqlite-net) : sinon elles restaient orphelines jusqu'à la purge du lancement suivant.
+            await _db.Connection.RunInTransactionAsync(conn =>
+            {
+                conn.Execute("DELETE FROM SceneTrackEntity WHERE TrackId = ?", track.Id);
+                conn.Delete<TrackEntity>(track.Id);
+            });
         }
 
         public async Task<List<Track>> DeleteAllTracksAsync()
@@ -123,12 +102,6 @@ namespace Resonance.Services
                 return tracks.Select(t => t.Id).ToList();
             }
 
-            if (currentLibraryType == typeof(Spell))
-            {
-                var spells = await _db.Connection.Table<SpellEntity>().ToListAsync();
-                return spells.Select(s => s.Id).ToList();
-            }
-
             return new List<int>();
         }
 
@@ -142,48 +115,25 @@ namespace Resonance.Services
             await _db.Initialization;
             var deleted = new List<LibraryItem>();
 
+            if (currentLibraryType != typeof(Track))
+                return deleted;
+
             // Une seule transaction pour tout le lot : une erreur au milieu ne laisse ni une sélection
-            // à moitié supprimée, ni des pistes de scène / sorts de personnage orphelins.
+            // à moitié supprimée, ni des pistes de scène orphelines.
             await _db.Connection.RunInTransactionAsync(conn =>
             {
                 foreach (var id in ids)
                 {
-                    if (currentLibraryType == typeof(Track))
-                    {
-                        var entity = conn.Find<TrackEntity>(id);
-                        if (entity == null) continue;
+                    var entity = conn.Find<TrackEntity>(id);
+                    if (entity == null) continue;
 
-                        conn.Execute("DELETE FROM SceneTrackEntity WHERE TrackId = ?", id);
-                        conn.Delete<TrackEntity>(id);
-                        deleted.Add(entity.ToModel());
-                    }
-                    else if (currentLibraryType == typeof(Spell))
-                    {
-                        var entity = conn.Find<SpellEntity>(id);
-                        if (entity == null) continue;
-
-                        conn.Execute("DELETE FROM CharacterSpellEntity WHERE SpellId = ?", id);
-                        conn.Delete<SpellEntity>(id);
-                        deleted.Add(entity.ToModel());
-                    }
+                    conn.Execute("DELETE FROM SceneTrackEntity WHERE TrackId = ?", id);
+                    conn.Delete<TrackEntity>(id);
+                    deleted.Add(entity.ToModel());
                 }
             });
 
             return deleted;
-        }
-
-        private async Task SaveSpell(Spell spell)
-        {
-            var entity = spell.ToEntity();
-            if (entity.Id == 0)
-            {
-                await _db.Connection.InsertAsync(entity);
-                spell.Id = entity.Id; // 🔥 IMPORTANT
-            }
-            else
-            {
-                await _db.Connection.UpdateAsync(entity);
-            }
         }
 
         /// <param name="category">null = pas de filtre (toutes catégories confondues), "" = piste sans
@@ -217,18 +167,6 @@ namespace Resonance.Services
                     .ToListAsync();
 
                 result.AddRange(tracks.Select(t => t.ToModel()));
-            }
-
-            if (currentLibraryType == typeof(Spell))
-            {
-                // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
-                var spells = await _db.Connection.Table<SpellEntity>()
-                    .OrderBy(s => s.Id)
-                    .Skip(skip)
-                    .Take(take)
-                    .ToListAsync();
-
-                result.AddRange(spells.Select(s => s.ToModel()));
             }
 
             return result;
@@ -363,13 +301,6 @@ namespace Resonance.Services
             {
                 if (!string.IsNullOrEmpty(track.FilePath)) paths.Add(track.FilePath);
                 if (!string.IsNullOrEmpty(track.ImagePath)) paths.Add(track.ImagePath);
-            }
-
-            var spells = await _db.Connection.Table<SpellEntity>().ToListAsync();
-            foreach (var spell in spells)
-            {
-                if (!string.IsNullOrEmpty(spell.FilePath)) paths.Add(spell.FilePath);
-                if (!string.IsNullOrEmpty(spell.ImagePath)) paths.Add(spell.ImagePath);
             }
 
             return paths;
