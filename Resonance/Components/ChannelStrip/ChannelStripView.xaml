@@ -45,6 +45,7 @@
         </components:ChannelVolumeSliderView>
 
         <components:RotatedLabelView Grid.Row="3"
+               AutomationId="MixerChannelTrackName"
                Text="{Binding DisplayTrackName}"
                HorizontalOptions="Center"
                LineBreakMode="TailTruncation" />

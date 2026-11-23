@@ -142,6 +142,7 @@
                                VerticalOptions="Center" FontSize="{OnIdiom Default=13, Desktop=11}"
                                TextColor="{DynamicResource AppTextMuted}"/>
                         <Button Grid.Column="1"
+                                AutomationId="SettingsSampleButton"
                                 Text="{loc:Loc SettingsSampleButton}"
                                 Command="{Binding LoadSampleCampaignCommand}"
                                 BackgroundColor="Transparent"

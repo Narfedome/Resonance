@@ -18,11 +18,13 @@
                    TextColor="{DynamicResource AppTextMuted}"/>
             <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                 <Button Grid.Column="0"
+                        AutomationId="DialogCancelButton"
                         Text="{Binding CancelLabel}"
                         IsVisible="{Binding HasCancel}"
                         Style="{StaticResource DialogSecondaryButtonStyle}"
                         Command="{Binding CancelCommand}"/>
                 <Button Grid.Column="1"
+                        AutomationId="DialogConfirmButton"
                         Grid.ColumnSpan="{Binding ConfirmButtonColumnSpan}"
                         Text="{Binding ConfirmLabel}"
                         Command="{Binding ConfirmCommand}"/>
