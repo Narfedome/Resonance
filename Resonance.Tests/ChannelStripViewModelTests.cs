@@ -510,6 +510,95 @@ public class ChannelStripViewModelTests : IDisposable
         Assert.Equal(0.9, vm.LiveVolume, 6);
     }
 
+    // --- Volume général du mixeur ---
+
+    [Fact]
+    public void MasterVolume_ScalesThePlayer_WithoutTouchingTheChannelSetting()
+    {
+        var (vm, player) = MakeStrip(volume: 0.8);
+        vm.Play();
+
+        vm.MasterVolume = 0.5;
+
+        Assert.Equal(0.4, player.Volume, 6);
+        Assert.Equal(0.8, vm.Volume);
+        Assert.Equal(0.8, vm.LiveVolume);
+        Assert.Equal(80, vm.DisplayVolume);
+    }
+
+    [Fact]
+    public void MasterVolume_AppliesToVolumeChanges_PlayAndNewPlayers()
+    {
+        var (vm, player) = MakeStrip(volume: 0.8);
+        vm.MasterVolume = 0.5;
+
+        vm.Volume = 0.6;
+        Assert.Equal(0.3, player.Volume, 6);
+
+        vm.Play();
+        Assert.Equal(0.3, player.Volume, 6);
+
+        var newPlayer = new FakeAudioPlayer();
+        vm.Player = newPlayer;
+        Assert.Equal(0.3, newPlayer.Volume, 6);
+    }
+
+    [Fact]
+    public async Task MasterVolume_ScalesFadeInSteps()
+    {
+        var (vm, player) = MakeStrip(volume: 0.9);
+        vm.MasterVolume = 0.5;
+        vm.IsFadeIn = true;
+        player.VolumeHistory.Clear();
+
+        vm.Play();
+        await WaitUntilAsync(() => player.VolumeHistory.Count >= 5);
+        await Task.Delay(50);
+
+        AssertVolumes(new[] { 0, 0.15, 0.3, 0.45, 0.45 }, player.VolumeHistory);
+        Assert.Equal(0.9, vm.LiveVolume, 6);
+    }
+
+    [Fact]
+    public async Task MasterVolume_ScalesFadeOutSteps_AndTheRestoredVolume()
+    {
+        var (vm, player) = MakeStrip(volume: 0.9);
+        vm.MasterVolume = 0.5;
+        vm.Play();
+        player.VolumeHistory.Clear();
+
+        await vm.FadeOut();
+
+        AssertVolumes(new[] { 0.3, 0.15, 0, 0.45 }, player.VolumeHistory);
+    }
+
+    [Fact]
+    public async Task MasterVolumeChange_DuringAFade_IsPickedUpByTheNextSteps()
+    {
+        var (vm, player) = MakeStrip(volume: 0.9);
+        vm.Play();
+        var fade = vm.FadeOut();
+        await WaitUntilAsync(() => player.Volume < 0.9);
+        var countBefore = player.VolumeHistory.Count;
+
+        vm.MasterVolume = 0.5;
+        // Pas de saut immédiat au milieu du fondu : rien n'est écrit tant que le palier suivant n'arrive pas.
+        Assert.Equal(countBefore, player.VolumeHistory.Count);
+
+        await fade;
+        Assert.Equal(0.45, player.Volume, 6);
+    }
+
+    [Fact]
+    public void MasterVolume_WithoutPlayer_DoesNotThrow()
+    {
+        var vm = new ChannelStripViewModel();
+
+        vm.MasterVolume = 0.5;
+
+        Assert.Equal(0.5, vm.MasterVolume);
+    }
+
     [Fact]
     public async Task Play_AfterPauseDuringFadeOut_CancelsTheFadeOut()
     {

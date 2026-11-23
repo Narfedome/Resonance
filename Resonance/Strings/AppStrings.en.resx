@@ -187,10 +187,10 @@
     <value>Scene</value>
   </data>
   <data name="MixerPrevScene" xml:space="preserve">
-    <value>Previous scene</value>
+    <value>Previous scene (Ctrl+←)</value>
   </data>
   <data name="MixerNextScene" xml:space="preserve">
-    <value>Next scene</value>
+    <value>Next scene (Ctrl+→)</value>
   </data>
   <data name="MixerFreeform" xml:space="preserve">
     <value>Freeform scene</value>
@@ -199,13 +199,13 @@
     <value>Global</value>
   </data>
   <data name="MixerPlayAll" xml:space="preserve">
-    <value>Play All</value>
+    <value>Play All (Ctrl+Enter)</value>
   </data>
   <data name="MixerFadeOutAll" xml:space="preserve">
-    <value>Fade Out All</value>
+    <value>Fade Out All (Ctrl+Space)</value>
   </data>
   <data name="MixerStopAll" xml:space="preserve">
-    <value>Stop All</value>
+    <value>Stop All (Ctrl+Backspace)</value>
   </data>
   <data name="ChannelLoop" xml:space="preserve">
     <value>Loop</value>
@@ -715,7 +715,7 @@
     <value>Global controls</value>
   </data>
   <data name="TourMixerGlobalBody" xml:space="preserve">
-    <value>Play every channel, fade them all out, or stop everything at once.</value>
+    <value>Play every channel, fade them all out, or stop everything at once. The slider below sets the master volume without changing each channel's own volume.</value>
   </data>
   <data name="TourMixerFreeformTitle" xml:space="preserve">
     <value>Free scene</value>
@@ -994,6 +994,18 @@
   </data>
   <data name="TrackChangeFile" xml:space="preserve">
     <value>Change file</value>
+  </data>
+  <data name="MixerMasterVolume" xml:space="preserve">
+    <value>Master volume (Ctrl+↑ / Ctrl+↓)</value>
+  </data>
+  <data name="LibSearchNoResults" xml:space="preserve">
+    <value>No track matches this search.</value>
+  </data>
+  <data name="LibSearchPlaceholder" xml:space="preserve">
+    <value>Search tracks</value>
+  </data>
+  <data name="MixerMasterVolumeName" xml:space="preserve">
+    <value>Master volume</value>
   </data>
   <data name="SettingsCrashLogDesc" xml:space="preserve">
     <value>Error log, to attach to your report</value>

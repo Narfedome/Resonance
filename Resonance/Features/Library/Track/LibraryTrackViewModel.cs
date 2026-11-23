@@ -104,9 +104,48 @@ namespace Resonance.Features.Library
         // ShowEmptyCategoryMessage s'affichait un instant au tout premier rendu de la page, avant même
         // qu'InitializeAsync (appelé depuis OnNavigatedTo, donc après ce premier rendu) n'ait eu la
         // main pour faire passer Loading.IsLoading à true.
-        public bool ShowEmptyLibraryCard => _hasLoadedOnce && !HasTrackItems && SelectedCategory == AllCategoriesLabel;
+        public bool ShowEmptyLibraryCard => _hasLoadedOnce && !HasTrackItems && !IsSearching && SelectedCategory == AllCategoriesLabel;
 
-        public bool ShowEmptyCategoryMessage => _hasLoadedOnce && !HasTrackItems && SelectedCategory != AllCategoriesLabel;
+        public bool ShowEmptyCategoryMessage => _hasLoadedOnce && !HasTrackItems && !IsSearching && SelectedCategory != AllCategoriesLabel;
+
+        // Une recherche sans résultat n'est ni une bibliothèque vide (qui proposerait d'importer) ni une
+        // catégorie vide : message dédié.
+        public bool ShowNoSearchResults => _hasLoadedOnce && !HasTrackItems && IsSearching;
+
+        // ── Recherche par titre ───────────────────────────────────
+
+        /// <summary>Texte de la barre de recherche ; la liste se recharge 300 ms après la dernière frappe.</summary>
+        [ObservableProperty]
+        private string searchText = string.Empty;
+
+        // Filtre réellement appliqué à la liste affichée (fixé au rechargement, comme _categoryFilter) :
+        // "Tout sélectionner" et les messages d'état vide s'y réfèrent, pas au texte en cours de frappe.
+        private string? _searchFilter;
+
+        private bool IsSearching => _searchFilter != null;
+
+        private CancellationTokenSource? _searchDebounce;
+
+        partial void OnSearchTextChanged(string value)
+        {
+            _searchDebounce?.Cancel();
+            var cts = _searchDebounce = new CancellationTokenSource();
+            _ = ReloadAfterSearchPauseAsync(cts.Token);
+        }
+
+        private async Task ReloadAfterSearchPauseAsync(CancellationToken token)
+        {
+            try
+            {
+                await Task.Delay(300, token);
+                await ReloadAsync();
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception ex)
+            {
+                await ShowErrorAsync(ex);
+            }
+        }
 
         [ObservableProperty]
         private Track? selectedTrackItem;
@@ -136,6 +175,7 @@ namespace Resonance.Features.Library
         {
             OnPropertyChanged(nameof(ShowEmptyLibraryCard));
             OnPropertyChanged(nameof(ShowEmptyCategoryMessage));
+            OnPropertyChanged(nameof(ShowNoSearchResults));
             OnPropertyChanged(nameof(ShowGroupHeaders));
 
             if (_suppressCategoryReload)
@@ -170,6 +210,7 @@ namespace Resonance.Features.Library
                 OnPropertyChanged(nameof(HasTrackItems));
                 OnPropertyChanged(nameof(ShowEmptyLibraryCard));
                 OnPropertyChanged(nameof(ShowEmptyCategoryMessage));
+                OnPropertyChanged(nameof(ShowNoSearchResults));
             };
             Selection.PropertyChanged += (_, e) =>
             {
@@ -252,6 +293,7 @@ namespace Resonance.Features.Library
                 _hasLoadedOnce = true;
                 OnPropertyChanged(nameof(ShowEmptyLibraryCard));
                 OnPropertyChanged(nameof(ShowEmptyCategoryMessage));
+                OnPropertyChanged(nameof(ShowNoSearchResults));
             }
             finally
             {
@@ -332,6 +374,7 @@ namespace Resonance.Features.Library
                 _categoryFilter = SelectedCategory == AllCategoriesLabel ? null
                     : SelectedCategory == NoFolderLabel ? string.Empty
                     : SelectedCategory;
+                _searchFilter = string.IsNullOrWhiteSpace(SearchText) ? null : SearchText.Trim();
 
                 ClearTrackItems();
                 _loadedCount = 0;
@@ -382,6 +425,7 @@ namespace Resonance.Features.Library
             OnPropertyChanged(nameof(HasTrackItems));
             OnPropertyChanged(nameof(ShowEmptyLibraryCard));
             OnPropertyChanged(nameof(ShowEmptyCategoryMessage));
+            OnPropertyChanged(nameof(ShowNoSearchResults));
         }
 
         // Point d'entrée externe (scroll) : passe par _loadGate pour ne jamais s'exécuter pendant
@@ -420,7 +464,7 @@ namespace Resonance.Features.Library
             {
                 // La requête elle-même n'est pas annulable (sqlite-net-pcl ne le permet pas) : le
                 // jeton n'est vérifié qu'à partir d'ici, dans la boucle qui peuple TrackItems.
-                var items = await _libraryDataService.GetItemsPageAsync(typeof(Track), _loadedCount, PageSize, _categoryFilter);
+                var items = await _libraryDataService.GetItemsPageAsync(typeof(Track), _loadedCount, PageSize, _categoryFilter, _searchFilter);
                 _hasMoreItems = items.Count == PageSize;
 
                 // Ne précharge plus les pochettes ici : chaque tuile (TrackButtonViewModel) charge déjà
@@ -509,7 +553,7 @@ namespace Resonance.Features.Library
         [RelayCommand]
         public async Task SelectAll()
         {
-            var ids = await _libraryDataService.GetItemIdsAsync(typeof(Track), _categoryFilter);
+            var ids = await _libraryDataService.GetItemIdsAsync(typeof(Track), _categoryFilter, _searchFilter);
             var allTracks = TrackItems.SelectMany(g => g);
 
             // Bascule : si tout est déjà sélectionné, un nouvel appui tout désélectionne.

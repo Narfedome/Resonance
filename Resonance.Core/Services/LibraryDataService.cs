@@ -1,6 +1,7 @@
 using Resonance.Data;
 using Resonance.Data.Entities;
 using Resonance.Models.Library;
+using SQLite;
 
 namespace Resonance.Services
 {
@@ -107,7 +108,7 @@ namespace Resonance.Services
         /// les éléments non encore chargés à cause de la pagination). Le filtre par catégorie ne s'applique
         /// qu'aux Track (seul type qui a des catégories pour l'instant).
         /// </summary>
-        public async Task<List<int>> GetItemIdsAsync(Type currentLibraryType, string? category)
+        public async Task<List<int>> GetItemIdsAsync(Type currentLibraryType, string? category, string? search = null)
         {
             await _db.Initialization;
             if (currentLibraryType == typeof(Track))
@@ -116,6 +117,7 @@ namespace Resonance.Services
                 if (category != null)
                     // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
                     query = query.Where(t => t.Category == category);
+                query = FilterByTitle(query, search);
 
                 var tracks = await query.ToListAsync();
                 return tracks.Select(t => t.Id).ToList();
@@ -186,7 +188,9 @@ namespace Resonance.Services
 
         /// <param name="category">null = pas de filtre (toutes catégories confondues), "" = piste sans
         /// catégorie ("Aucun dossier"), sinon le nom exact de la catégorie.</param>
-        public async Task<List<LibraryItem>> GetItemsPageAsync(Type currentLibraryType, int skip, int take, string? category = null)
+        /// <param name="search">Texte cherché dans le titre (sans tenir compte de la casse pour les
+        /// lettres non accentuées, comme le LIKE de SQLite) ; null ou vide = pas de recherche.</param>
+        public async Task<List<LibraryItem>> GetItemsPageAsync(Type currentLibraryType, int skip, int take, string? category = null, string? search = null)
         {
             await _db.Initialization;
             var result = new List<LibraryItem>();
@@ -198,6 +202,7 @@ namespace Resonance.Services
                 if (category != null)
                     // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
                     query = query.Where(t => t.Category == category);
+                query = FilterByTitle(query, search);
 
                 // Trié par catégorie (Id en repli à égalité) plutôt que par simple ordre d'insertion :
                 // permet à l'appelant (LibraryTrackViewModel) de regrouper visuellement les pistes par
@@ -227,6 +232,18 @@ namespace Resonance.Services
             }
 
             return result;
+        }
+
+        private static AsyncTableQuery<TrackEntity> FilterByTitle(AsyncTableQuery<TrackEntity> query, string? search)
+        {
+            if (string.IsNullOrWhiteSpace(search))
+                return query;
+
+            // SQLite-net traduit Contains en instr(), sensible à la casse : on compare tout en minuscules.
+            // lower() de SQLite ne connaît que l'ASCII, d'où la limite aux lettres non accentuées.
+            var text = search.Trim().ToLowerInvariant();
+            // Stryker disable once all : requête traduite en SQL par SQLite-net (cf. Resonance.Tests/stryker-config.json)
+            return query.Where(t => t.Title.ToLower().Contains(text));
         }
 
         public async Task<Track?> FindTrackByHashAsync(string hash, int excludeId)
@@ -364,10 +381,10 @@ namespace Resonance.Services
         Task SaveLibraryItemAsync(LibraryItem item);
         Task DeleteLibraryItem(LibraryItem item);
         Task<List<Track>> DeleteAllTracksAsync();
-        Task<List<int>> GetItemIdsAsync(Type currentLibraryType, string? category);
+        Task<List<int>> GetItemIdsAsync(Type currentLibraryType, string? category, string? search = null);
         Task<List<LibraryItem>> DeleteItemsAsync(Type currentLibraryType, IEnumerable<int> ids);
         Task<List<LibraryItem>> GetAllItemsTypeAsync(Type currentLibraryType);
-        Task<List<LibraryItem>> GetItemsPageAsync(Type currentLibraryType, int skip, int take, string? category = null);
+        Task<List<LibraryItem>> GetItemsPageAsync(Type currentLibraryType, int skip, int take, string? category = null, string? search = null);
         Task<Track?> FindTrackByHashAsync(string hash, int excludeId);
         Task UpdateTrackImagePathAsync(int trackId, string imagePath);
         Task<int> CountTracksWithFilePathAsync(string filePath, int excludeId);

@@ -26,6 +26,16 @@ public partial class AudioMixerPage : ContentPage
         BindingContext = vm;
     }
 
+#if WINDOWS
+    // Raccourcis clavier du mixeur (Ctrl+flèches, Ctrl+Entrée...), cf. Platforms/Windows/MixerShortcuts.
+    protected override void OnHandlerChanged()
+    {
+        base.OnHandlerChanged();
+        if (Handler?.PlatformView is Microsoft.UI.Xaml.UIElement element)
+            Platforms.Windows.MixerShortcuts.Attach(element, _vm);
+    }
+#endif
+
     // Ouvrir le Mixer sans rien avoir chargé (onglet toujours visible, cf. AppShell) affichait un
     // état vide avec le "+" désactivé (HasActiveScene) sans indiquer comment en sortir. Charger la
     // scène orpheline automatiquement dans ce cas précis - jamais si une scène est déjà active,

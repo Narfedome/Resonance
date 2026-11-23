@@ -187,10 +187,10 @@
     <value>Scène</value>
   </data>
   <data name="MixerPrevScene" xml:space="preserve">
-    <value>Scène précédente</value>
+    <value>Scène précédente (Ctrl+←)</value>
   </data>
   <data name="MixerNextScene" xml:space="preserve">
-    <value>Scène suivante</value>
+    <value>Scène suivante (Ctrl+→)</value>
   </data>
   <data name="MixerFreeform" xml:space="preserve">
     <value>Scène libre</value>
@@ -199,13 +199,13 @@
     <value>Global</value>
   </data>
   <data name="MixerPlayAll" xml:space="preserve">
-    <value>Tout lancer</value>
+    <value>Tout lancer (Ctrl+Entrée)</value>
   </data>
   <data name="MixerFadeOutAll" xml:space="preserve">
-    <value>Tout couper en fondu</value>
+    <value>Tout couper en fondu (Ctrl+Espace)</value>
   </data>
   <data name="MixerStopAll" xml:space="preserve">
-    <value>Tout arrêter</value>
+    <value>Tout arrêter (Ctrl+Retour arrière)</value>
   </data>
   <data name="ChannelLoop" xml:space="preserve">
     <value>Boucle</value>
@@ -715,7 +715,7 @@
     <value>Commandes globales</value>
   </data>
   <data name="TourMixerGlobalBody" xml:space="preserve">
-    <value>Lancez tous les canaux, coupez-les en fondu ou arrêtez tout d'un coup.</value>
+    <value>Lancez tous les canaux, coupez-les en fondu ou arrêtez tout d'un coup. Le curseur en dessous règle le volume général sans toucher au volume de chaque canal.</value>
   </data>
   <data name="TourMixerFreeformTitle" xml:space="preserve">
     <value>Scène libre</value>
@@ -994,6 +994,18 @@
   </data>
   <data name="TrackChangeFile" xml:space="preserve">
     <value>Changer de fichier</value>
+  </data>
+  <data name="MixerMasterVolume" xml:space="preserve">
+    <value>Volume général (Ctrl+↑ / Ctrl+↓)</value>
+  </data>
+  <data name="LibSearchNoResults" xml:space="preserve">
+    <value>Aucune piste ne correspond à cette recherche.</value>
+  </data>
+  <data name="LibSearchPlaceholder" xml:space="preserve">
+    <value>Rechercher une piste</value>
+  </data>
+  <data name="MixerMasterVolumeName" xml:space="preserve">
+    <value>Volume général</value>
   </data>
   <data name="SettingsCrashLogDesc" xml:space="preserve">
     <value>Journal d'erreurs, à joindre à votre signalement</value>

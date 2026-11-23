@@ -62,10 +62,10 @@ public class TrackSaveFailingLibraryDataService : ILibraryDataService
 
     public Task DeleteLibraryItem(LibraryItem item) => _inner.DeleteLibraryItem(item);
     public Task<List<Track>> DeleteAllTracksAsync() => _inner.DeleteAllTracksAsync();
-    public Task<List<int>> GetItemIdsAsync(Type currentLibraryType, string? category) => _inner.GetItemIdsAsync(currentLibraryType, category);
+    public Task<List<int>> GetItemIdsAsync(Type currentLibraryType, string? category, string? search = null) => _inner.GetItemIdsAsync(currentLibraryType, category, search);
     public Task<List<LibraryItem>> DeleteItemsAsync(Type currentLibraryType, IEnumerable<int> ids) => _inner.DeleteItemsAsync(currentLibraryType, ids);
     public Task<List<LibraryItem>> GetAllItemsTypeAsync(Type currentLibraryType) => _inner.GetAllItemsTypeAsync(currentLibraryType);
-    public Task<List<LibraryItem>> GetItemsPageAsync(Type currentLibraryType, int skip, int take, string? category = null) => _inner.GetItemsPageAsync(currentLibraryType, skip, take, category);
+    public Task<List<LibraryItem>> GetItemsPageAsync(Type currentLibraryType, int skip, int take, string? category = null, string? search = null) => _inner.GetItemsPageAsync(currentLibraryType, skip, take, category, search);
     public Task<Track?> FindTrackByHashAsync(string hash, int excludeId) => _inner.FindTrackByHashAsync(hash, excludeId);
     public Task UpdateTrackImagePathAsync(int trackId, string imagePath) => _inner.UpdateTrackImagePathAsync(trackId, imagePath);
     public Task<int> CountTracksWithFilePathAsync(string filePath, int excludeId) => _inner.CountTracksWithFilePathAsync(filePath, excludeId);

@@ -1054,6 +1054,38 @@ public class LibraryDataServiceTests : DatabaseTestBase
         Assert.All(page, item => Assert.IsType<Spell>(item));
     }
 
+    [Fact]
+    public async Task Search_FindsTracksByPartOfTheirTitle_IgnoringCase_AndCombinesWithTheCategory()
+    {
+        var rain = MakeTrack("Pluie sur la Taverne", category: "Ambiance");
+        var tavernTheme = MakeTrack("Thème de la taverne", category: "Musique");
+        var forest = MakeTrack("Forêt la nuit", category: "Ambiance");
+        foreach (var t in new[] { rain, tavernTheme, forest })
+            await Service.SaveLibraryItemAsync(t);
+
+        var page = await Service.GetItemsPageAsync(typeof(Track), 0, 10, category: null, search: "  TAVERNE ");
+        Assert.Equal(new[] { rain.Id, tavernTheme.Id }, page.Select(t => t.Id).Order());
+
+        var inCategory = await Service.GetItemsPageAsync(typeof(Track), 0, 10, category: "Ambiance", search: "taverne");
+        Assert.Equal(rain.Id, inCategory.Single().Id);
+
+        Assert.Equal(new[] { rain.Id, tavernTheme.Id }, (await Service.GetItemIdsAsync(typeof(Track), null, "taverne")).Order());
+        Assert.Equal(new[] { rain.Id }, await Service.GetItemIdsAsync(typeof(Track), "Ambiance", "taverne"));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task Search_WithBlankText_ReturnsEverything(string? search)
+    {
+        await Service.SaveLibraryItemAsync(MakeTrack("A"));
+        await Service.SaveLibraryItemAsync(MakeTrack("B"));
+
+        Assert.Equal(2, (await Service.GetItemsPageAsync(typeof(Track), 0, 10, search: search)).Count);
+        Assert.Equal(2, (await Service.GetItemIdsAsync(typeof(Track), null, search)).Count);
+    }
+
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
