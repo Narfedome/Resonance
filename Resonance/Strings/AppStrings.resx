@@ -1019,4 +1019,16 @@
   <data name="SettingsCrashLogShow" xml:space="preserve">
     <value>Afficher le fichier</value>
   </data>
+  <data name="ChannelMute" xml:space="preserve">
+    <value>Couper le son</value>
+  </data>
+  <data name="ChannelOneShot" xml:space="preserve">
+    <value>Effet ponctuel</value>
+  </data>
+  <data name="ChannelTrigger" xml:space="preserve">
+    <value>Déclencher l&apos;effet</value>
+  </data>
+  <data name="ChannelUnmute" xml:space="preserve">
+    <value>Rétablir le son</value>
+  </data>
 </root>

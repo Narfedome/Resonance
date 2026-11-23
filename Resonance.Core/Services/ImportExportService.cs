@@ -193,7 +193,8 @@ namespace Resonance.Services
                                 AutoPlay = sceneTrack.AutoPlay,
                                 IsLooping = sceneTrack.IsLooping,
                                 FadeIn = sceneTrack.FadeIn,
-                                FadeOut = sceneTrack.FadeOut
+                                FadeOut = sceneTrack.FadeOut,
+                                IsOneShot = sceneTrack.IsOneShot
                             });
                         }
                     }
@@ -701,7 +702,8 @@ namespace Resonance.Services
                     AutoPlay = sceneTrackExport.AutoPlay,
                     IsLooping = sceneTrackExport.IsLooping,
                     FadeIn = sceneTrackExport.FadeIn,
-                    FadeOut = sceneTrackExport.FadeOut
+                    FadeOut = sceneTrackExport.FadeOut,
+                    IsOneShot = sceneTrackExport.IsOneShot
                 });
             }
         }

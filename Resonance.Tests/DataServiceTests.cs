@@ -133,7 +133,7 @@ public class SceneDataServiceTests : DatabaseTestBase
         var sceneTrack = new SceneTrack { SceneId = 1, Track = track, Volume = 1.0 };
         await Service.SaveSceneTrackAsync(sceneTrack);
 
-        await Service.UpdateSceneTrackAsync(sceneTrack.Id, volume: 0.5, isLooping: false, autoPlay: true, fadeIn: true, fadeOut: true);
+        await Service.UpdateSceneTrackAsync(sceneTrack.Id, volume: 0.5, isLooping: false, autoPlay: true, fadeIn: true, fadeOut: true, isOneShot: true);
 
         var loaded = (await Service.GetSceneTracksAsync(1)).Single();
         Assert.Equal(0.5, loaded.Volume);
@@ -141,6 +141,7 @@ public class SceneDataServiceTests : DatabaseTestBase
         Assert.True(loaded.AutoPlay);
         Assert.True(loaded.FadeIn);
         Assert.True(loaded.FadeOut);
+        Assert.True(loaded.IsOneShot);
     }
 
     [Fact]
@@ -286,7 +287,7 @@ public class SceneDataServiceTests : DatabaseTestBase
     [Fact]
     public async Task UpdateSceneTrack_WithUnknownId_IsANoOp()
     {
-        await Service.UpdateSceneTrackAsync(9999, 0.5, true, true, true, true);
+        await Service.UpdateSceneTrackAsync(9999, 0.5, true, true, true, true, true);
         await Service.UpdateSceneTrackSettingsAsync(9999, 0.5, true, true, true);
         await Service.UpdateSceneTrackVolumeAsync(9999, 0.5f);
 
@@ -444,7 +445,7 @@ public class FreshDatabaseTests
                 "GetSceneTracks" => scenes.GetSceneTracksAsync(1),
                 "SaveSceneTrack" => scenes.SaveSceneTrackAsync(new SceneTrack { SceneId = 1, Track = new Track { Id = 1 } }),
                 "DeleteSceneTrack" => scenes.DeleteSceneTrackAsync(new SceneTrack { Id = 1, Track = new Track() }),
-                "UpdateSceneTrack" => scenes.UpdateSceneTrackAsync(1, 0.5, true, true, true, true),
+                "UpdateSceneTrack" => scenes.UpdateSceneTrackAsync(1, 0.5, true, true, true, true, true),
                 "UpdateSceneTrackSettings" => scenes.UpdateSceneTrackSettingsAsync(1, 0.5, true, true, true),
                 "UpdateSceneTrackVolume" => scenes.UpdateSceneTrackVolumeAsync(1, 0.5f),
                 "Reorder" => scenes.ReorderScenesAsync(new List<int> { 1 }),
@@ -614,7 +615,7 @@ public class AppDatabaseMigrationTests
             """, c =>
         {
             // La boucle était le comportement par défaut avant l'ajout du réglage : elle doit le rester.
-            Assert.Equal(new[] { "1|0|0" }, Column(c, "SELECT IsLooping || '|' || FadeIn || '|' || FadeOut FROM SceneTrackEntity"));
+            Assert.Equal(new[] { "1|0|0|0" }, Column(c, "SELECT IsLooping || '|' || FadeIn || '|' || FadeOut || '|' || IsOneShot FROM SceneTrackEntity"));
             Assert.Equal(new[] { "|" }, Column(c, "SELECT Hash || '|' || Category FROM TrackEntity"));
             return Task.CompletedTask;
         });

@@ -40,6 +40,7 @@ namespace Resonance.Data
             await AddColumnIfMissingAsync("SceneTrackEntity", "IsLooping INTEGER NOT NULL DEFAULT 1");
             await AddColumnIfMissingAsync("SceneTrackEntity", "FadeIn INTEGER NOT NULL DEFAULT 0");
             await AddColumnIfMissingAsync("SceneTrackEntity", "FadeOut INTEGER NOT NULL DEFAULT 0");
+            await AddColumnIfMissingAsync("SceneTrackEntity", "IsOneShot INTEGER NOT NULL DEFAULT 0");
             await AddColumnIfMissingAsync("TrackEntity", "Hash TEXT NOT NULL DEFAULT ''");
             await AddColumnIfMissingAsync("TrackEntity", "Category TEXT NOT NULL DEFAULT ''");
             await AddColumnIfMissingAsync("TrackEntity", "SearchTitle TEXT NOT NULL DEFAULT ''");

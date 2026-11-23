@@ -25,5 +25,6 @@ namespace Resonance.Data.Entities
         public bool FadeIn { get; set; } = false;
 
         public bool FadeOut { get; set; } = false;
+        public bool IsOneShot { get; set; } = false;
     }
 }

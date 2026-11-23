@@ -220,7 +220,7 @@ namespace Resonance.Services
             await _db.Connection.DeleteAsync<SceneTrackEntity>(sceneTrack.Id);
         }
 
-        public async Task UpdateSceneTrackAsync(int sceneTrackId, double volume, bool isLooping, bool autoPlay, bool fadeIn, bool fadeOut)
+        public async Task UpdateSceneTrackAsync(int sceneTrackId, double volume, bool isLooping, bool autoPlay, bool fadeIn, bool fadeOut, bool isOneShot)
         {
             await _db.Initialization;
             var entity = await _db.Connection.FindAsync<SceneTrackEntity>(sceneTrackId);
@@ -230,6 +230,7 @@ namespace Resonance.Services
             entity.AutoPlay = autoPlay;
             entity.FadeIn = fadeIn;
             entity.FadeOut = fadeOut;
+            entity.IsOneShot = isOneShot;
             await _db.Connection.UpdateAsync(entity);
         }
 
@@ -313,7 +314,7 @@ namespace Resonance.Services
         Task<List<SceneTrack>> GetSceneTracksAsync(int sceneId);
         Task SaveSceneTrackAsync(SceneTrack sceneTrack);
         Task DeleteSceneTrackAsync(SceneTrack sceneTrack);
-        Task UpdateSceneTrackAsync(int sceneTrackId, double volume, bool isLooping, bool autoPlay, bool fadeIn, bool fadeOut);
+        Task UpdateSceneTrackAsync(int sceneTrackId, double volume, bool isLooping, bool autoPlay, bool fadeIn, bool fadeOut, bool isOneShot);
         Task UpdateSceneTrackSettingsAsync(int sceneTrackId, double volume, bool isLooping, bool fadeIn, bool fadeOut);
         Task UpdateSceneTrackVolumeAsync(int sceneTrackId, float volume);
         Task ReorderSceneTracksAsync(List<int> orderedSceneTrackIds);

@@ -47,6 +47,7 @@ namespace Resonance.Models.ImportExport
         public bool IsLooping { get; set; }
         public bool FadeIn { get; set; }
         public bool FadeOut { get; set; }
+        public bool IsOneShot { get; set; }
     }
 
     /// <summary>

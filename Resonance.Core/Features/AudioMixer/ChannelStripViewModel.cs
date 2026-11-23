@@ -49,8 +49,8 @@ namespace Resonance.Components
                 _player = value;
                 if (_player != null)
                 {
-                    _player.Volume = Volume * MasterVolume;
-                    _player.Loop = IsLooping;
+                    _player.Volume = Volume * OutputGain;
+                    _player.Loop = IsLooping && !IsOneShot;
                     _player.PlaybackEnded += OnPlaybackEnded;
                 }
             }
@@ -171,17 +171,65 @@ namespace Resonance.Components
         [ObservableProperty]
         private double masterVolume = 1;
 
-        partial void OnMasterVolumeChanged(double value)
+        partial void OnMasterVolumeChanged(double value) => ApplyOutputGain();
+
+        /// <summary>
+        /// Canal coupé sans être arrêté : la piste continue d'avancer en silence et reprend au même
+        /// endroit quand on rétablit le son. Réglage du moment, pas enregistré avec la scène.
+        /// </summary>
+        [ObservableProperty]
+        private bool isMuted;
+
+        partial void OnIsMutedChanged(bool value) => ApplyOutputGain();
+
+        [RelayCommand]
+        public void ToggleMute() => IsMuted = !IsMuted;
+
+        // Gain appliqué au volume du canal avant de l'envoyer au lecteur : volume général du mixeur,
+        // ou rien du tout si le canal est coupé.
+        private double OutputGain => IsMuted ? 0 : MasterVolume;
+
+        private void ApplyOutputGain()
         {
-            // Pendant un fondu, le palier suivant applique déjà le nouveau volume général.
+            // Pendant un fondu, le palier suivant applique déjà le nouveau gain.
             if (Player != null && _fadeCts == null)
-                Player.Volume = Volume * value;
+                Player.Volume = Volume * OutputGain;
+        }
+
+        /// <summary>
+        /// Effet ponctuel (porte qui grince, coup de tonnerre...) : chaque appui sur lecture rejoue le
+        /// son depuis le début, même s'il est déjà en cours, et il ne boucle jamais. Enregistré avec la
+        /// piste de scène.
+        /// </summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ShowsProgress))]
+        private bool isOneShot;
+
+        partial void OnIsOneShotChanged(bool value)
+        {
+            if (Player != null)
+                Player.Loop = IsLooping && !value;
+        }
+
+        /// <summary>Position dans la piste (0 à 1), relue par RefreshProgress pendant la lecture.</summary>
+        [ObservableProperty]
+        private double progress;
+
+        // Une piste en boucle n'a pas de fin à anticiper : la barre n'est utile que pour une piste
+        // jouée une fois (ou un effet ponctuel).
+        public bool ShowsProgress => !IsLooping || IsOneShot;
+
+        /// <summary>Relit la position du lecteur ; appelé régulièrement par la page du mixeur.</summary>
+        public void RefreshProgress()
+        {
+            var duration = Player?.Duration ?? 0;
+            Progress = duration > 0 ? Math.Clamp(Player!.CurrentPosition / duration, 0, 1) : 0;
         }
 
         partial void OnVolumeChanged(double oldValue, double newValue)
         {
             if (Player != null)
-                Player.Volume = newValue * MasterVolume;
+                Player.Volume = newValue * OutputGain;
 
             if (Track != null)
                 Track.Volume = newValue;
@@ -196,7 +244,8 @@ namespace Resonance.Components
         partial void OnIsLoopingChanged(bool value)
         {
             if (Player != null)
-                Player.Loop = value;
+                Player.Loop = value && !IsOneShot;
+            OnPropertyChanged(nameof(ShowsProgress));
         }
 
         [RelayCommand]
@@ -204,6 +253,12 @@ namespace Resonance.Components
         {
             if (Player == null)
                 return;
+
+            if (IsOneShot)
+            {
+                Trigger();
+                return;
+            }
 
             if (Player.IsPlaying)
             {
@@ -229,7 +284,25 @@ namespace Resonance.Components
                 return;
             }
 
-            Player.Volume = Volume * MasterVolume;
+            Player.Volume = Volume * OutputGain;
+            LiveVolume = Volume;
+            Player.Play();
+            IsPlaying = true;
+        }
+
+        /// <summary>
+        /// Effet ponctuel : repart du début à chaque appui, sans fondu (un effet doit partir tout de
+        /// suite), qu'il soit déjà en cours ou non.
+        /// </summary>
+        private void Trigger()
+        {
+            if (Player == null)
+                return;
+
+            CancelFade();
+            Player.Loop = false;
+            Player.Seek(0);
+            Player.Volume = Volume * OutputGain;
             LiveVolume = Volume;
             Player.Play();
             IsPlaying = true;
@@ -267,14 +340,14 @@ namespace Resonance.Components
                     if (Player != null)
                     {
                         var stepVolume = Math.Min(targetVolume, volumeStep * (i + 1));
-                        Player.Volume = stepVolume * MasterVolume;
+                        Player.Volume = stepVolume * OutputGain;
                         LiveVolume = stepVolume;
                     }
                 }
 
                 if (Player != null)
                 {
-                    Player.Volume = targetVolume * MasterVolume;
+                    Player.Volume = targetVolume * OutputGain;
                     LiveVolume = targetVolume;
                 }
             }
@@ -282,7 +355,7 @@ namespace Resonance.Components
             {
                 if (Player != null)
                 {
-                    Player.Volume = targetVolume * MasterVolume;
+                    Player.Volume = targetVolume * OutputGain;
                     LiveVolume = targetVolume;
                 }
             }
@@ -361,7 +434,7 @@ namespace Resonance.Components
                     if (Player != null)
                     {
                         var stepVolume = Math.Max(0, startVolume - volumeStep * (i + 1));
-                        Player.Volume = stepVolume * MasterVolume;
+                        Player.Volume = stepVolume * OutputGain;
                         LiveVolume = stepVolume;
                     }
                 }
@@ -369,7 +442,7 @@ namespace Resonance.Components
                 if (Player != null)
                 {
                     Player.Stop();
-                    Player.Volume = startVolume * MasterVolume;
+                    Player.Volume = startVolume * OutputGain;
                     LiveVolume = startVolume;
                     IsPlaying = false;
                 }
@@ -378,7 +451,7 @@ namespace Resonance.Components
             {
                 if (Player != null)
                 {
-                    Player.Volume = startVolume * MasterVolume;
+                    Player.Volume = startVolume * OutputGain;
                     LiveVolume = startVolume;
                 }
             }

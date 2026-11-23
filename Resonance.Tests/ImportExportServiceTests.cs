@@ -217,7 +217,7 @@ public class ImportExportServiceTests : IDisposable
         await ctx.Scenes.SaveSceneTrackAsync(new SceneTrack
         {
             SceneId = scene.Id, Track = track, Position = 2, Volume = 0.42,
-            AutoPlay = true, IsLooping = false, FadeIn = true, FadeOut = false
+            AutoPlay = true, IsLooping = false, FadeIn = true, FadeOut = false, IsOneShot = true
         });
 
         using var zipStream = new MemoryStream();
@@ -244,6 +244,7 @@ public class ImportExportServiceTests : IDisposable
         Assert.False(importedSceneTrack.IsLooping);
         Assert.True(importedSceneTrack.FadeIn);
         Assert.False(importedSceneTrack.FadeOut);
+        Assert.True(importedSceneTrack.IsOneShot);
     }
 
     [Fact]

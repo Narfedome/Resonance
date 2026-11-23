@@ -13,16 +13,24 @@
          l'espace vertical disponible/manquant pour le slider, avec MinimumHeightRequest comme
          plancher d'utilisabilité ; le nom de piste garde sa ligne "Auto", dimensionnée à son
          contenu réel (cf. RotatedLabelView). -->
-    <Grid RowDefinitions="Auto,Auto,*,auto" RowSpacing="8">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,auto" RowSpacing="8">
         <components:FaIconButtonView Grid.Row="0"
                                      Icon="{Binding IsPlaying, Converter={StaticResource BoolToPlayPauseConverter}}"
                                      Command="{Binding TogglePlayCommand}"
                                      Tooltip="{Binding IsPlaying, Converter={StaticResource BoolToTooltipPlayPauseConverter}}"
+                                     IsVisible="{Binding IsOneShot, Converter={StaticResource InverseBoolConverter}}"
                                      HorizontalOptions="Center">
             <components:FaIconButtonView.Behaviors>
                 <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelPlayKey}"/>
             </components:FaIconButtonView.Behaviors>
         </components:FaIconButtonView>
+        <!-- Effet ponctuel : un éclair au lieu de lecture/pause, chaque appui rejoue depuis le début. -->
+        <components:FaIconButtonView Grid.Row="0"
+                                     Icon="{x:Static icons:SolidFont.Bolt}"
+                                     Command="{Binding TogglePlayCommand}"
+                                     Tooltip="{loc:Loc ChannelTrigger}"
+                                     IsVisible="{Binding IsOneShot}"
+                                     HorizontalOptions="Center"/>
         <components:FaIconButtonView Grid.Row="1"
                                      Icon="{x:Static icons:SolidFont.Stop}"
                                      Command="{Binding StopPlaybackCommand}"
@@ -32,8 +40,28 @@
                 <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelStopKey}"/>
             </components:FaIconButtonView.Behaviors>
         </components:FaIconButtonView>
+        <!-- Couper le son sans arrêter : la piste continue d'avancer en silence. -->
+        <components:FaIconButtonView Grid.Row="2"
+                                     Icon="{x:Static icons:SolidFont.VolumeHigh}"
+                                     Command="{Binding ToggleMuteCommand}"
+                                     Tooltip="{loc:Loc ChannelMute}"
+                                     IsVisible="{Binding IsMuted, Converter={StaticResource InverseBoolConverter}}"
+                                     HorizontalOptions="Center"/>
+        <components:FaIconButtonView Grid.Row="2"
+                                     Icon="{x:Static icons:SolidFont.VolumeXmark}"
+                                     Command="{Binding ToggleMuteCommand}"
+                                     Tooltip="{loc:Loc ChannelUnmute}"
+                                     IsVisible="{Binding IsMuted}"
+                                     HorizontalOptions="Center"/>
 
-        <components:ChannelVolumeSliderView Grid.Row="2"
+        <!-- Position dans la piste, seulement pour une piste qui ne boucle pas (cf. ShowsProgress). -->
+        <ProgressBar Grid.Row="3"
+                     Progress="{Binding Progress}"
+                     ProgressColor="{DynamicResource AppAccent}"
+                     IsVisible="{Binding ShowsProgress}"
+                     Margin="6,0"/>
+
+        <components:ChannelVolumeSliderView Grid.Row="4"
                                       Value="{Binding Volume, Mode=TwoWay}"
                                       ValueText="{Binding DisplayVolume}"
                                       Minimum="0" Maximum="1"
@@ -44,7 +72,7 @@
             </components:ChannelVolumeSliderView.Behaviors>
         </components:ChannelVolumeSliderView>
 
-        <components:RotatedLabelView Grid.Row="3"
+        <components:RotatedLabelView Grid.Row="5"
                AutomationId="MixerChannelTrackName"
                Text="{Binding DisplayTrackName}"
                HorizontalOptions="Center"

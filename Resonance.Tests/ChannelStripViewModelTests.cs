@@ -599,6 +599,165 @@ public class ChannelStripViewModelTests : IDisposable
         Assert.Equal(0.5, vm.MasterVolume);
     }
 
+    // --- Canal coupé ---
+
+    [Fact]
+    public void Mute_SilencesThePlayer_WithoutStoppingIt_ThenRestoresTheVolume()
+    {
+        var (vm, player) = MakeStrip(volume: 0.8);
+        vm.MasterVolume = 0.5;
+        vm.Play();
+
+        vm.ToggleMute();
+        Assert.True(vm.IsMuted);
+        Assert.Equal(0, player.Volume);
+        Assert.True(player.IsPlaying);
+        Assert.Equal(0.8, vm.Volume);
+
+        vm.ToggleMute();
+        Assert.False(vm.IsMuted);
+        Assert.Equal(0.4, player.Volume, 6);
+    }
+
+    [Fact]
+    public void Mute_StaysSilentThroughVolumeChanges_PlayAndNewPlayers()
+    {
+        var (vm, player) = MakeStrip(volume: 0.8);
+        vm.IsMuted = true;
+
+        vm.Volume = 0.6;
+        Assert.Equal(0, player.Volume);
+        vm.Play();
+        Assert.Equal(0, player.Volume);
+
+        var newPlayer = new FakeAudioPlayer();
+        vm.Player = newPlayer;
+        Assert.Equal(0, newPlayer.Volume);
+    }
+
+    [Fact]
+    public async Task Mute_DuringAFade_IsPickedUpByTheNextSteps()
+    {
+        var (vm, player) = MakeStrip(volume: 0.9);
+        vm.Play();
+        var fade = vm.FadeOut();
+        await WaitUntilAsync(() => player.Volume < 0.9);
+        var countBefore = player.VolumeHistory.Count;
+
+        vm.IsMuted = true;
+        Assert.Equal(countBefore, player.VolumeHistory.Count);
+
+        await fade;
+        Assert.Equal(0, player.Volume);
+    }
+
+    // --- Effet ponctuel ---
+
+    [Fact]
+    public void OneShot_RestartsFromTheBeginningOnEveryTap_WithoutPausing()
+    {
+        var (vm, player) = MakeStrip(volume: 0.7);
+        vm.IsLooping = true;
+        vm.IsOneShot = true;
+
+        vm.TogglePlay();
+        player.MoveTo(42);
+        vm.TogglePlay();
+
+        Assert.Equal(new[] { "Seek", "Play", "Seek", "Play" }, player.Calls);
+        Assert.Equal(0, player.CurrentPosition);
+        Assert.True(vm.IsPlaying);
+        Assert.False(player.Loop);
+        Assert.Equal(0.7, player.Volume, 6);
+    }
+
+    [Fact]
+    public void OneShot_NeverLoops_AndLoopingComesBackWhenItIsTurnedOff()
+    {
+        var (vm, player) = MakeStrip();
+        vm.IsOneShot = true;
+
+        vm.IsLooping = true;
+        Assert.False(player.Loop);
+
+        vm.IsOneShot = false;
+        Assert.True(player.Loop);
+
+        vm.IsOneShot = true;
+        var newPlayer = new FakeAudioPlayer();
+        vm.Player = newPlayer;
+        Assert.False(newPlayer.Loop);
+    }
+
+    [Fact]
+    public async Task OneShot_CancelsARunningFade_AndIgnoresFadeIn()
+    {
+        var (vm, player) = MakeStrip(volume: 0.9);
+        vm.Play();
+        var fade = vm.FadeOut();
+        await WaitUntilAsync(() => player.Volume < 0.9);
+        vm.IsOneShot = true;
+        vm.IsFadeIn = true;
+
+        vm.TogglePlay();
+        await fade;
+
+        // Le fondu interrompu n'arrête pas l'effet relancé, et l'effet part à plein volume.
+        Assert.True(player.IsPlaying);
+        Assert.Equal(0.9, player.Volume, 6);
+        Assert.DoesNotContain("Stop", player.Calls);
+    }
+
+    // --- Progression ---
+
+    [Fact]
+    public void RefreshProgress_ReadsThePlayerPosition()
+    {
+        var (vm, player) = MakeStrip();
+
+        player.MoveTo(25);
+        vm.RefreshProgress();
+        Assert.Equal(0.25, vm.Progress, 6);
+
+        player.MoveTo(150);
+        vm.RefreshProgress();
+        Assert.Equal(1, vm.Progress);
+    }
+
+    [Fact]
+    public void RefreshProgress_WithoutPlayer_IsZero()
+    {
+        var vm = new ChannelStripViewModel { Progress = 0.5 };
+
+        vm.RefreshProgress();
+
+        Assert.Equal(0, vm.Progress);
+    }
+
+    [Theory]
+    [InlineData(true, false, false)]
+    [InlineData(false, false, true)]
+    [InlineData(true, true, true)]
+    public void ShowsProgress_OnlyForTracksThatEnd(bool isLooping, bool isOneShot, bool expected)
+    {
+        var vm = new ChannelStripViewModel { IsLooping = isLooping, IsOneShot = isOneShot };
+
+        Assert.Equal(expected, vm.ShowsProgress);
+    }
+
+    [Fact]
+    public void ShowsProgress_IsNotifiedWhenLoopOrOneShotChange()
+    {
+        var vm = new ChannelStripViewModel { IsLooping = true };
+        var notified = new List<string?>();
+        vm.PropertyChanged += (_, e) => notified.Add(e.PropertyName);
+
+        vm.IsLooping = false;
+        vm.IsOneShot = true;
+
+        Assert.Equal(2, notified.Count(n => n == nameof(vm.ShowsProgress)));
+    }
+
     [Fact]
     public async Task Play_AfterPauseDuringFadeOut_CancelsTheFadeOut()
     {
@@ -661,6 +820,7 @@ internal sealed class FakeAudioPlayer : IAudioPlayer
     public void Pause() { IsPlaying = false; Calls.Add("Pause"); }
     public void Stop() { IsPlaying = false; Calls.Add("Stop"); }
     public void Seek(double position) { CurrentPosition = position; LastSeek = position; Calls.Add("Seek"); }
+    public void MoveTo(double position) => CurrentPosition = position;
     public void SetSource(Stream stream) { }
     public void Dispose() => Calls.Add("Dispose");
 

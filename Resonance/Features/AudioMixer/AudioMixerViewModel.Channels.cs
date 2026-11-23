@@ -177,7 +177,8 @@ namespace Resonance.Features.AudioMixer
                     channel.IsLooping,
                     channel.IsFadeIn,
                     channel.IsFadeOut,
-                    persisted.AutoPlay);
+                    persisted.AutoPlay,
+                    channel.IsOneShot);
 
                 var saved = await ShowDialogAsync(new ChannelSettingsDialog(dialogViewModel));
                 if (!saved)
@@ -188,6 +189,7 @@ namespace Resonance.Features.AudioMixer
                 channel.IsFadeIn = dialogViewModel.FadeIn;
                 channel.IsFadeOut = dialogViewModel.FadeOut;
                 channel.IsAutoPlay = dialogViewModel.AutoPlay;
+                channel.IsOneShot = dialogViewModel.IsOneShot;
 
                 // Les affectations ci-dessus viennent de déclencher une sauvegarde debouncée,
                 // redondante avec la sauvegarde immédiate et complète qui suit : on l'annule.
@@ -198,7 +200,7 @@ namespace Resonance.Features.AudioMixer
                 }
 
                 await _sceneDataService.UpdateSceneTrackAsync(
-                    channel.SceneTrackId, dialogViewModel.Volume, dialogViewModel.IsLooping, dialogViewModel.AutoPlay, dialogViewModel.FadeIn, dialogViewModel.FadeOut);
+                    channel.SceneTrackId, dialogViewModel.Volume, dialogViewModel.IsLooping, dialogViewModel.AutoPlay, dialogViewModel.FadeIn, dialogViewModel.FadeOut, dialogViewModel.IsOneShot);
             }
             finally
             {
@@ -305,6 +307,7 @@ namespace Resonance.Features.AudioMixer
                 IsLooping = channel.IsLooping,
                 FadeIn = channel.IsFadeIn,
                 FadeOut = channel.IsFadeOut,
+                IsOneShot = channel.IsOneShot,
                 AutoPlay = channel.IsPlaying,
                 Position = CurrentChannels.IndexOf(channel)
             };
@@ -388,6 +391,7 @@ namespace Resonance.Features.AudioMixer
                 IsFadeIn = st.FadeIn,
                 IsFadeOut = st.FadeOut,
                 IsAutoPlay = st.AutoPlay,
+                IsOneShot = st.IsOneShot,
                 MasterVolume = MasterVolume,
                 IsLoading = true
             }).ToList();
