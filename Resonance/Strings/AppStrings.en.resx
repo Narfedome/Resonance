@@ -715,7 +715,7 @@
     <value>Global controls</value>
   </data>
   <data name="TourMixerGlobalBody" xml:space="preserve">
-    <value>Play every channel, fade them all out, or stop everything at once.</value>
+    <value>Play every channel, fade them all out, or stop everything at once. The slider below sets the master volume without changing each channel's own volume.</value>
   </data>
   <data name="TourMixerFreeformTitle" xml:space="preserve">
     <value>Free scene</value>
@@ -1003,5 +1003,8 @@
   </data>
   <data name="LibSearchPlaceholder" xml:space="preserve">
     <value>Search tracks</value>
+  </data>
+  <data name="MixerMasterVolumeName" xml:space="preserve">
+    <value>Master volume</value>
   </data>
 </root>

@@ -44,7 +44,7 @@
                 <Slider Grid.Column="1" Minimum="0" Maximum="1" VerticalOptions="Center"
                         Value="{Binding MasterVolume}"
                         ToolTipProperties.Text="{loc:Loc MixerMasterVolume}"
-                        SemanticProperties.Description="{loc:Loc MixerMasterVolume}" />
+                        SemanticProperties.Description="{loc:Loc MixerMasterVolumeName}" />
                 <Label Grid.Column="2" Text="{Binding DisplayMasterVolume}" VerticalOptions="Center"
                        HorizontalTextAlignment="End" MinimumWidthRequest="28"/>
             </Grid>

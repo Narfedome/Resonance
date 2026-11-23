@@ -715,7 +715,7 @@
     <value>Commandes globales</value>
   </data>
   <data name="TourMixerGlobalBody" xml:space="preserve">
-    <value>Lancez tous les canaux, coupez-les en fondu ou arrêtez tout d'un coup.</value>
+    <value>Lancez tous les canaux, coupez-les en fondu ou arrêtez tout d'un coup. Le curseur en dessous règle le volume général sans toucher au volume de chaque canal.</value>
   </data>
   <data name="TourMixerFreeformTitle" xml:space="preserve">
     <value>Scène libre</value>
@@ -1003,5 +1003,8 @@
   </data>
   <data name="LibSearchPlaceholder" xml:space="preserve">
     <value>Rechercher une piste</value>
+  </data>
+  <data name="MixerMasterVolumeName" xml:space="preserve">
+    <value>Volume général</value>
   </data>
 </root>
