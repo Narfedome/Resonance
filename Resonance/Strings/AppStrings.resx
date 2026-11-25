@@ -196,7 +196,7 @@
     <value>Global</value>
   </data>
   <data name="MixerPlayAll" xml:space="preserve">
-    <value>Tout lancer (Ctrl+Entrée)</value>
+    <value>Lancer les ambiances et musiques (Ctrl+Entrée)</value>
   </data>
   <data name="MixerFadeOutAll" xml:space="preserve">
     <value>Tout couper en fondu (Ctrl+Espace)</value>
@@ -700,7 +700,7 @@
     <value>Commandes globales</value>
   </data>
   <data name="TourMixerGlobalBody" xml:space="preserve">
-    <value>Lancez tous les canaux, coupez-les en fondu ou arrêtez tout d&apos;un coup. Le curseur à côté règle le volume général sans toucher au volume de chaque canal.</value>
+    <value>Lancez toutes les ambiances et musiques, coupez tout en fondu ou arrêtez tout d&apos;un coup. Le curseur à côté règle le volume général sans toucher au volume de chaque canal.</value>
   </data>
   <data name="TourMixerFreeformTitle" xml:space="preserve">
     <value>Scène libre</value>

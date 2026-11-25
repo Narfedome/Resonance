@@ -40,10 +40,12 @@ namespace Resonance.Features.AudioMixer
             Preferences.Default.Set(MasterVolumeKey, value);
         }
 
+        // Ambiances et musiques seulement : un effet joue une fois, au moment choisi - "tout lancer"
+        // les déclencherait tous d'un coup, en même temps que l'ambiance.
         [RelayCommand]
         public void PlayAll()
         {
-            foreach (var c in CurrentChannels)
+            foreach (var c in CurrentChannels.Where(c => !c.IsOneShot))
                 c.Play();
         }
 

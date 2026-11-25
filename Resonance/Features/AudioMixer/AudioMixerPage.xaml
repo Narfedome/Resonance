@@ -12,15 +12,23 @@
              x:DataType="local:AudioMixerViewModel">
 
     <ContentPage.Resources>
-        <!-- Bouton "ajouter" au bas de chaque liste, là où le nouveau canal apparaîtra. -->
-        <Style x:Key="MixerAddButtonStyle" TargetType="Button">
-            <Setter Property="BackgroundColor" Value="Transparent"/>
-            <Setter Property="BorderColor" Value="{DynamicResource AppBorder}"/>
-            <Setter Property="BorderWidth" Value="1"/>
-            <Setter Property="CornerRadius" Value="12"/>
+        <!-- Rond "+" en fin de liste (après la dernière tranche, après le dernier pad) : sa place dit
+             à elle seule "un canal de plus ici", sans texte qui pèse. Style discret ("+" doré sur fond de surface sombre, sans contour) : il ne doit pas rivaliser avec les canaux. Le libellé complet reste en
+             infobulle et pour la lecture d'écran. -->
+        <Style x:Key="MixerAddRoundStyle" TargetType="Border">
+            <Setter Property="WidthRequest" Value="48"/>
+            <Setter Property="HeightRequest" Value="48"/>
+            <Setter Property="StrokeShape" Value="RoundRectangle 24"/>
+            <Setter Property="StrokeThickness" Value="0"/>
+            <Setter Property="BackgroundColor" Value="{DynamicResource AppSurface}"/>
+        </Style>
+        <Style x:Key="MixerAddRoundLabelStyle" TargetType="Label">
+            <Setter Property="Text" Value="{x:Static icons:SolidFont.Plus}"/>
+            <Setter Property="FontFamily" Value="FontSolid"/>
+            <Setter Property="FontSize" Value="18"/>
             <Setter Property="TextColor" Value="{DynamicResource AppAccent}"/>
-            <Setter Property="MinimumHeightRequest" Value="{DynamicResource AppMinTouchTarget}"/>
-            <Setter Property="Margin" Value="0,6,0,8"/>
+            <Setter Property="HorizontalOptions" Value="Center"/>
+            <Setter Property="VerticalOptions" Value="Center"/>
         </Style>
         <Style x:Key="MixerSectionTitleStyle" TargetType="Label">
             <Setter Property="FontAttributes" Value="Bold"/>
@@ -30,16 +38,13 @@
     </ContentPage.Resources>
 
     <components:WatermarkedLayout>
-    <Grid Padding="10" RowSpacing="8" RowDefinitions="auto,auto,auto,*,auto">
+    <Grid Padding="10" RowSpacing="8" RowDefinitions="auto,auto,*,auto">
 
         <components:MixerSceneSelectorView Grid.Row="0" />
-
-        <components:MixerGlobalControlsView Grid.Row="1" />
-
         <!-- Onglets (téléphone) : les ambiances et musiques qui tournent d'un côté, les effets
              qu'on déclenche de l'autre. Le point signale qu'un son de l'autre onglet joue : on ne
              cache jamais ce qui sonne. Sur Windows, les deux listes sont côte à côte (ShowTabs). -->
-        <Border Grid.Row="2" IsVisible="{Binding ShowTabs}"
+        <Border Grid.Row="1" IsVisible="{Binding ShowTabs}"
                 StrokeShape="RoundRectangle 12" Stroke="{DynamicResource AppBorder}" StrokeThickness="1"
                 Padding="4">
             <Border.Behaviors>
@@ -114,7 +119,7 @@
              l'ordre visuel (ZIndex) ne suffit pas à bloquer leurs interactions : chaque zone
              interactive est donc aussi désactivée via IsEnabled, en plus du blocage de la
              navigation Shell côté ViewModel. -->
-        <Grid Grid.RowSpan="5"
+        <Grid Grid.RowSpan="4"
               ZIndex="10"
               IsVisible="{Binding Loading.IsLoading}"
               BackgroundColor="{StaticResource AppOverlay}">
@@ -125,12 +130,12 @@
 
         <!-- Canaux : une colonne sur téléphone (selon l'onglet), deux côte à côte sur Windows
              (colonnes posées dans le code-behind, cf. IsSideBySide). -->
-        <Grid x:Name="ChannelsArea" Grid.Row="3" ColumnSpacing="16"
+        <Grid x:Name="ChannelsArea" Grid.Row="2" ColumnSpacing="16"
               IsEnabled="{Binding Loading.IsLoading, Converter={StaticResource InverseBoolConverter}}">
 
             <!-- Ambiances et musiques : tranches de console côte à côte, qui défilent
                  horizontalement au-delà de ce que montre l'écran. -->
-            <Grid x:Name="AmbiencePanel" RowDefinitions="auto,*,auto" IsVisible="{Binding ShowAmbiences}">
+            <Grid x:Name="AmbiencePanel" RowDefinitions="auto,*" IsVisible="{Binding ShowAmbiences}">
                 <Label Grid.Row="0" Text="{loc:Loc MixerTabAmbiences}" Style="{StaticResource MixerSectionTitleStyle}"
                        IsVisible="{Binding IsSideBySide}"/>
                 <!-- Pas de cadre autour des tranches : les traits de séparation suffisent. -->
@@ -156,16 +161,26 @@
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
+                        <!-- Après la dernière tranche : la place du prochain canal. -->
+                        <CollectionView.Footer>
+                            <Grid WidthRequest="{DynamicResource AppConsoleStripWidth}">
+                                <Border Style="{StaticResource MixerAddRoundStyle}"
+                                        HorizontalOptions="Center" VerticalOptions="Center"
+                                        IsEnabled="{Binding HasActiveScene}"
+                                        ToolTipProperties.Text="{loc:Loc MixerAddAmbience}"
+                                        SemanticProperties.Description="{loc:Loc MixerAddAmbience}">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding AddAmbienceCommand}"/>
+                                    </Border.GestureRecognizers>
+                                    <Border.Behaviors>
+                                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerAddChannelKey}"/>
+                                    </Border.Behaviors>
+                                    <Label Style="{StaticResource MixerAddRoundLabelStyle}"/>
+                                </Border>
+                            </Grid>
+                        </CollectionView.Footer>
                     </CollectionView>
                 </Border>
-                <Button Grid.Row="2" Text="{loc:Loc MixerAddAmbience}"
-                        Style="{StaticResource MixerAddButtonStyle}"
-                        Command="{Binding AddAmbienceCommand}"
-                        IsEnabled="{Binding HasActiveScene}">
-                    <Button.Behaviors>
-                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerAddChannelKey}"/>
-                    </Button.Behaviors>
-                </Button>
             </Grid>
 
             <!-- Effets : pads -->
@@ -190,22 +205,53 @@
                             </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
+                    <!-- Après le dernier pad : la place du prochain effet. -->
                     <CollectionView.Footer>
-                        <Button Text="{loc:Loc MixerAddEffect}"
-                                Style="{StaticResource MixerAddButtonStyle}"
-                                Command="{Binding AddEffectCommand}"
-                                IsEnabled="{Binding HasActiveScene}"/>
+                        <Grid Padding="0,10">
+                            <Border Style="{StaticResource MixerAddRoundStyle}" HorizontalOptions="Start" Margin="4,0"
+                                    IsEnabled="{Binding HasActiveScene}"
+                                    ToolTipProperties.Text="{loc:Loc MixerAddEffect}"
+                                    SemanticProperties.Description="{loc:Loc MixerAddEffect}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding AddEffectCommand}"/>
+                                </Border.GestureRecognizers>
+                                <Label Style="{StaticResource MixerAddRoundLabelStyle}"/>
+                            </Border>
+                        </Grid>
                     </CollectionView.Footer>
                 </CollectionView>
             </Grid>
         </Grid>
+
+        <!-- Bouton flottant de la scène libre (hors campagne), en bas à droite de la zone des
+             canaux. Feu de camp plutôt que l'éclair d'avant, qui se
+             confondait avec celui des effets. Masqué quand on y est déjà. -->
+        <Border Grid.Row="2" ZIndex="5" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,2,4"
+                WidthRequest="56" HeightRequest="56" StrokeThickness="0" StrokeShape="RoundRectangle 28"
+                BackgroundColor="{DynamicResource AppAccent}"
+                IsVisible="{Binding IsFreeformActive, Converter={StaticResource InverseBoolConverter}}"
+                ToolTipProperties.Text="{loc:Loc MixerFreeform}"
+                SemanticProperties.Description="{loc:Loc MixerFreeform}">
+            <Border.Shadow>
+                <Shadow Brush="Black" Opacity="0.45" Radius="10" Offset="0,4"/>
+            </Border.Shadow>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding SelectFreeformSceneCommand}"/>
+            </Border.GestureRecognizers>
+            <Border.Behaviors>
+                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerFreeformKey}"/>
+            </Border.Behaviors>
+            <Label Text="{x:Static icons:RpgFont.RaCampfire}" FontFamily="RpgAwesome" FontSize="26"
+                   TextColor="{DynamicResource AppBackground}"
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
+        </Border>
 
         <!-- Panneau d'actions du canal sélectionné (étiquette d'une tranche touchée, ou "…" d'un pad) : ces actions
              existent une seule fois ici au lieu d'être répétées sur chaque canal. Une seule ligne compacte
              d'icônes, sans légende (leur infobulle et leur description d'accessibilité disent ce qu'elles
              font) ni nom du canal (sa tranche, juste au-dessus, est déjà entourée), pour ne pas reprendre
              la hauteur gagnée sur les tranches. -->
-        <Border Grid.Row="4" IsVisible="{Binding HasSelectedChannel}"
+        <Border Grid.Row="3" IsVisible="{Binding HasSelectedChannel}"
                 StrokeShape="RoundRectangle 12" Stroke="{DynamicResource AppBorder}" StrokeThickness="1"
                 BackgroundColor="{DynamicResource AppSurface}" Padding="2">
             <Grid RowDefinitions="auto,auto" ColumnDefinitions="*,*,*,*,*">

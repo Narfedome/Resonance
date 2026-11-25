@@ -196,7 +196,7 @@
     <value>Global</value>
   </data>
   <data name="MixerPlayAll" xml:space="preserve">
-    <value>Play All (Ctrl+Enter)</value>
+    <value>Play ambiences and music (Ctrl+Enter)</value>
   </data>
   <data name="MixerFadeOutAll" xml:space="preserve">
     <value>Fade Out All (Ctrl+Space)</value>
@@ -700,7 +700,7 @@
     <value>Global controls</value>
   </data>
   <data name="TourMixerGlobalBody" xml:space="preserve">
-    <value>Play every channel, fade them all out, or stop everything at once. The slider next to them sets the master volume without changing each channel&apos;s own volume.</value>
+    <value>Play every ambience and music, fade everything out, or stop it all at once. The slider next to them sets the master volume without changing each channel&apos;s own volume.</value>
   </data>
   <data name="TourMixerFreeformTitle" xml:space="preserve">
     <value>Free scene</value>

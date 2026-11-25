@@ -11,11 +11,11 @@
              x:DataType="local:AudioMixerViewModel">
 
     <!-- Commandes générales sur UNE ligne compacte (tout lancer, tout couper en fondu, tout
-         arrêter, volume général), pour laisser un maximum de hauteur aux canaux. Les boutons
-         "ajouter" vivent désormais au bas de chaque liste (ambiances / effets), là où le canal
-         apparaîtra. -->
-    <Grid ColumnSpacing="6" Padding="4,0"
-          ColumnDefinitions="auto,auto,auto,auto,*,auto,auto"
+         arrêter, volume général), affichée dans la carte de la scène (cf. MixerSceneSelectorView)
+         pour laisser un maximum de hauteur aux canaux. Les boutons "ajouter" vivent au bas de
+         chaque liste, et la scène libre a son bouton flottant (cf. AudioMixerPage). -->
+    <Grid ColumnSpacing="6"
+          ColumnDefinitions="auto,auto,auto,auto,*,auto"
           IsEnabled="{Binding Loading.IsLoading, Converter={StaticResource InverseBoolConverter}}">
         <Grid.Behaviors>
             <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerGlobalKey}"/>
@@ -42,17 +42,5 @@
                 SemanticProperties.Description="{loc:Loc MixerMasterVolumeName}" />
         <Label Grid.Column="5" Text="{Binding DisplayMasterVolume}" VerticalOptions="Center"
                HorizontalTextAlignment="End" MinimumWidthRequest="28"/>
-
-        <!-- Bascule sur la scène orpheline (sans campagne/chapitre) : utiliser le Mixer sans
-             jamais passer par l'accordéon. Masqué une fois qu'on y est déjà. -->
-        <components:FaIconButtonView Grid.Column="6" Style="{StaticResource PlainAccentIconButtonStyle}"
-                 Icon="{x:Static icons:SolidFont.Bolt}"
-                 Command="{Binding SelectFreeformSceneCommand}"
-                 IsVisible="{Binding IsFreeformActive, Converter={StaticResource InverseBoolConverter}}"
-                 Tooltip="{loc:Loc MixerFreeform}" >
-            <components:FaIconButtonView.Behaviors>
-                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerFreeformKey}"/>
-            </components:FaIconButtonView.Behaviors>
-        </components:FaIconButtonView>
     </Grid>
 </ContentView>

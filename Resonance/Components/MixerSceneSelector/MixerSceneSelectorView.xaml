@@ -10,18 +10,20 @@
              x:Class="Resonance.Components.MixerSceneSelectorView"
              x:DataType="local:AudioMixerViewModel">
 
-    <!-- Barre de sélection de scène -->
-    <Border Padding="10"
+    <!-- Carte de la scène : sélection de scène, puis les commandes générales sur une seconde ligne
+         fine (cf. MixerGlobalControlsView), pour qu'elles ne prennent pas une rangée à elles. -->
+    <Border Padding="10,6"
             IsEnabled="{Binding Loading.IsLoading, Converter={StaticResource InverseBoolConverter}}">
-        <Border.Behaviors>
-            <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerSceneSelectorKey}"/>
-        </Border.Behaviors>
+        <Grid RowDefinitions="auto,auto" RowSpacing="4">
         <!-- Grid sans lignes/colonnes déclarées : les deux enfants remplissent la même cellule
              et se superposent - seul celui dont IsVisible est vrai est réellement affiché, donc
              pas de chevauchement à l'écran. Évite de garder les 5 colonnes normales avec des
              éléments juste masqués (les colonnes "auto"/"*" vides laisseraient un grand espace
              mort autour du picker restant plutôt qu'un layout recentré proprement). -->
-        <Grid>
+        <Grid Grid.Row="0">
+            <Grid.Behaviors>
+                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerSceneSelectorKey}"/>
+            </Grid.Behaviors>
 
             <!-- Mode normal (une vraie scène chargée) : chapitre + précédent/suivant + scène.
                  Le bouton "sans scène" vit sur la ligne Global (cf. MixerGlobalControlsView) : il
@@ -82,11 +84,16 @@
                  toute façon la même chaîne de sélection tant qu'aucun chapitre n'est choisi, cf.
                  AudioMixerViewModel.SelectScene), pas de flèches prev/next (rien à parcourir). -->
             <components:IconTextButton HorizontalOptions="Center"
-                    Icon="{x:Static icons:SolidFont.Bolt}" IconSize="13"
+                    Icon="{x:Static icons:RpgFont.RaCampfire}" IconFont="RpgAwesome" IconSize="15"
                     Text="{Binding SelectedSessionLabel}"
                     Command="{Binding SelectSessionCommand}"
                     TextColor="{DynamicResource AppAccent}"
                     IsVisible="{Binding IsFreeformActive}" />
+        </Grid>
+
+        <!-- Commandes générales, séparées de la sélection par un trait fin. -->
+        <BoxView Grid.Row="1" HeightRequest="1" VerticalOptions="Start" Color="{DynamicResource AppBorder}"/>
+        <components:MixerGlobalControlsView Grid.Row="1" Margin="0,5,0,0"/>
         </Grid>
     </Border>
 </ContentView>
