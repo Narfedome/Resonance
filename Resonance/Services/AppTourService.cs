@@ -137,12 +137,12 @@ namespace Resonance.Services
             if (hasTracks)
             {
                 builder.AddStep(Step(LibraryTrackTileKey, "TourLibraryTileTitle", "TourLibraryTileBody"))
-                    .AddStep(Step(LibraryTrackPlayKey, "TourLibraryPlayTitle", "TourLibraryPlayBody"))
-                    .AddStep(Step(LibraryTrackCheckKey, "TourLibraryCheckTitle", "TourLibraryCheckBody"));
+                    .AddStep(Step(LibraryTrackPlayKey, "TourLibraryPlayTitle", "TourLibraryPlayBody"));
             }
 
+            // Plus d'étape sur la case à cocher ni sur "Tout sélectionner" : tous deux n'apparaissent
+            // qu'en mode sélection (appui long), expliqué dans l'étape de la tuile.
             return StartAsync(builder
-                .AddStep(Step(LibrarySelectAllKey, "TourLibrarySelectAllTitle", "TourLibrarySelectAllBody"))
                 .AddStep(Step(LibraryAddKey, "TourLibraryAddTitle", "TourLibraryAddBody"))
                 .AddStep(Step(LibraryEditKey, "TourLibraryEditTitle", "TourLibraryEditBody"))
                 .AddStep(Step(LibraryDeleteKey, "TourLibraryDeleteTitle", "TourLibraryDeleteBody"))

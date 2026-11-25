@@ -8,6 +8,13 @@ public partial class LibraryTrackView : ContentView
     public LibraryTrackView()
     {
         InitializeComponent();
+        // Taille de la pochette carrée : estimée tout de suite d'après l'écran (le CollectionView mesure
+        // sa première tuile avant d'avoir sa largeur, cf. MeasureFirstItem), puis recalculée sur la
+        // largeur réelle de la liste.
+        var display = DeviceDisplay.Current.MainDisplayInfo;
+        if (display.Density > 0)
+            UpdateTileSize(display.Width / display.Density - 32);
+        ItemsCollection.SizeChanged += (_, _) => UpdateTileSize(ItemsCollection.Width);
 #if WINDOWS
         ItemsCollection.Loaded += OnItemsCollectionLoadedWindows;
 #endif
@@ -20,6 +27,47 @@ public partial class LibraryTrackView : ContentView
     {
         get => (bool)GetValue(IsCrudProperty);
         set => SetValue(IsCrudProperty, value);
+    }
+
+    public static readonly BindableProperty TileSizeProperty =
+        BindableProperty.Create(nameof(TileSize), typeof(double), typeof(LibraryTrackView), 110.0);
+
+    /// <summary>Côté de la pochette carrée d'une tuile : la largeur d'une colonne de la grille.</summary>
+    public double TileSize
+    {
+        get => (double)GetValue(TileSizeProperty);
+        private set => SetValue(TileSizeProperty, value);
+    }
+
+    private void UpdateTileSize(double listWidth)
+    {
+        if (listWidth <= 0 || ItemsCollection.ItemsLayout is not GridItemsLayout grid)
+            return;
+
+        var span = Math.Max(1, grid.Span);
+        var size = Math.Floor((listWidth - (span - 1) * grid.HorizontalItemSpacing) / span) - 1;
+        // Desktop : la largeur de colonne est déjà bornée par ResponsiveGridSpanBehavior (TileWidth).
+        size = Math.Clamp(size, 80, 180);
+        if (Math.Abs(size - TileSize) >= 1)
+            TileSize = size;
+    }
+
+    // Appui long sur une pochette : entre en mode sélection, mais uniquement en mode CRUD - dans le
+    // sélecteur de piste du mixeur (IsCrud=False), cocher plusieurs pistes n'aurait aucun sens.
+    public System.Windows.Input.ICommand? TileLongPressCommand =>
+        IsCrud && BindingContext is LibraryTrackViewModel vm ? vm.LongPressItemCommand : null;
+
+    protected override void OnPropertyChanged(string? propertyName = null)
+    {
+        base.OnPropertyChanged(propertyName);
+        if (propertyName == nameof(IsCrud))
+            base.OnPropertyChanged(nameof(TileLongPressCommand));
+    }
+
+    protected override void OnBindingContextChanged()
+    {
+        base.OnBindingContextChanged();
+        base.OnPropertyChanged(nameof(TileLongPressCommand));
     }
 
     // RemainingItemsThresholdReachedCommand est peu fiable sur certaines plateformes (notamment quand la vue

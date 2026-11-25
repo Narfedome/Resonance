@@ -493,7 +493,7 @@
     <value>Réorganiser</value>
   </data>
   <data name="TourCampaignHandleBody" xml:space="preserve">
-    <value>Faites glisser la poignée pour changer l'ordre des campagnes. Chapitres et scènes ont la même poignée.</value>
+    <value>Appuyez longuement sur une campagne, puis faites-la glisser pour changer l'ordre. Chapitres et scènes se déplacent de la même façon.</value>
   </data>
   <data name="TourSessionTitle" xml:space="preserve">
     <value>Un chapitre</value>
@@ -646,7 +646,7 @@
     <value>Une piste</value>
   </data>
   <data name="TourLibraryTileBody" xml:space="preserve">
-    <value>Touchez une tuile pour sélectionner la piste : son contour passe au bleu.</value>
+    <value>Touchez une tuile pour sélectionner la piste : son contour passe au doré. Un appui long sur une pochette en coche plusieurs, pour les supprimer d'un coup.</value>
   </data>
   <data name="TourLibraryPlayTitle" xml:space="preserve">
     <value>Écouter</value>
@@ -1069,5 +1069,23 @@
   </data>
   <data name="MixerReturnToScene" xml:space="preserve">
     <value>Revenir à « {0} »</value>
+  </data>
+  <data name="LibSelectionCount" xml:space="preserve">
+    <value>{0} sélectionnée(s)</value>
+  </data>
+  <data name="SettingsGroupAppearance" xml:space="preserve">
+    <value>Apparence</value>
+  </data>
+  <data name="SettingsGroupData" xml:space="preserve">
+    <value>Données</value>
+  </data>
+  <data name="SettingsGroupDiscover" xml:space="preserve">
+    <value>Découvrir</value>
+  </data>
+  <data name="SettingsGroupAbout" xml:space="preserve">
+    <value>À propos</value>
+  </data>
+  <data name="LibLongPressHint" xml:space="preserve">
+    <value>Appui long sur une pochette pour sélectionner plusieurs pistes</value>
   </data>
 </root>

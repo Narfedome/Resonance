@@ -63,6 +63,8 @@ namespace Resonance
                 // Cf. Resonance.Platforms.Windows.WindowsHandlers : personnalisations de handlers
                 // natives WinUI, isolées dans Platforms/Windows pour ne pas polluer ce fichier.
                 .ConfigureMauiHandlers(Platforms.Windows.WindowsHandlers.Configure)
+#elif ANDROID
+                .ConfigureMauiHandlers(Platforms.Android.AndroidHandlers.Configure)
 #endif
                 ;
             builder.AddAudio();

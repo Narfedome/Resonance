@@ -79,14 +79,13 @@ public partial class CampaignPage : ContentPage
         _draggingElement.TranslationX = 10;
     }
 
-    // Part de start.Parent, PAS de start : la poignée elle-même porte déjà un DragGestureRecognizer
-    // (donc GestureRecognizers.Count > 0), en la testant on la retrouvait immédiatement au lieu de
-    // remonter jusqu'à la vraie racine (celle qui porte le DropGestureRecognizer) — c'est ce qui
-    // faisait bouger/estomper juste la poignée au lieu de toute la ligne.
+    // Remonte jusqu'à la racine de la ligne, celle qui porte le DropGestureRecognizer : depuis que la
+    // poignée a disparu, le drag part de cette racine elle-même (appui long sur la ligne), mais on
+    // garde la remontée au cas où le geste viendrait d'un élément enfant.
     private static VisualElement FindGestureRoot(VisualElement start)
     {
-        Element? current = start.Parent;
-        while (current != null && current is not View { GestureRecognizers.Count: > 0 })
+        Element? current = start;
+        while (current != null && !(current is View view && view.GestureRecognizers.OfType<DropGestureRecognizer>().Any()))
             current = current.Parent;
         return current as VisualElement ?? start;
     }

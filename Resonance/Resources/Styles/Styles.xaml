@@ -21,12 +21,33 @@
     </Style>
 
     <!-- Style implicite (pas de x:Key, s'applique a tout FaIconButtonView qui ne precise pas
-         Style="...") : fond plein accent par defaut (Ajouter/Editer/Supprimer partout dans
-         l'appli), via un vrai {DynamicResource} pour suivre les changements de theme/palette -
-         contrairement a un defaultValueCreator C#, qui ne peut que figer la valeur une seule fois.
-         Un Style="{StaticResource GhostIconButtonStyle}" explicite (chevrons) prend le pas dessus. -->
+         Style="...") : rond, icone doree sur fond de surface sombre (Ajouter/Editer/Supprimer partout
+         dans l'appli), le meme langage que les ronds "+" et le bouton de la scene libre du mixeur -
+         des carres dores pleins repetes chargeaient chaque ecran. Via de vrais {DynamicResource}
+         pour suivre les changements de theme/palette, contrairement a un defaultValueCreator C#.
+         Inactif (rien de selectionne) : attenue, pour qu'on voie d'un coup d'oeil ce qui est
+         utilisable. Un Style="..." explicite (chevrons Ghost, commandes du mixeur) prend le pas. -->
     <Style TargetType="components:FaIconButtonView">
-        <Setter Property="IconBackgroundColor" Value="{DynamicResource AppAccent}"/>
+        <Setter Property="IconBackgroundColor" Value="{DynamicResource AppSurface}"/>
+        <Setter Property="IconColor" Value="{DynamicResource AppAccent}"/>
+        <Setter Property="CornerRadius" Value="{OnIdiom Default=22, Desktop=16}"/>
+        <Style.Triggers>
+            <Trigger TargetType="components:FaIconButtonView" Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.4"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Variante "suppression" du style implicite ci-dessus : meme rond sombre, icone rouge pale. -->
+    <Style x:Key="DangerIconButtonStyle" TargetType="components:FaIconButtonView">
+        <Setter Property="IconBackgroundColor" Value="{DynamicResource AppSurface}"/>
+        <Setter Property="IconColor" Value="{DynamicResource AppDanger}"/>
+        <Setter Property="CornerRadius" Value="{OnIdiom Default=22, Desktop=16}"/>
+        <Style.Triggers>
+            <Trigger TargetType="components:FaIconButtonView" Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.4"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <!-- Carte de ligne d'accordeon/liste (CampaignPage, CategoryListPage) : forme, padding, hauteur
@@ -64,7 +85,7 @@
                     </VisualState>
                     <VisualState Name="Selected">
                         <VisualState.Setters>
-                            <Setter Property="Stroke" Value="LightSkyBlue" />
+                            <Setter Property="Stroke" Value="{DynamicResource AppAccent}" />
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>

@@ -53,7 +53,7 @@
                                     </Border.GestureRecognizers>
                                     <Border.Triggers>
                                         <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                            <Setter Property="Stroke" Value="LightSkyBlue"/>
+                                            <Setter Property="Stroke" Value="{DynamicResource AppAccent}"/>
                                         </DataTrigger>
                                     </Border.Triggers>
                                     <Label Text="{Binding Name}" FontSize="{DynamicResource AppFontSizeSectionTitle}" VerticalOptions="Center" Style="{StaticResource TruncatedLabelStyle}"/>
@@ -71,7 +71,7 @@
                                          Command="{Binding RenameCommand}"
                                          Tooltip="{loc:Loc BtnRename}"
                                          IsEnabled="{Binding CanModifySelectedCategory}"/>
-                    <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Trash}"
+                    <components:FaIconButtonView Style="{StaticResource DangerIconButtonStyle}" Icon="{x:Static icons:SolidFont.Trash}"
                                          Command="{Binding DeleteCommand}"
                                          Tooltip="{loc:Loc BtnDelete}"
                                          IsEnabled="{Binding CanModifySelectedCategory}"/>

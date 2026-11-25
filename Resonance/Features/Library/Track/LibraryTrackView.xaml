@@ -16,13 +16,37 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <Grid ColumnDefinitions="*,auto" RowDefinitions="auto,auto" Grid.Row="0" Margin="8,0,8,8" ColumnSpacing="4" VerticalOptions="Center">
+        <!-- Mode sélection (au moins une piste cochée, cf. LibraryTrackViewModel.LongPressItem) : une barre
+             dédiée remplace l'en-tête - croix pour sortir, compteur, et "Tout sélectionner". -->
+        <Grid Grid.Row="0" ColumnDefinitions="auto,*,auto" ColumnSpacing="8" Margin="8,0,8,8" MinimumHeightRequest="48"
+              AutomationId="LibrarySelectionBar" IsVisible="{Binding HasSelection}">
+            <components:FaIconButtonView Grid.Column="0" Style="{StaticResource GhostIconButtonStyle}"
+                                         Icon="{x:Static icons:SolidFont.Xmark}"
+                                         AutomationId="LibraryExitSelectionButton"
+                                         Command="{Binding ExitSelectionCommand}"
+                                         Tooltip="{loc:Loc LibCancel}"/>
+            <Label Grid.Column="1" Text="{Binding SelectionCountText}" FontAttributes="Bold"
+                   FontSize="{DynamicResource AppFontSizeSectionTitle}" VerticalOptions="Center"/>
+            <Button Grid.Column="2" Text="{loc:Loc LibSelectAll}" Command="{Binding SelectAllCommand}"
+                    AutomationId="LibrarySelectAllButton"
+                    BackgroundColor="Transparent" TextColor="{DynamicResource AppAccent}"
+                    FontSize="{OnIdiom Default=14, Desktop=12}" Padding="8,4" VerticalOptions="Center"/>
+        </Grid>
+
+        <Grid ColumnDefinitions="*,auto" RowDefinitions="auto,auto" Grid.Row="0" Margin="8,0,8,8" ColumnSpacing="4" VerticalOptions="Center"
+              IsVisible="{Binding HasSelection, Converter={StaticResource InverseBoolConverter}}">
             <!-- Recherche par titre, combinée au filtre de catégorie. Aussi dans le sélecteur de piste
                  du mixeur (IsCrud=False), où retrouver une piste parmi des centaines est le plus utile. -->
-            <SearchBar Grid.Row="1" Grid.ColumnSpan="2"
-                       Text="{Binding SearchText}"
-                       Placeholder="{loc:Loc LibSearchPlaceholder}"
-                       SemanticProperties.Description="{loc:Loc LibSearchPlaceholder}"/>
+            <!-- Champ arrondi sur fond sombre (maquette d'harmonisation) : la SearchBar, sans son trait
+                 natif (cf. Platforms/Android/AndroidHandlers), posée dans une pastille AppSurface. -->
+            <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="0,6,0,0" Padding="4,0"
+                    StrokeThickness="0" StrokeShape="RoundRectangle 22"
+                    BackgroundColor="{DynamicResource AppSurface}" MinimumHeightRequest="44">
+                <SearchBar Text="{Binding SearchText}"
+                           Placeholder="{loc:Loc LibSearchPlaceholder}"
+                           SemanticProperties.Description="{loc:Loc LibSearchPlaceholder}"
+                           VerticalOptions="Center"/>
+            </Border>
             <Button Text="{Binding SelectedCategory}"
                     Command="{Binding SelectCategoryCommand}"
                     Grid.Column="0"
@@ -105,6 +129,7 @@
         <CollectionView
                  IsVisible="{Binding HasTrackItems}"
                  x:Name="ItemsCollection"
+                 Margin="11,0"
                  ItemsSource="{Binding TrackItems}"
                  IsGrouped="True"
                  SelectionMode="None"
@@ -115,7 +140,7 @@
                 <components:ResponsiveGridSpanBehavior TileWidth="150"/>
             </CollectionView.Behaviors>
             <CollectionView.ItemsLayout>
-                <GridItemsLayout Span="3" VerticalItemSpacing="5" HorizontalItemSpacing="5" Orientation="Vertical"/>
+                <GridItemsLayout Span="3" VerticalItemSpacing="12" HorizontalItemSpacing="10" Orientation="Vertical"/>
             </CollectionView.ItemsLayout>
             <CollectionView.Footer>
                 <ActivityIndicator IsRunning="{Binding IsLoadingMore}"
@@ -130,84 +155,81 @@
                 <DataTemplate>
                     <Label Text="{Binding Name}"
                            IsVisible="{Binding Source={x:Reference root}, Path=BindingContext.ShowGroupHeaders}"
-                           FontAttributes="Bold"
-                           FontSize="{DynamicResource AppFontSizeSectionTitle}"
-                           TextColor="{DynamicResource AppText}"
-                           Margin="4,12,4,4"/>
+                           FontAttributes="Bold" TextTransform="Uppercase" CharacterSpacing="1.2"
+                           FontSize="{OnIdiom Default=13, Desktop=12}"
+                           TextColor="{DynamicResource AppTextMuted}"
+                           Margin="4,12,4,8"/>
                 </DataTemplate>
             </CollectionView.GroupHeaderTemplate>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <!-- BackgroundColor="Transparent" écrase le fond translucide du style partagé
-                         (toujours utile à LibrarySpellView, resté en sélection native) : ici, plus
-                         besoin de masquer quoi que ce soit puisque la sélection native (et donc son
-                         fond orange) n'est plus utilisée du tout. -->
-                    <Border Style="{StaticResource SelectableGridItemBorderStyle}" BackgroundColor="Transparent" Stroke="Grey" AutomationId="LibraryTrackTile">
-                        <Border.Behaviors>
+                    <!-- Tuile de la maquette d'harmonisation : pochette carrée aux coins arrondis, sans
+                         cadre au repos, titre en dessous. Le contour doré n'apparaît que sur la piste
+                         sélectionnée (tapée ou cochée). Tap et appui long passent par la pochette
+                         (TrackButtonView.CoverTapCommand / CoverLongPressCommand) : tap = TapItem, appui
+                         long = mode sélection (TileLongPressCommand, nul dans le sélecteur du mixeur). -->
+                    <Grid RowDefinitions="auto,auto" RowSpacing="6" Padding="0,0,0,4" AutomationId="LibraryTrackTile">
+                        <Grid.Behaviors>
                             <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryTrackTileKey}"/>
-                        </Border.Behaviors>
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding Source={x:Reference root}, Path=BindingContext.SelectItemCommand}"
-                                                  CommandParameter="{Binding .}"/>
-                        </Border.GestureRecognizers>
-                        <!-- VisualStateManager.VisualStateGroups vidé ici : le state "Normal" du style
-                             partagé réaffirme Stroke=Grey en continu et passe devant le DataTrigger
-                             ci-dessous (VSM prioritaire sur les Trigger en MAUI), ce qui empêchait tout
-                             affichage du liseré bleu. Le gris de base vient donc du Stroke="Grey" posé
-                             juste au-dessus, en dur sur cette instance. -->
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroupList/>
-                        </VisualStateManager.VisualStateGroups>
-                        <Border.Triggers>
-                            <DataTrigger TargetType="Border" Binding="{Binding IsPrimarySelected}" Value="True">
-                                <Setter Property="Stroke" Value="LightSkyBlue"/>
-                            </DataTrigger>
-                        </Border.Triggers>
-                        <Grid WidthRequest="120" HeightRequest="120"  Margin="5">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="auto"/>
-                            </Grid.RowDefinitions>
-                            <components:TrackButtonView    CurrentTrack="{Binding .}"
-                                                           SelectCommand="{Binding Source={x:Reference root}, Path=BindingContext.SelectItemCommand}" />
-                            <!-- Case à cocher pour la sélection multiple (visible uniquement en mode CRUD) -->
-                            <CheckBox Grid.Row="0"
-                                      IsChecked="{Binding IsSelected}"
-                                      IsVisible="{Binding Source={x:Reference root}, Path=IsCrud}"
-                                      HorizontalOptions="Start" VerticalOptions="Start">
-                                <CheckBox.Behaviors>
-                                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryTrackCheckKey}"/>
-                                </CheckBox.Behaviors>
-                            </CheckBox>
-                            <!-- Label au lieu de l'image -->
-                            <Label Text="{Binding Title}"
-                        AutomationId="LibraryTrackTitle"
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center" Style="{StaticResource TruncatedLabelStyle}"
-                        Grid.Row="1"/>
-                        </Grid>
-                    </Border>
+                        </Grid.Behaviors>
+                        <Border StrokeShape="RoundRectangle 14" StrokeThickness="2" Stroke="Transparent" Padding="2"
+                                HeightRequest="{Binding Source={x:Reference root}, Path=TileSize}"
+                                WidthRequest="{Binding Source={x:Reference root}, Path=TileSize}">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsPrimarySelected}" Value="True">
+                                    <Setter Property="Stroke" Value="{DynamicResource AppAccent}"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                    <Setter Property="Stroke" Value="{DynamicResource AppAccent}"/>
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Grid>
+                                <components:TrackButtonView CurrentTrack="{Binding .}"
+                                                            SelectCommand="{Binding Source={x:Reference root}, Path=BindingContext.SelectItemCommand}"
+                                                            ShowPlayButton="{Binding Source={x:Reference root}, Path=BindingContext.HasSelection, Converter={StaticResource InverseBoolConverter}}"
+                                                            CoverTapCommand="{Binding Source={x:Reference root}, Path=BindingContext.TapItemCommand}"
+                                                            CoverLongPressCommand="{Binding Source={x:Reference root}, Path=TileLongPressCommand}"/>
+                                <!-- Case à cocher de la sélection multiple : n'apparaît qu'en mode sélection
+                                     (entré par appui long sur une tuile), plus en permanence. -->
+                                <CheckBox IsChecked="{Binding IsSelected}"
+                                          IsVisible="{Binding Source={x:Reference root}, Path=BindingContext.HasSelection}"
+                                          Color="{DynamicResource AppAccent}"
+                                          HorizontalOptions="Start" VerticalOptions="Start"/>
+                            </Grid>
+                        </Border>
+                        <Label Grid.Row="1" Text="{Binding Title}" AutomationId="LibraryTrackTitle"
+                               FontSize="{OnIdiom Default=13, Desktop=12}" HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center" Style="{StaticResource TruncatedLabelStyle}"
+                               WidthRequest="{Binding Source={x:Reference root}, Path=TileSize}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={x:Reference root}, Path=BindingContext.TapItemCommand}"
+                                                      CommandParameter="{Binding .}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
         </Grid>
 
         <!-- Boutons CRUD (visibles uniquement en mode CRUD, masqués pendant le chargement de la liste) :
-             un seul bloc centré, séparé en 3 sous-groupes (sélection / Ajouter-Éditer-Supprimer comme
-             dans Campagnes / import) par un fin trait plutôt que d'étaler les boutons isolés sur toute
+             un seul bloc centré, séparé en 2 sous-groupes (Ajouter-Éditer-Supprimer comme dans Campagnes /
+             import ; "Tout sélectionner" vit désormais dans la barre du mode sélection) par un fin trait plutôt que d'étaler les boutons isolés sur toute
              la largeur - ça reste un seul groupe cohérent même sur une fenêtre large. -->
         <VerticalStackLayout Grid.Row="2" IsVisible="{Binding Source={x:Reference root}, Path=IsCrud}">
+            <!-- Indice discret tant qu'on n'est pas en mode sélection : l'appui long n'a aucune autre
+                 affordance visible. -->
+            <Label Text="{loc:Loc LibLongPressHint}" FontSize="{OnIdiom Default=12, Desktop=11}"
+                   TextColor="{DynamicResource AppTextMuted}" HorizontalOptions="Center" HorizontalTextAlignment="Center"
+                   Margin="24,4,24,0" IsVisible="{Binding HasTrackItems}">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding HasSelection}" Value="True">
+                        <Setter Property="IsVisible" Value="False"/>
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
             <HorizontalStackLayout Spacing="10" HorizontalOptions="Center" Margin="8,8"
                                    IsVisible="{Binding Loading.IsLoading, Converter={StaticResource InverseBoolConverter}}">
-                <components:FaIconButtonView Icon="{x:Static icons:SolidFont.CheckDouble}"
-                                             Command="{Binding SelectAllCommand}"
-                                             Tooltip="{loc:Loc LibSelectAll}"
-                                             IsEnabled="{Binding HasTrackItems}">
-                    <components:FaIconButtonView.Behaviors>
-                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibrarySelectAllKey}"/>
-                    </components:FaIconButtonView.Behaviors>
-                </components:FaIconButtonView>
-                <BoxView WidthRequest="1" HeightRequest="28" VerticalOptions="Center" Margin="4,0" Color="{DynamicResource AppTextMuted}"/>
                 <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Plus}"
                                              Command="{Binding CreateCommand}"
                                              Tooltip="{loc:Loc LibAdd}">
@@ -215,6 +237,14 @@
                         <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryAddKey}"/>
                     </components:FaIconButtonView.Behaviors>
                 </components:FaIconButtonView>
+                <components:FaIconButtonView Icon="{x:Static icons:SolidFont.FolderPlus}"
+                                             Command="{Binding ImportMultipleTracksCommand}"
+                                             Tooltip="{loc:Loc LibImport}">
+                    <components:FaIconButtonView.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryImportKey}"/>
+                    </components:FaIconButtonView.Behaviors>
+                </components:FaIconButtonView>
+                <BoxView WidthRequest="1" HeightRequest="28" VerticalOptions="Center" Margin="4,0" Color="{DynamicResource AppBorder}"/>
                 <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Pen}"
                                              Command="{Binding EditCommand}"
                                              Tooltip="{loc:Loc LibEdit}"
@@ -223,21 +253,13 @@
                         <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryEditKey}"/>
                     </components:FaIconButtonView.Behaviors>
                 </components:FaIconButtonView>
-                <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Trash}"
+                <components:FaIconButtonView Style="{StaticResource DangerIconButtonStyle}" Icon="{x:Static icons:SolidFont.Trash}"
                                              AutomationId="LibraryDeleteButton"
                                              Command="{Binding DeleteSelectedItemsCommand}"
                                              Tooltip="{Binding DeleteTooltip}"
                                              IsEnabled="{Binding CanDelete}">
                     <components:FaIconButtonView.Behaviors>
                         <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryDeleteKey}"/>
-                    </components:FaIconButtonView.Behaviors>
-                </components:FaIconButtonView>
-                <BoxView WidthRequest="1" HeightRequest="28" VerticalOptions="Center" Margin="4,0" Color="{DynamicResource AppTextMuted}"/>
-                <components:FaIconButtonView Icon="{x:Static icons:SolidFont.FolderPlus}"
-                                             Command="{Binding ImportMultipleTracksCommand}"
-                                             Tooltip="{loc:Loc LibImport}">
-                    <components:FaIconButtonView.Behaviors>
-                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryImportKey}"/>
                     </components:FaIconButtonView.Behaviors>
                 </components:FaIconButtonView>
             </HorizontalStackLayout>

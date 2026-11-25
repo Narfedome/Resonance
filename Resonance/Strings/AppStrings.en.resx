@@ -493,7 +493,7 @@
     <value>Reorder</value>
   </data>
   <data name="TourCampaignHandleBody" xml:space="preserve">
-    <value>Drag the handle to reorder your campaigns. Chapters and scenes have the same handle.</value>
+    <value>Press and hold a campaign, then drag it to reorder. Chapters and scenes move the same way.</value>
   </data>
   <data name="TourSessionTitle" xml:space="preserve">
     <value>A chapter</value>
@@ -646,7 +646,7 @@
     <value>A track</value>
   </data>
   <data name="TourLibraryTileBody" xml:space="preserve">
-    <value>Tap a tile to select the track: its outline turns blue.</value>
+    <value>Tap a tile to select the track: its outline turns gold. Press and hold a cover to check several and delete them at once.</value>
   </data>
   <data name="TourLibraryPlayTitle" xml:space="preserve">
     <value>Listen</value>
@@ -1069,5 +1069,23 @@
   </data>
   <data name="MixerReturnToScene" xml:space="preserve">
     <value>Back to &quot;{0}&quot;</value>
+  </data>
+  <data name="LibSelectionCount" xml:space="preserve">
+    <value>{0} selected</value>
+  </data>
+  <data name="SettingsGroupAppearance" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="SettingsGroupData" xml:space="preserve">
+    <value>Data</value>
+  </data>
+  <data name="SettingsGroupDiscover" xml:space="preserve">
+    <value>Discover</value>
+  </data>
+  <data name="SettingsGroupAbout" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="LibLongPressHint" xml:space="preserve">
+    <value>Press and hold a cover to select several tracks</value>
   </data>
 </root>

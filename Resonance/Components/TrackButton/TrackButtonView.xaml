@@ -1,31 +1,57 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:services="clr-namespace:Resonance.Services"
              xmlns:onboarding="clr-namespace:Plugin.Maui.Onboarding"
              x:Class="Resonance.Components.TrackButtonView" x:Name="root"
              xmlns:components="clr-namespace:Resonance.Components"
-             xmlns:icons="clr-namespace:Resonance.Resources.Icons">
+             xmlns:icons="clr-namespace:Resonance.Resources.Icons"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
+    <!-- Pochette pleine (recadrée, pas de bandes) et petit bouton lecture rond dans le coin, comme la
+         maquette d'harmonisation : la pochette elle-même n'est plus un bouton, le tap sur la tuile
+         sélectionne (cf. LibraryTrackView), seul le rond lance ou met en pause. -->
     <Grid>
         <!-- Placeholder toujours présent en arrière-plan, couvert par la pochette si elle existe -->
-        <Border StrokeShape="RoundRectangle 8" StrokeThickness="0"
-                BackgroundColor="{DynamicResource AppBorder}">
+        <Border StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                BackgroundColor="{DynamicResource AppSurface}">
             <Label Text="{x:Static icons:SolidFont.Music}"
                    FontFamily="FontSolid"
                    FontSize="{OnIdiom Default=28, Desktop=24}"
                    HorizontalOptions="Center" VerticalOptions="Center"
                    TextColor="{DynamicResource AppTextMuted}"/>
         </Border>
+        <Border x:Name="CoverBorder" StrokeShape="RoundRectangle 12" StrokeThickness="0" InputTransparent="True">
+            <Image Source="{Binding CoverImage}" Aspect="AspectFill"/>
+        </Border>
 
-        <components:FaIconButtonView x:Name="IconBtn"
-            Icon="{Binding IsPlaying, Converter={StaticResource BoolToPlayPauseConverter}}"
-            Command="{Binding TogglePlayCommand}"
-            Tooltip="{Binding IsPlaying, Converter={StaticResource BoolToTooltipPlayPauseConverter}}"
-            BackgroundColor="Transparent"
-            BackgroundImage="{Binding CoverImage}" >
-            <components:FaIconButtonView.Behaviors>
+        <!-- Couche de toucher de la pochette, SOUS le rond de lecture : tap et appui long remontent au
+             parent (CoverTapCommand / CoverLongPressCommand, ex. sélection dans la Bibliothèque). Posée
+             sur un parent, la TouchBehavior avalait aussi les taps du rond de lecture. -->
+        <ContentView BackgroundColor="Transparent">
+            <ContentView.Behaviors>
+                <toolkit:TouchBehavior Command="{Binding Source={x:Reference root}, Path=CoverTapCommand}"
+                                       CommandParameter="{Binding Source={x:Reference root}, Path=CurrentTrack}"
+                                       LongPressCommand="{Binding Source={x:Reference root}, Path=CoverLongPressCommand}"
+                                       LongPressCommandParameter="{Binding Source={x:Reference root}, Path=CurrentTrack}"/>
+            </ContentView.Behaviors>
+        </ContentView>
+        <!-- Rond de lecture dessiné (Border + glyphe), pas un Button : Android impose une taille
+             minimale aux boutons natifs, qui en faisait un gros carré. -->
+        <Border x:Name="PlayBadge" HorizontalOptions="End" VerticalOptions="End" Margin="6"
+                WidthRequest="30" HeightRequest="30" StrokeThickness="0" StrokeShape="RoundRectangle 15"
+                BackgroundColor="#B3000000"
+                IsVisible="{Binding Source={x:Reference root}, Path=ShowPlayButton}"
+                ToolTipProperties.Text="{Binding IsPlaying, Converter={StaticResource BoolToTooltipPlayPauseConverter}}"
+                SemanticProperties.Description="{Binding IsPlaying, Converter={StaticResource BoolToTooltipPlayPauseConverter}}">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnPlayBadgeTapped"/>
+            </Border.GestureRecognizers>
+            <Border.Behaviors>
                 <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryTrackPlayKey}"/>
-            </components:FaIconButtonView.Behaviors>
-        </components:FaIconButtonView>
+            </Border.Behaviors>
+            <Label Text="{Binding IsPlaying, Converter={StaticResource BoolToPlayPauseConverter}}"
+                   FontFamily="FontSolid" FontSize="11" TextColor="{DynamicResource AppAccent}"
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
+        </Border>
     </Grid>
 </ContentView>

@@ -17,7 +17,7 @@
                  3 fois : Campagne = carte pleine (bordure), Chapitre = simple trait du bas, Scène =
                  aucune bordure. Chacun a en plus sa propre icône (Campagne/Chapitre), pour rester
                  identifiable même sans comparer les tailles de police entre elles.
-                 Ouvert/fermé (accent si IsExpanded, gris sinon) et sélection (barre LightSkyBlue à
+                 Ouvert/fermé (accent si IsExpanded, gris sinon) et sélection (barre dorée à
                  gauche, cf. LibraryTrackView) restent pilotés par binding direct sur la ligne — jamais
                  par la sélection native du CollectionView (SelectionMode="None" : rendu natif trop
                  différent d'une plateforme à l'autre) ni par VisualStateManager (états Normal/Selected
@@ -51,31 +51,14 @@
                 </Style.Triggers>
             </Style>
 
-            <!-- Couleur fixe (pas une DynamicResource liée au thème/palette) : comme dans la
-                 Bibliothèque (LibraryTrackView, Stroke="LightSkyBlue" sur l'état Selected), pour que la
-                 sélection ressorte quel que soit le thème choisi, et pour rester cohérent visuellement
-                 avec l'indicateur de sélection déjà utilisé ailleurs dans l'appli.
+            <!-- Doré (AppAccent), comme le contour de la piste sélectionnée dans la Bibliothèque : depuis\r\n                 l'harmonisation, toute sélection se lit en doré, quel que soit l'écran.
                  x:DataType="local:ExplorerRow" (la base commune Campagne/Chapitre/Scène) : IsSelected y
                  est déclaré, cf. commentaire sur ExpandableRowBorderStyle ci-dessus pour la raison. -->
             <Style x:Key="SelectionMarkerStyle" TargetType="BoxView" x:DataType="local:ExplorerRow">
                 <Setter Property="WidthRequest" Value="4"/>
                 <Setter Property="Margin" Value="0,6"/>
-                <Setter Property="Color" Value="LightSkyBlue"/>
+                <Setter Property="Color" Value="{DynamicResource AppAccent}"/>
                 <Setter Property="IsVisible" Value="{Binding IsSelected}"/>
-            </Style>
-
-            <!-- Poignée de glisser-déposer, partagée par les 3 gabarits ci-dessous : le Drag n'est
-                 activable que depuis cette poignée (jamais toute la ligne) - cf. AudioMixerPage pour
-                 le même choix et sa justification (drag souris Windows démarre dès le mouvement, sans
-                 appui long ni délai configurable, contrairement au tactile). -->
-            <Style x:Key="DragHandleBorderStyle" TargetType="Border">
-                <Setter Property="BackgroundColor" Value="{DynamicResource AppSurface}"/>
-                <Setter Property="Stroke" Value="{DynamicResource AppBorder}"/>
-                <Setter Property="StrokeThickness" Value="1"/>
-                <Setter Property="StrokeShape" Value="RoundRectangle 6"/>
-                <Setter Property="Padding" Value="6,4"/>
-                <Setter Property="VerticalOptions" Value="Center"/>
-                <Setter Property="HorizontalOptions" Value="Center"/>
             </Style>
 
             <!-- Encadré décoratif superposé (transparent au repos), affiché par-dessus la ligne
@@ -95,7 +78,9 @@
             <!-- Le chevron reste une zone de tap à part avec un vrai toggle (ouvre ET ferme) : son
                  affordance visuelle appelle explicitement ce geste. Le reste de la ligne (titre, icône)
                  n'ouvre jamais que — jamais ne referme — pour ne pas surprendre l'utilisateur qui
-                 retape la ligne juste pour la sélectionner (cf. OpenCampaign/OpenSession). -->
+                 retape la ligne juste pour la sélectionner (cf. OpenCampaign/OpenSession).
+                 Plus de poignée : on déplace une ligne par appui long dessus (Android) ou en la
+                 faisant glisser (Windows), comme les tranches du mixeur. -->
             <DataTemplate x:Key="CampaignTemplate" x:DataType="local:CampaignRow">
                 <!-- Padding sur ce Grid englobant (pas Margin sur le Border racine) : le Margin de la
                      racine d'un DataTemplate de CollectionView n'est pas fiable sur Windows (cf.
@@ -110,7 +95,9 @@
                             <Setter Property="Padding" Value="0"/>
                         </DataTrigger>
                     </Grid.Triggers>
-                <Border Style="{StaticResource ExpandableRowBorderStyle}" AutomationId="CampaignRow">
+                <!-- Plus de carte encadrée : une ligne simple, soulignée d'un trait fin ; ouverte, son
+                     titre passe en doré. -->
+                <Border Style="{StaticResource ExpandableRowBorderStyle}" StrokeThickness="0" AutomationId="CampaignRow">
                     <!-- Cible de la visite guidée (cf. AppTourService.CampaignRowKey). -->
                     <Border.Behaviors>
                         <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.CampaignRowKey}"/>
@@ -119,36 +106,28 @@
                         <TapGestureRecognizer
                             Command="{Binding Source={RelativeSource AncestorType={x:Type local:CampaignViewModel}}, Path=OpenCampaignCommand}"
                             CommandParameter="{Binding .}"/>
+                        <DragGestureRecognizer CanDrag="True" DragStarting="OnRowDragStarting" DropCompleted="OnRowDropCompleted"/>
                         <DropGestureRecognizer AllowDrop="True" Drop="OnRowDrop" DragOver="OnRowDragOver" DragLeave="OnRowDragLeave"/>
                     </Border.GestureRecognizers>
-                    <Grid ColumnDefinitions="32,4,20,*,44" ColumnSpacing="10">
-                        <!-- Poignée en tout premier, avant même le marqueur de sélection : accroche la
-                             plus à gauche possible, comme sur une liste réordonnable classique.
-                             GripVertical (colonne de points empilés) plutôt que Grip (grille 2D,
-                             utilisée sur le Mixer) : ici la liste est verticale, l'icône doit suggérer
-                             un glisser haut/bas. -->
-                        <Border Grid.Column="0" Style="{StaticResource DragHandleBorderStyle}">
-                            <Border.Behaviors>
-                                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.CampaignHandleKey}"/>
-                            </Border.Behaviors>
-                            <Border.GestureRecognizers>
-                                <DragGestureRecognizer CanDrag="True" DragStarting="OnRowDragStarting" DropCompleted="OnRowDropCompleted"/>
-                            </Border.GestureRecognizers>
-                            <Label Text="{x:Static icons:SolidFont.GripVertical}" FontFamily="FontSolid"
-                                   FontSize="{OnIdiom Default=13, Desktop=11}" TextColor="{DynamicResource AppTextMuted}"/>
-                        </Border>
-                        <BoxView Grid.Column="1" Style="{StaticResource SelectionMarkerStyle}"/>
-                        <Label Grid.Column="2" Text="{x:Static icons:SolidFont.Map}"
+                    <Grid ColumnDefinitions="4,20,*,44" ColumnSpacing="10">
+                        <BoxView Grid.Column="0" Style="{StaticResource SelectionMarkerStyle}"/>
+                        <Label Grid.Column="1" Text="{x:Static icons:SolidFont.Map}"
                                FontFamily="FontSolid" FontSize="{OnIdiom Default=15, Desktop=13}"
-                               VerticalOptions="Center" TextColor="{DynamicResource AppTextMuted}"/>
-                        <Label Grid.Column="3" Text="{Binding Campaign.Title}" FontFamily="OpenSansSemibold" FontSize="{DynamicResource AppFontSizeSectionTitle}" VerticalOptions="Center" Style="{StaticResource TruncatedLabelStyle}"/>
+                               VerticalOptions="Center" TextColor="{DynamicResource AppAccent}"/>
+                        <Label Grid.Column="2" Text="{Binding Campaign.Title}" FontFamily="OpenSansSemibold" FontSize="{DynamicResource AppFontSizeSectionTitle}" VerticalOptions="Center" Style="{StaticResource TruncatedLabelStyle}">
+                            <Label.Behaviors>
+                                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.CampaignHandleKey}"/>
+                            </Label.Behaviors>
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsExpanded}" Value="True">
+                                    <Setter Property="TextColor" Value="{DynamicResource AppAccent}"/>
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
                         <!-- FaIconButtonView (vrai Button) plutot que Label+TapGestureRecognizer : ButtonWidthRequest="44"
-                             reprend la largeur de colonne d'origine (pas AppMinTouchTarget, qui varie par idiome et ne
-                             correspondrait plus a "44" partout). ButtonHeightRequest="-1" (Unset) : par defaut le
-                             bouton reste carre (cf. FaIconButtonView.xaml.cs), ici on le laisse plutot s'etirer
-                             (VerticalOptions="Fill") jusqu'a la hauteur de la ligne, comme le faisait le Grid de tap
-                             d'origine, au lieu de se reduire a un carre. -->
-                        <components:FaIconButtonView Grid.Column="4" Style="{StaticResource GhostIconButtonStyle}"
+                             reprend la largeur de colonne d'origine. ButtonHeightRequest="-1" (Unset) : le bouton
+                             s'etire (VerticalOptions="Fill") jusqu'a la hauteur de la ligne au lieu d'un carre. -->
+                        <components:FaIconButtonView Grid.Column="3" Style="{StaticResource GhostIconButtonStyle}"
                                                       ButtonWidthRequest="44" ButtonHeightRequest="-1" ButtonVerticalOptions="Fill"
                                                       Icon="{Binding IsExpanded, Converter={StaticResource BoolToChevronConverter}}"
                                                       IconSize="{OnIdiom Default=16, Desktop=14}"
@@ -158,9 +137,10 @@
                                 <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.CampaignChevronKey}"/>
                             </components:FaIconButtonView.Behaviors>
                         </components:FaIconButtonView>
-                        <Border x:Name="DragHighlightBorder" Grid.Column="0" Grid.ColumnSpan="5" Style="{StaticResource DragHighlightBorderStyle}"/>
+                        <Border x:Name="DragHighlightBorder" Grid.Column="0" Grid.ColumnSpan="4" Style="{StaticResource DragHighlightBorderStyle}"/>
                     </Grid>
                 </Border>
+                <BoxView HeightRequest="1" VerticalOptions="End" Color="{DynamicResource AppBorder}" InputTransparent="True"/>
                 </Grid>
             </DataTemplate>
 
@@ -169,10 +149,7 @@
                  respecté (toutes les lignes ressortaient au même niveau) — une colonne vide est du
                  vrai contenu de layout, fiable sur toutes les plateformes. -->
             <DataTemplate x:Key="SessionTemplate" x:DataType="local:SessionRow">
-                <!-- La poignée occupe la colonne 1, juste après l'indentation de profondeur (colonne
-                     0) : accroche la plus à gauche possible du contenu réel de la ligne, cf.
-                     CampaignTemplate pour le même choix et GripVertical. -->
-                <Grid ColumnDefinitions="20,28,4,18,*,32" ColumnSpacing="8" Padding="{DynamicResource AppChapterRowPadding}" MinimumHeightRequest="48" AutomationId="SessionRow">
+                <Grid ColumnDefinitions="20,4,18,*,32" ColumnSpacing="8" Padding="{DynamicResource AppChapterRowPadding}" MinimumHeightRequest="48" AutomationId="SessionRow">
                     <Grid.Behaviors>
                         <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.SessionRowKey}"/>
                     </Grid.Behaviors>
@@ -180,39 +157,28 @@
                         <TapGestureRecognizer
                             Command="{Binding Source={RelativeSource AncestorType={x:Type local:CampaignViewModel}}, Path=OpenSessionCommand}"
                             CommandParameter="{Binding .}"/>
+                        <DragGestureRecognizer CanDrag="True" DragStarting="OnRowDragStarting" DropCompleted="OnRowDropCompleted"/>
                         <DropGestureRecognizer AllowDrop="True" Drop="OnRowDrop" DragOver="OnRowDragOver" DragLeave="OnRowDragLeave"/>
                     </Grid.GestureRecognizers>
-                    <BoxView Grid.Column="2" Grid.ColumnSpan="4" Style="{StaticResource ChapterDividerStyle}"/>
-                    <Border Grid.Column="1" Style="{StaticResource DragHandleBorderStyle}">
-                        <Border.GestureRecognizers>
-                            <DragGestureRecognizer CanDrag="True" DragStarting="OnRowDragStarting" DropCompleted="OnRowDropCompleted"/>
-                        </Border.GestureRecognizers>
-                        <Label Text="{x:Static icons:SolidFont.GripVertical}" FontFamily="FontSolid"
-                               FontSize="{OnIdiom Default=12, Desktop=10}" TextColor="{DynamicResource AppTextMuted}"/>
-                    </Border>
-                    <BoxView Grid.Column="2" Style="{StaticResource SelectionMarkerStyle}"/>
-                    <Label Grid.Column="3" Text="{x:Static icons:SolidFont.Bookmark}"
+                    <BoxView Grid.Column="1" Grid.ColumnSpan="4" Style="{StaticResource ChapterDividerStyle}"/>
+                    <BoxView Grid.Column="1" Style="{StaticResource SelectionMarkerStyle}"/>
+                    <Label Grid.Column="2" Text="{x:Static icons:SolidFont.Bookmark}"
                            FontFamily="FontSolid" FontSize="{OnIdiom Default=13, Desktop=11}"
-                           VerticalOptions="Center" TextColor="{DynamicResource AppTextMuted}"/>
-                    <Label Grid.Column="4" Text="{Binding Session.Title}" FontSize="{OnIdiom Default=15, Desktop=13}" FontAttributes="Italic" VerticalOptions="Center" Style="{StaticResource TruncatedLabelStyle}"/>
-                    <!-- Même raison que le chevron Campagne ci-dessus (cf. CampaignTemplate) : ButtonWidthRequest="32"
-                         reprend la largeur de colonne, ButtonHeightRequest="-1" laisse le bouton s'etirer sur toute
-                         la ligne (VerticalOptions="Fill") au lieu du carre par defaut. -->
-                    <components:FaIconButtonView Grid.Column="5" Style="{StaticResource GhostIconButtonStyle}"
+                           VerticalOptions="Center" TextColor="{DynamicResource AppAccent}"/>
+                    <Label Grid.Column="3" Text="{Binding Session.Title}" FontSize="{OnIdiom Default=15, Desktop=13}" FontAttributes="Italic" VerticalOptions="Center" Style="{StaticResource TruncatedLabelStyle}"/>
+                    <!-- Même raison que le chevron Campagne ci-dessus (cf. CampaignTemplate). -->
+                    <components:FaIconButtonView Grid.Column="4" Style="{StaticResource GhostIconButtonStyle}"
                                                   ButtonWidthRequest="32" ButtonHeightRequest="-1" ButtonVerticalOptions="Fill"
                                                   Icon="{Binding IsExpanded, Converter={StaticResource BoolToChevronConverter}}"
                                                   IconSize="{OnIdiom Default=15, Desktop=13}"
                                                   Command="{Binding Source={RelativeSource AncestorType={x:Type local:CampaignViewModel}}, Path=ToggleSessionCommand}"
                                                   CommandParameter="{Binding .}"/>
-                    <Border x:Name="DragHighlightBorder" Grid.Column="0" Grid.ColumnSpan="6" Style="{StaticResource DragHighlightBorderStyle}"/>
+                    <Border x:Name="DragHighlightBorder" Grid.Column="0" Grid.ColumnSpan="5" Style="{StaticResource DragHighlightBorderStyle}"/>
                 </Grid>
             </DataTemplate>
 
             <DataTemplate x:Key="SceneTemplate" x:DataType="local:SceneRow">
-                <!-- La poignée occupe la colonne 1, juste après l'indentation de profondeur (colonne
-                     0) : accroche la plus à gauche possible du contenu réel de la ligne, cf.
-                     CampaignTemplate pour le même choix et GripVertical. -->
-                <Grid ColumnDefinitions="40,28,4,16,*,70" ColumnSpacing="8" Padding="{DynamicResource AppSceneRowPadding}" MinimumHeightRequest="48" AutomationId="SceneRow">
+                <Grid ColumnDefinitions="40,4,16,*,auto" ColumnSpacing="8" Padding="{DynamicResource AppSceneRowPadding}" MinimumHeightRequest="48" AutomationId="SceneRow">
                     <Grid.Behaviors>
                         <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.SceneRowKey}"/>
                     </Grid.Behaviors>
@@ -220,35 +186,32 @@
                         <TapGestureRecognizer
                             Command="{Binding Source={RelativeSource AncestorType={x:Type local:CampaignViewModel}}, Path=SelectCommand}"
                             CommandParameter="{Binding .}"/>
+                        <DragGestureRecognizer CanDrag="True" DragStarting="OnRowDragStarting" DropCompleted="OnRowDropCompleted"/>
                         <DropGestureRecognizer AllowDrop="True" Drop="OnRowDrop" DragOver="OnRowDragOver" DragLeave="OnRowDragLeave"/>
                     </Grid.GestureRecognizers>
-                    <Border Grid.Column="1" Style="{StaticResource DragHandleBorderStyle}">
-                        <Border.GestureRecognizers>
-                            <DragGestureRecognizer CanDrag="True" DragStarting="OnRowDragStarting" DropCompleted="OnRowDropCompleted"/>
-                        </Border.GestureRecognizers>
-                        <Label Text="{x:Static icons:SolidFont.GripVertical}" FontFamily="FontSolid"
-                               FontSize="{OnIdiom Default=11, Desktop=9}" TextColor="{DynamicResource AppTextMuted}"/>
-                    </Border>
-                    <BoxView Grid.Column="2" Style="{StaticResource SelectionMarkerStyle}"/>
-                    <Label Grid.Column="3" Text="{x:Static icons:SolidFont.MasksTheater}"
+                    <BoxView Grid.Column="1" Style="{StaticResource SelectionMarkerStyle}"/>
+                    <Label Grid.Column="2" Text="{x:Static icons:SolidFont.MasksTheater}"
                            FontFamily="FontSolid" FontSize="{OnIdiom Default=12, Desktop=10}"
                            VerticalOptions="Center" TextColor="{DynamicResource AppTextMuted}"/>
-                    <Label Grid.Column="4" Text="{Binding Scene.Title}" VerticalOptions="Center"
-                           TextColor="{DynamicResource AppTextMuted}" Style="{StaticResource TruncatedLabelStyle}"/>
-                    <Grid Grid.Column="5" AutomationId="SceneLaunchButton">
-                        <Grid.Behaviors>
+                    <Label Grid.Column="3" Text="{Binding Scene.Title}" VerticalOptions="Center"
+                           TextColor="{DynamicResource AppText}" Style="{StaticResource TruncatedLabelStyle}"/>
+                    <!-- "Lancer" en pastille dorée sur fond sombre, le langage des boutons du mixeur. -->
+                    <Border Grid.Column="4" AutomationId="SceneLaunchButton" VerticalOptions="Center"
+                            StrokeThickness="0" StrokeShape="RoundRectangle 16"
+                            BackgroundColor="{DynamicResource AppSurface}" Padding="12,6">
+                        <Border.Behaviors>
                             <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.SceneLaunchKey}"/>
-                        </Grid.Behaviors>
-                        <Grid.GestureRecognizers>
+                        </Border.Behaviors>
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer
                                 Command="{Binding Source={RelativeSource AncestorType={x:Type local:CampaignViewModel}}, Path=LaunchCommand}"
                                 CommandParameter="{Binding .}"/>
-                        </Grid.GestureRecognizers>
-                        <Label Text="{loc:Loc BtnLaunch}"
+                        </Border.GestureRecognizers>
+                        <Label Text="{loc:Loc BtnLaunch}" FontAttributes="Bold"
                                FontSize="{OnIdiom Default=13, Desktop=11}" HorizontalOptions="Center" VerticalOptions="Center"
                                TextColor="{DynamicResource AppAccent}"/>
-                    </Grid>
-                    <Border x:Name="DragHighlightBorder" Grid.Column="0" Grid.ColumnSpan="6" Style="{StaticResource DragHighlightBorderStyle}"/>
+                    </Border>
+                    <Border x:Name="DragHighlightBorder" Grid.Column="0" Grid.ColumnSpan="5" Style="{StaticResource DragHighlightBorderStyle}"/>
                 </Grid>
             </DataTemplate>
 
@@ -314,7 +277,7 @@
                     <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.CampaignEditKey}"/>
                 </components:FaIconButtonView.Behaviors>
             </components:FaIconButtonView>
-            <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Trash}"
+            <components:FaIconButtonView Style="{StaticResource DangerIconButtonStyle}" Icon="{x:Static icons:SolidFont.Trash}"
                                          Command="{Binding DeleteCommand}"
                                          Tooltip="{loc:Loc BtnDelete}"
                                          IsEnabled="{Binding SelectedRow, Converter={StaticResource IsNotNullConverter}}">
