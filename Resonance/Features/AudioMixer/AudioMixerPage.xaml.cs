@@ -1,3 +1,4 @@
+using Microsoft.Maui.Layouts;
 using Resonance.Components;
 using Resonance.Services;
 
@@ -10,14 +11,13 @@ public partial class AudioMixerPage : ContentPage
     private static Color AccentColor => (Color)Application.Current!.Resources["AppAccent"];
     private static Color HighlightBackgroundColor => AccentColor.WithAlpha(0.12f);
 
-    // Auto-scroll pendant le drag : CollectionView ne le fait pas nativement quand on approche
-    // un bord alors que la liste déborde. ScrollTo n'accepte qu'un index (pas un offset en
-    // pixels) : on avance/recule d'un item par tick tant que le pointeur reste près du bord.
+    // Auto-scroll pendant le drag : une zone qui déborde ne défile pas toute seule quand on approche
+    // de son bord. On avance d'un pas par tick tant que le pointeur reste près du bord.
     private const double AutoScrollEdgeThreshold = 60;
+    private const double AutoScrollStep = 90;
     private IDispatcherTimer? _autoScrollTimer;
     private int _autoScrollDirection;
-    private int _autoScrollIndex;
-    private CollectionView? _autoScrollList;
+    private ScrollView? _autoScrollView;
 
     public AudioMixerPage(AudioMixerViewModel vm)
     {
@@ -29,19 +29,30 @@ public partial class AudioMixerPage : ContentPage
         _vm.IsSideBySide = DeviceInfo.Idiom == DeviceIdiom.Desktop;
         if (_vm.IsSideBySide)
         {
+            // Ambiances | trait vertical | effets.
             ChannelsArea.ColumnDefinitions = new ColumnDefinitionCollection
             {
                 new ColumnDefinition(new GridLength(1.15, GridUnitType.Star)),
+                new ColumnDefinition(GridLength.Auto),
                 new ColumnDefinition(GridLength.Star)
             };
-            Grid.SetColumn(EffectsPanel, 1);
-            if (EffectsCollectionView.ItemsLayout is GridItemsLayout grid)
-                grid.Span = 3;
+            Grid.SetColumn(ColumnDivider, 1);
+            Grid.SetColumn(EffectsPanel, 2);
+        }
+        else
+        {
+            // Sur téléphone, le bouton flottant de la scène libre (en bas à droite) recouvrait
+            // l'étiquette de la dernière tranche visible : on lui réserve sa hauteur sous les tranches.
+            AmbienceScroll.Margin = new Thickness(0, 0, 0, 64);
         }
 
-        // La zone des tranches change de hauteur quand le panneau d'actions s'ouvre ou se ferme :
-        // les tranches déjà affichées doivent suivre (cf. MixerConsoleStripView.RemeasureAll).
-        AmbienceCollectionView.SizeChanged += (_, _) => Dispatcher.Dispatch(MixerConsoleStripView.RemeasureAll);
+        // Pads sur 2 colonnes (3 côte à côte sous Windows) : chaque pad prend sa part de la largeur.
+        var padBasis = new FlexBasis(_vm.IsSideBySide ? 1f / 3 : 0.5f, isRelative: true);
+        EffectsFlex.ChildAdded += (_, e) =>
+        {
+            if (e.Element is BindableObject pad)
+                FlexLayout.SetBasis(pad, padBasis);
+        };
 
         _vm.PropertyChanged += (_, e) =>
         {
@@ -51,21 +62,27 @@ public partial class AudioMixerPage : ContentPage
         };
     }
 
+    // Vue affichée (tranche ou pad) d'un canal, parmi les enfants de sa rangée ou de sa grille.
+    private VisualElement? ViewOf(ChannelStripViewModel channel)
+    {
+        Layout container = channel.IsOneShot ? EffectsFlex : AmbienceStack;
+        return container.Children.OfType<VisualElement>().FirstOrDefault(v => ReferenceEquals(v.BindingContext, channel));
+    }
+
     // Un canal tout juste ajouté, ou passé d'ambiance à effet (ou l'inverse) depuis ses réglages,
-    // peut se retrouver hors de l'écran : on fait défiler sa liste jusqu'à lui.
+    // peut se retrouver hors de l'écran : on fait défiler sa zone jusqu'à lui.
     private void ScrollToSelectedChannel()
     {
         if (_vm.SelectedChannel is not ChannelStripViewModel channel)
             return;
 
-        var list = channel.IsOneShot ? EffectsCollectionView : AmbienceCollectionView;
-        Dispatcher.Dispatch(() =>
+        var scroll = channel.IsOneShot ? EffectsScroll : AmbienceScroll;
+        Dispatcher.Dispatch(async () =>
         {
-            if (ItemsOf(list).Contains(channel))
-                list.ScrollTo(channel, position: ScrollToPosition.MakeVisible, animate: true);
+            if (ViewOf(channel) is VisualElement view)
+                await scroll.ScrollToAsync(view, ScrollToPosition.MakeVisible, animated: true);
         });
     }
-
 #if WINDOWS
     // Raccourcis clavier du mixeur (Ctrl+flèches, Ctrl+Entrée...), cf. Platforms/Windows/MixerShortcuts.
     protected override void OnHandlerChanged()
@@ -126,7 +143,7 @@ public partial class AudioMixerPage : ContentPage
 
     // DragHighlightBorder est un Border transparent superposé à chaque tranche/pad (cf. XAML),
     // indépendant des repères du canal lui-même (sélection, lecture). FindByName cherche dans le
-    // namescope de CETTE instance de DataTemplate réalisée par la CollectionView.
+    // namescope de CETTE instance de DataTemplate.
     private static void SetHighlightBorder(VisualElement root, Color stroke, Color background)
     {
         if (root.FindByName<Border>("DragHighlightBorder") is not Border border) return;
@@ -176,10 +193,10 @@ public partial class AudioMixerPage : ContentPage
     private void UpdateAutoScroll(DragEventArgs e, ChannelStripViewModel hovered)
     {
         // Les tranches d'ambiance défilent horizontalement, les pads d'effet verticalement.
-        var list = hovered.IsOneShot ? EffectsCollectionView : AmbienceCollectionView;
+        var scroll = hovered.IsOneShot ? EffectsScroll : AmbienceScroll;
         bool horizontal = !hovered.IsOneShot;
-        var position = e.GetPosition(list);
-        double length = horizontal ? list.Width : list.Height;
+        var position = e.GetPosition(scroll);
+        double length = horizontal ? scroll.Width : scroll.Height;
         if (position is null || length <= 0)
         {
             StopAutoScroll();
@@ -197,39 +214,36 @@ public partial class AudioMixerPage : ContentPage
             return;
         }
 
-        // Déjà en cours dans la même direction : on laisse le timer progresser tout seul plutôt
-        // que de repartir de l'item actuellement survolé (cf. commentaire sur OnChannelDragLeave).
-        if (_autoScrollTimer != null && _autoScrollDirection == direction && ReferenceEquals(_autoScrollList, list))
+        // Déjà en cours dans la même direction : on laisse le timer progresser tout seul (cf.
+        // commentaire sur OnChannelDragLeave).
+        if (_autoScrollTimer != null && _autoScrollDirection == direction && ReferenceEquals(_autoScrollView, scroll))
             return;
 
         StopAutoScroll();
-        _autoScrollList = list;
+        _autoScrollView = scroll;
         _autoScrollDirection = direction;
-        _autoScrollIndex = ItemsOf(list).IndexOf(hovered);
 
         _autoScrollTimer = Dispatcher.CreateTimer();
-        _autoScrollTimer.Interval = TimeSpan.FromMilliseconds(400);
-        _autoScrollTimer.Tick += (_, _) => AdvanceAutoScroll();
+        _autoScrollTimer.Interval = TimeSpan.FromMilliseconds(250);
+        _autoScrollTimer.Tick += async (_, _) => await AdvanceAutoScrollAsync();
         _autoScrollTimer.Start();
     }
 
-    private IList<ChannelStripViewModel> ItemsOf(CollectionView list) =>
-        ReferenceEquals(list, EffectsCollectionView) ? _vm.EffectChannels : _vm.AmbienceChannels;
-
-    private void AdvanceAutoScroll()
+    private async Task AdvanceAutoScrollAsync()
     {
-        if (_autoScrollList == null)
+        if (_autoScrollView is not ScrollView scroll)
             return;
 
-        var items = ItemsOf(_autoScrollList);
-        if (items.Count == 0)
+        if (scroll.Orientation == ScrollOrientation.Horizontal)
         {
-            StopAutoScroll();
-            return;
+            double max = Math.Max(0, scroll.ContentSize.Width - scroll.Width);
+            await scroll.ScrollToAsync(Math.Clamp(scroll.ScrollX + _autoScrollDirection * AutoScrollStep, 0, max), 0, animated: true);
         }
-
-        _autoScrollIndex = Math.Clamp(_autoScrollIndex + _autoScrollDirection, 0, items.Count - 1);
-        _autoScrollList.ScrollTo(_autoScrollIndex, position: ScrollToPosition.MakeVisible, animate: true);
+        else
+        {
+            double max = Math.Max(0, scroll.ContentSize.Height - scroll.Height);
+            await scroll.ScrollToAsync(0, Math.Clamp(scroll.ScrollY + _autoScrollDirection * AutoScrollStep, 0, max), animated: true);
+        }
     }
 
     private void StopAutoScroll()
@@ -238,6 +252,6 @@ public partial class AudioMixerPage : ContentPage
         _autoScrollTimer.Stop();
         _autoScrollTimer = null;
         _autoScrollDirection = 0;
-        _autoScrollList = null;
+        _autoScrollView = null;
     }
 }

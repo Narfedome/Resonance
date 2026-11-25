@@ -272,6 +272,8 @@ namespace Resonance.Features.AudioMixer
         /// </summary>
         public void ResetActiveScene()
         {
+            // La scène de retour peut être celle qu'on vient de supprimer : on l'oublie.
+            RememberReturnScene(null, null);
             ClearChannels();
             _activeScene = null;
             OnPropertyChanged(nameof(HasActiveScene));
@@ -521,6 +523,10 @@ namespace Resonance.Features.AudioMixer
         {
             if (_isLoadingScene || IsFreeformActive) return;
             _isLoadingScene = true;
+
+            // Scène de campagne qu'on quitte : le bouton de la scène libre devient "retour" pour y
+            // revenir d'un geste (cf. ReturnFromFreeform), sans rechercher chapitre et scène.
+            RememberReturnScene(SelectedSession, SelectedScene);
 
             var shell = Shell.Current;
             if (shell != null) shell.IsEnabled = false;

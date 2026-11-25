@@ -33,7 +33,7 @@
         <Style x:Key="MixerSectionTitleStyle" TargetType="Label">
             <Setter Property="FontAttributes" Value="Bold"/>
             <Setter Property="TextColor" Value="{DynamicResource AppTextMuted}"/>
-            <Setter Property="Margin" Value="2,0,0,6"/>
+            <Setter Property="Margin" Value="2,0,0,0"/>
         </Style>
     </ContentPage.Resources>
 
@@ -115,7 +115,7 @@
         </Border>
 
         <!-- Overlay de chargement de scène : couvre toute la page (fond semi-transparent) pendant
-             la (re)création des canaux. Les CollectionView étant des contrôles natifs sur Windows,
+             la (re)création des canaux. Les listes natives sur Windows,
              l'ordre visuel (ZIndex) ne suffit pas à bloquer leurs interactions : chaque zone
              interactive est donc aussi désactivée via IsEnabled, en plus du blocage de la
              navigation Shell côté ViewModel. -->
@@ -130,120 +130,137 @@
 
         <!-- Canaux : une colonne sur téléphone (selon l'onglet), deux côte à côte sur Windows
              (colonnes posées dans le code-behind, cf. IsSideBySide). -->
-        <Grid x:Name="ChannelsArea" Grid.Row="2" ColumnSpacing="16"
+        <Grid x:Name="ChannelsArea" Grid.Row="2" ColumnSpacing="12"
               IsEnabled="{Binding Loading.IsLoading, Converter={StaticResource InverseBoolConverter}}">
+
+            <!-- Trait vertical entre les deux colonnes (côte à côte seulement, cf. code-behind). -->
+            <BoxView x:Name="ColumnDivider" WidthRequest="1" Margin="0,4,0,8"
+                     Color="{DynamicResource AppBorder}" IsVisible="{Binding IsSideBySide}"/>
 
             <!-- Ambiances et musiques : tranches de console côte à côte, qui défilent
                  horizontalement au-delà de ce que montre l'écran. -->
             <Grid x:Name="AmbiencePanel" RowDefinitions="auto,*" IsVisible="{Binding ShowAmbiences}">
-                <Label Grid.Row="0" Text="{loc:Loc MixerTabAmbiences}" Style="{StaticResource MixerSectionTitleStyle}"
-                       IsVisible="{Binding IsSideBySide}"/>
-                <!-- Pas de cadre autour des tranches : les traits de séparation suffisent. -->
-                <Border Grid.Row="1" StrokeThickness="0" Padding="0,4">
-                    <CollectionView x:Name="AmbienceCollectionView"
-                                    ItemsSource="{Binding AmbienceChannels}"
-                                    ItemsLayout="HorizontalList">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="corevm:ChannelStripViewModel">
-                                <!-- Drop sur toute la tranche (cible facile à viser), drag depuis la
-                                     poignée seulement (cf. MixerConsoleStripView). -->
-                                <Grid ColumnDefinitions="*,auto">
-                                    <Grid.GestureRecognizers>
-                                        <DropGestureRecognizer AllowDrop="True" Drop="OnChannelDrop" DragOver="OnChannelDragOver" DragLeave="OnChannelDragLeave"/>
-                                    </Grid.GestureRecognizers>
-                                    <components:MixerConsoleStripView Grid.Column="0"/>
-                                    <Border x:Name="DragHighlightBorder" Grid.Column="0"
-                                            BackgroundColor="Transparent" Stroke="Transparent" StrokeThickness="2"
-                                            StrokeShape="RoundRectangle 8" InputTransparent="True"/>
-                                    <!-- Séparation entre tranches, comme sur une table. -->
-                                    <BoxView Grid.Column="1" WidthRequest="1" Margin="2,8"
-                                             VerticalOptions="Fill" Color="{DynamicResource AppBorder}"/>
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
+                <!-- Titre de colonne (côte à côte seulement), souligné d'un trait fin. -->
+                <VerticalStackLayout Grid.Row="0" IsVisible="{Binding IsSideBySide}" Spacing="4" Margin="0,0,0,8">
+                    <Label Text="{loc:Loc MixerTabAmbiences}" Style="{StaticResource MixerSectionTitleStyle}"/>
+                    <BoxView HeightRequest="1" Color="{DynamicResource AppBorder}"/>
+                </VerticalStackLayout>
+                <!-- Rangée qui défile plutôt qu'une CollectionView : il n'y a jamais beaucoup de
+                     canaux, et une liste native plaçait mal le "+" de fin (collé au bord de la
+                     colonne sous Windows) et ne re-mesurait pas ses tranches quand la zone
+                     grandissait sous Android. Pas de cadre : les traits de séparation suffisent. -->
+                <ScrollView x:Name="AmbienceScroll" Grid.Row="1" Orientation="Horizontal" Padding="0,4">
+                    <HorizontalStackLayout>
+                        <HorizontalStackLayout x:Name="AmbienceStack" BindableLayout.ItemsSource="{Binding AmbienceChannels}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="corevm:ChannelStripViewModel">
+                                    <!-- Drop sur toute la tranche (cible facile à viser), drag depuis
+                                         l'étiquette seulement (cf. MixerConsoleStripView). -->
+                                    <Grid ColumnDefinitions="*,auto">
+                                        <Grid.GestureRecognizers>
+                                            <DropGestureRecognizer AllowDrop="True" Drop="OnChannelDrop" DragOver="OnChannelDragOver" DragLeave="OnChannelDragLeave"/>
+                                        </Grid.GestureRecognizers>
+                                        <components:MixerConsoleStripView Grid.Column="0"/>
+                                        <Border x:Name="DragHighlightBorder" Grid.Column="0"
+                                                BackgroundColor="Transparent" Stroke="Transparent" StrokeThickness="2"
+                                                StrokeShape="RoundRectangle 8" InputTransparent="True"/>
+                                        <!-- Séparation entre tranches, comme sur une table. -->
+                                        <BoxView Grid.Column="1" WidthRequest="1" Margin="2,8"
+                                                 VerticalOptions="Fill" Color="{DynamicResource AppBorder}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </HorizontalStackLayout>
                         <!-- Après la dernière tranche : la place du prochain canal. -->
-                        <CollectionView.Footer>
-                            <Grid WidthRequest="{DynamicResource AppConsoleStripWidth}">
-                                <Border Style="{StaticResource MixerAddRoundStyle}"
-                                        HorizontalOptions="Center" VerticalOptions="Center"
-                                        IsEnabled="{Binding HasActiveScene}"
-                                        ToolTipProperties.Text="{loc:Loc MixerAddAmbience}"
-                                        SemanticProperties.Description="{loc:Loc MixerAddAmbience}">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding AddAmbienceCommand}"/>
-                                    </Border.GestureRecognizers>
-                                    <Border.Behaviors>
-                                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerAddChannelKey}"/>
-                                    </Border.Behaviors>
-                                    <Label Style="{StaticResource MixerAddRoundLabelStyle}"/>
-                                </Border>
-                            </Grid>
-                        </CollectionView.Footer>
-                    </CollectionView>
-                </Border>
-            </Grid>
-
-            <!-- Effets : pads -->
-            <Grid x:Name="EffectsPanel" RowDefinitions="auto,*" IsVisible="{Binding ShowEffects}">
-                <Label Grid.Row="0" Text="{loc:Loc MixerTabEffects}" Style="{StaticResource MixerSectionTitleStyle}"
-                       IsVisible="{Binding IsSideBySide}"/>
-                <CollectionView x:Name="EffectsCollectionView" Grid.Row="1"
-                                ItemsSource="{Binding EffectChannels}">
-                    <CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" Span="2" VerticalItemSpacing="8" HorizontalItemSpacing="8"/>
-                    </CollectionView.ItemsLayout>
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="corevm:ChannelStripViewModel">
-                            <Grid>
-                                <Grid.GestureRecognizers>
-                                    <DropGestureRecognizer AllowDrop="True" Drop="OnChannelDrop" DragOver="OnChannelDragOver" DragLeave="OnChannelDragLeave"/>
-                                </Grid.GestureRecognizers>
-                                <components:MixerEffectPadView/>
-                                <Border x:Name="DragHighlightBorder"
-                                        BackgroundColor="Transparent" Stroke="Transparent" StrokeThickness="2"
-                                        StrokeShape="RoundRectangle 14" InputTransparent="True"/>
-                            </Grid>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                    <!-- Après le dernier pad : la place du prochain effet. -->
-                    <CollectionView.Footer>
-                        <Grid Padding="0,10">
-                            <Border Style="{StaticResource MixerAddRoundStyle}" HorizontalOptions="Start" Margin="4,0"
+                        <Grid WidthRequest="{DynamicResource AppConsoleStripWidth}">
+                            <Border Style="{StaticResource MixerAddRoundStyle}"
+                                    HorizontalOptions="Center" VerticalOptions="Center"
                                     IsEnabled="{Binding HasActiveScene}"
-                                    ToolTipProperties.Text="{loc:Loc MixerAddEffect}"
-                                    SemanticProperties.Description="{loc:Loc MixerAddEffect}">
+                                    ToolTipProperties.Text="{loc:Loc MixerAddAmbience}"
+                                    SemanticProperties.Description="{loc:Loc MixerAddAmbience}">
                                 <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding AddEffectCommand}"/>
+                                    <TapGestureRecognizer Command="{Binding AddAmbienceCommand}"/>
                                 </Border.GestureRecognizers>
+                                <Border.Behaviors>
+                                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerAddChannelKey}"/>
+                                </Border.Behaviors>
                                 <Label Style="{StaticResource MixerAddRoundLabelStyle}"/>
                             </Border>
                         </Grid>
-                    </CollectionView.Footer>
-                </CollectionView>
+                    </HorizontalStackLayout>
+                </ScrollView>
+            </Grid>
+
+            <!-- Effets : pads, sur 2 colonnes (3 sous Windows, cf. code-behind) qui passent à la
+                 ligne, suivis du "+" - même raison que pour les tranches (pas de CollectionView). -->
+            <Grid x:Name="EffectsPanel" RowDefinitions="auto,*" IsVisible="{Binding ShowEffects}">
+                <VerticalStackLayout Grid.Row="0" IsVisible="{Binding IsSideBySide}" Spacing="4" Margin="0,0,0,8">
+                    <Label Text="{loc:Loc MixerTabEffects}" Style="{StaticResource MixerSectionTitleStyle}"/>
+                    <BoxView HeightRequest="1" Color="{DynamicResource AppBorder}"/>
+                </VerticalStackLayout>
+                <ScrollView x:Name="EffectsScroll" Grid.Row="1">
+                    <VerticalStackLayout Spacing="10">
+                        <FlexLayout x:Name="EffectsFlex" Wrap="Wrap" Direction="Row" AlignItems="Start"
+                                    BindableLayout.ItemsSource="{Binding EffectChannels}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="corevm:ChannelStripViewModel">
+                                    <Grid Padding="4">
+                                        <Grid.GestureRecognizers>
+                                            <DropGestureRecognizer AllowDrop="True" Drop="OnChannelDrop" DragOver="OnChannelDragOver" DragLeave="OnChannelDragLeave"/>
+                                        </Grid.GestureRecognizers>
+                                        <components:MixerEffectPadView/>
+                                        <Border x:Name="DragHighlightBorder"
+                                                BackgroundColor="Transparent" Stroke="Transparent" StrokeThickness="2"
+                                                StrokeShape="RoundRectangle 14" InputTransparent="True"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+                        <!-- Après le dernier pad : la place du prochain effet. -->
+                        <Border Style="{StaticResource MixerAddRoundStyle}" HorizontalOptions="Start" Margin="8,0,0,8"
+                                IsEnabled="{Binding HasActiveScene}"
+                                ToolTipProperties.Text="{loc:Loc MixerAddEffect}"
+                                SemanticProperties.Description="{loc:Loc MixerAddEffect}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AddEffectCommand}"/>
+                            </Border.GestureRecognizers>
+                            <Label Style="{StaticResource MixerAddRoundLabelStyle}"/>
+                        </Border>
+                    </VerticalStackLayout>
+                </ScrollView>
             </Grid>
         </Grid>
 
         <!-- Bouton flottant de la scène libre (hors campagne), en bas à droite de la zone des
              canaux. Feu de camp plutôt que l'éclair d'avant, qui se
-             confondait avec celui des effets. Masqué quand on y est déjà. -->
+             confondait avec celui des effets. Même style discret que les ronds "+" (doré sur fond
+             sombre). En scène libre, le même bouton devient une flèche de retour vers la scène de
+             campagne qu'on a quittée (cf. AudioMixerViewModel.Return.cs). -->
         <Border Grid.Row="2" ZIndex="5" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,2,4"
                 WidthRequest="56" HeightRequest="56" StrokeThickness="0" StrokeShape="RoundRectangle 28"
-                BackgroundColor="{DynamicResource AppAccent}"
-                IsVisible="{Binding IsFreeformActive, Converter={StaticResource InverseBoolConverter}}"
-                ToolTipProperties.Text="{loc:Loc MixerFreeform}"
-                SemanticProperties.Description="{loc:Loc MixerFreeform}">
+                BackgroundColor="{DynamicResource AppSurface}"
+                IsVisible="{Binding ShowFreeformButton}"
+                ToolTipProperties.Text="{Binding ReturnFromFreeformLabel}"
+                SemanticProperties.Description="{Binding ReturnFromFreeformLabel}">
             <Border.Shadow>
                 <Shadow Brush="Black" Opacity="0.45" Radius="10" Offset="0,4"/>
             </Border.Shadow>
             <Border.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding SelectFreeformSceneCommand}"/>
+                <TapGestureRecognizer Command="{Binding ToggleFreeformCommand}"/>
             </Border.GestureRecognizers>
             <Border.Behaviors>
                 <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerFreeformKey}"/>
             </Border.Behaviors>
-            <Label Text="{x:Static icons:RpgFont.RaCampfire}" FontFamily="RpgAwesome" FontSize="26"
-                   TextColor="{DynamicResource AppBackground}"
-                   HorizontalOptions="Center" VerticalOptions="Center"/>
+            <Grid>
+                <Label Text="{x:Static icons:RpgFont.RaCampfire}" FontFamily="RpgAwesome" FontSize="26"
+                       TextColor="{DynamicResource AppAccent}"
+                       IsVisible="{Binding IsFreeformActive, Converter={StaticResource InverseBoolConverter}}"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Label Text="{x:Static icons:SolidFont.Reply}" FontFamily="FontSolid" FontSize="22"
+                       TextColor="{DynamicResource AppAccent}"
+                       IsVisible="{Binding IsFreeformActive}"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
+            </Grid>
         </Border>
 
         <!-- Panneau d'actions du canal sélectionné (étiquette d'une tranche touchée, ou "…" d'un pad) : ces actions

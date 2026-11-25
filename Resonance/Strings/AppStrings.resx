@@ -1067,4 +1067,7 @@
   <data name="TourMixerTabsTitle" xml:space="preserve">
     <value>Ambiances et effets</value>
   </data>
+  <data name="MixerReturnToScene" xml:space="preserve">
+    <value>Revenir à « {0} »</value>
+  </data>
 </root>

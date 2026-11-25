@@ -8,6 +8,7 @@ public partial class ChannelVolumeSliderView : ContentView
         // Suivre le thème à chaud plutôt que garder la couleur lue une fois à la création (valeur
         // "100" restée claire après passage au thème clair).
         SetDynamicResource(TextColorProperty, "AppText");
+        SetDynamicResource(TickColorProperty, "AppBorder");
 
 #if WINDOWS
         // Sur Windows, InnerSlider est bascule sur l'orientation verticale native de WinUI (cf.
@@ -32,6 +33,25 @@ public partial class ChannelVolumeSliderView : ContentView
         // force donc nous-même un remeasure une fois la vue montée, une fois le dispatcher UI
         // libre (le layout de la CollectionView est alors retombé sur ses pieds).
         Loaded += (_, _) => Dispatcher.Dispatch(() => TrackHost.InvalidateMeasure());
+#endif
+
+#if ANDROID
+        // Les tranches défilent dans une ScrollView horizontale : sans ça, elle récupère le geste
+        // et le curseur (tourné de -90°) ne suit plus le doigt - seul un toucher sur la piste le
+        // faisait bouger. Dès que le doigt se pose sur le curseur, on interdit aux parents
+        // d'intercepter le geste, puis on laisse le SeekBar le traiter normalement.
+        InnerSlider.HandlerChanged += (_, _) =>
+        {
+            if (InnerSlider.Handler?.PlatformView is Android.Widget.SeekBar seekBar)
+            {
+                seekBar.Touch += (_, e) =>
+                {
+                    if (e.Event?.Action == Android.Views.MotionEventActions.Down)
+                        seekBar.Parent?.RequestDisallowInterceptTouchEvent(true);
+                    e.Handled = false;
+                };
+            }
+        };
 #endif
     }
 
@@ -143,6 +163,20 @@ public partial class ChannelVolumeSliderView : ContentView
     {
         get => (Color)GetValue(TextColorProperty);
         set => SetValue(TextColorProperty, value);
+    }
+
+    /// <summary>
+    /// Couleur des graduations du fader. Suit AppBorder par défaut (cf. constructeur) ; la tranche
+    /// la passe à une teinte plus claire pendant la lecture, sinon elles disparaissent sur son fond
+    /// éclairé.
+    /// </summary>
+    public static readonly BindableProperty TickColorProperty =
+        BindableProperty.Create(nameof(TickColor), typeof(Color), typeof(ChannelVolumeSliderView), Colors.Gray);
+
+    public Color TickColor
+    {
+        get => (Color)GetValue(TickColorProperty);
+        set => SetValue(TickColorProperty, value);
     }
 
     public static readonly BindableProperty FontSizeProperty =

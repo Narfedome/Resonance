@@ -107,6 +107,13 @@
                     <components:ChannelVolumeSliderView.Behaviors>
                         <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelVolumeKey}"/>
                     </components:ChannelVolumeSliderView.Behaviors>
+                    <!-- En lecture, le fond de la tranche s'éclaire : graduations plus claires pour
+                         rester visibles. -->
+                    <components:ChannelVolumeSliderView.Triggers>
+                        <DataTrigger TargetType="components:ChannelVolumeSliderView" Binding="{Binding IsPlaying}" Value="True">
+                            <Setter Property="TickColor" Value="{DynamicResource AppTextMuted}"/>
+                        </DataTrigger>
+                    </components:ChannelVolumeSliderView.Triggers>
                 </components:ChannelVolumeSliderView>
 
                 <!-- Position dans la piste, seulement pour une piste qui ne boucle pas. -->
