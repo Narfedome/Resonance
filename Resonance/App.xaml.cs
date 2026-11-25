@@ -27,7 +27,7 @@ namespace Resonance
             // d'une largeur au-delà de ce que montre la Bibliothèque : GridItemsLayout Span="3" avec des
             // tuiles WidthRequest=120 (LibraryTrackView.xaml) plafonne à 3 colonnes quelle que soit la
             // largeur dispo — une fenêtre plus large ne ferait qu'ajouter du vide autour. Le mixeur
-            // (ChannelStripView, WidthRequest=50) défile horizontalement plutôt que d'avoir besoin de
+            // (tranches de console qui défilent, pads en grille) s'adapte à la largeur plutôt que d'avoir besoin de
             // place. Le vrai plancher, c'est la TabBar du Shell (AppShell.xaml) : 3 onglets (Campagnes/
             // Bibliothèque/Paramètres) tiennent dès ~480px, mais un 4ᵉ apparaît ("AudioMixer") dès
             // qu'une scène est active - testé, il faut ~590px pour que les 4 tiennent sans repli en

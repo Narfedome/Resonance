@@ -56,6 +56,9 @@ namespace Resonance.Features.AudioMixer
                 foreach (var channel in CurrentChannels)
                     channel.RefreshThemeDependentBindings();
             };
+
+            // Ambiances et effets affichés à part (cf. AudioMixerViewModel.Tabs.cs).
+            CurrentChannels.CollectionChanged += OnCurrentChannelsChanged;
         }
 
         // ── Sélecteur de scène ────────────────────────────────────
@@ -499,9 +502,9 @@ namespace Resonance.Features.AudioMixer
             return sceneTracks.Where(st => File.Exists(st.Track.FilePath)).ToList();
         }
 
-        // Sans scène chargée (ni réelle, ni la scène orpheline), AddChannel produirait un strip
+        // Sans scène chargée (ni réelle, ni la scène orpheline), l'ajout d'un canal produirait un strip
         // dont le picker de piste ne pourrait jamais persister (SaveChannelAsSceneTrack exige
-        // _activeScene) : le bouton "+" du Mixer se lie à ce flag plutôt que de laisser
+        // _activeScene) : les boutons "Ajouter" du Mixer se lient à ce flag plutôt que de laisser
         // l'utilisateur découvrir le problème après coup, silencieusement.
         public bool HasActiveScene => _activeScene != null;
 

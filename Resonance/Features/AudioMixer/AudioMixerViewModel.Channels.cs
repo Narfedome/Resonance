@@ -41,13 +41,6 @@ namespace Resonance.Features.AudioMixer
         }
 
         [RelayCommand]
-        public void AddChannel()
-        {
-            var channel = new ChannelStripViewModel() { DisplayTrackName = (LocalizationService.Instance["ChannelNew"] + " " + (CurrentChannels.Count + 1)), IsPlaying = false, MasterVolume = MasterVolume };
-            CurrentChannels.Add(channel);
-        }
-
-        [RelayCommand]
         public void PlayAll()
         {
             foreach (var c in CurrentChannels)
@@ -70,8 +63,8 @@ namespace Resonance.Features.AudioMixer
             await Task.WhenAll(tasks);
         }
 
-        // Les boutons livre/gear/X de chaque strip sont liés à UNE seule instance de commande du
-        // ViewModel (RelativeSource dans le template) : sans AllowConcurrentExecutions, le toolkit
+        // Les boutons livre/gear/X du panneau d'actions sont liés à UNE seule instance de commande du
+        // ViewModel : sans AllowConcurrentExecutions, le toolkit
         // passe CanExecute à false pendant toute l'exécution async, et TOUS les boutons liés
         // passent visuellement en état désactivé tant que le dialog est ouvert. Ce garde reprend
         // le seul rôle utile de ce blocage : empêcher un double-tap d'ouvrir deux dialogs.
