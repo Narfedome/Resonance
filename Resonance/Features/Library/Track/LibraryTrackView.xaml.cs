@@ -15,6 +15,15 @@ public partial class LibraryTrackView : ContentView
         if (display.Density > 0)
             UpdateTileSize(display.Width / display.Density - 32);
         ItemsCollection.SizeChanged += (_, _) => UpdateTileSize(ItemsCollection.Width);
+        // Desktop : ResponsiveGridSpanBehavior change le nombre de colonnes APRÈS notre SizeChanged ;
+        // on recalcule donc aussi quand Span change, sinon la tuile garde la taille d'une colonne de 3
+        // et déborde de sa cellule (rognée à droite).
+        if (ItemsCollection.ItemsLayout is GridItemsLayout gridLayout)
+            gridLayout.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(GridItemsLayout.Span))
+                    UpdateTileSize(ItemsCollection.Width);
+            };
 #if WINDOWS
         ItemsCollection.Loaded += OnItemsCollectionLoadedWindows;
 #endif
@@ -41,6 +50,14 @@ public partial class LibraryTrackView : ContentView
 
     private void UpdateTileSize(double listWidth)
     {
+        // Desktop : colonnes de largeur fixe (ResponsiveGridSpanBehavior, TileWidth=150) - une pochette
+        // fixe qui y tient avec sa marge. Calculée sur la largeur, elle débordait de la cellule WinUI.
+        if (DeviceInfo.Current.Idiom == DeviceIdiom.Desktop)
+        {
+            TileSize = 124;
+            return;
+        }
+
         if (listWidth <= 0 || ItemsCollection.ItemsLayout is not GridItemsLayout grid)
             return;
 

@@ -1088,4 +1088,7 @@
   <data name="LibLongPressHint" xml:space="preserve">
     <value>Press and hold a cover to select several tracks</value>
   </data>
+  <data name="LibRightClickHint" xml:space="preserve">
+    <value>Right-click or press and hold a cover to select several tracks</value>
+  </data>
 </root>

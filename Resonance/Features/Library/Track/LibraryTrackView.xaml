@@ -169,6 +169,13 @@
                          (TrackButtonView.CoverTapCommand / CoverLongPressCommand) : tap = TapItem, appui
                          long = mode sélection (TileLongPressCommand, nul dans le sélecteur du mixeur). -->
                     <Grid RowDefinitions="auto,auto" RowSpacing="6" Padding="0,0,0,4" AutomationId="LibraryTrackTile">
+                        <!-- Souris (Windows) : clic droit = appui long, maintenir le bouton n'étant pas un
+                             geste naturel au bureau. -->
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Buttons="Secondary"
+                                                  Command="{Binding Source={x:Reference root}, Path=TileLongPressCommand}"
+                                                  CommandParameter="{Binding .}"/>
+                        </Grid.GestureRecognizers>
                         <Grid.Behaviors>
                             <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.LibraryTrackTileKey}"/>
                         </Grid.Behaviors>
@@ -178,6 +185,11 @@
                             <Border.Triggers>
                                 <DataTrigger TargetType="Border" Binding="{Binding IsPrimarySelected}" Value="True">
                                     <Setter Property="Stroke" Value="{DynamicResource AppAccent}"/>
+                                </DataTrigger>
+                                <!-- En mode sélection, seul ce qui est coché est doré : la piste courante perd
+                                     son contour (déclencheurs appliqués dans l'ordre, le dernier l'emporte). -->
+                                <DataTrigger TargetType="Border" Binding="{Binding Source={x:Reference root}, Path=BindingContext.HasSelection}" Value="True">
+                                    <Setter Property="Stroke" Value="Transparent"/>
                                 </DataTrigger>
                                 <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
                                     <Setter Property="Stroke" Value="{DynamicResource AppAccent}"/>
@@ -219,7 +231,7 @@
         <VerticalStackLayout Grid.Row="2" IsVisible="{Binding Source={x:Reference root}, Path=IsCrud}">
             <!-- Indice discret tant qu'on n'est pas en mode sélection : l'appui long n'a aucune autre
                  affordance visible. -->
-            <Label Text="{loc:Loc LibLongPressHint}" FontSize="{OnIdiom Default=12, Desktop=11}"
+            <Label Text="{OnIdiom Default={loc:Loc LibLongPressHint}, Desktop={loc:Loc LibRightClickHint}}" FontSize="{OnIdiom Default=12, Desktop=11}"
                    TextColor="{DynamicResource AppTextMuted}" HorizontalOptions="Center" HorizontalTextAlignment="Center"
                    Margin="24,4,24,0" IsVisible="{Binding HasTrackItems}">
                 <Label.Triggers>

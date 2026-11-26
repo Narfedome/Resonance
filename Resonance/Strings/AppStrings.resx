@@ -1088,4 +1088,7 @@
   <data name="LibLongPressHint" xml:space="preserve">
     <value>Appui long sur une pochette pour sélectionner plusieurs pistes</value>
   </data>
+  <data name="LibRightClickHint" xml:space="preserve">
+    <value>Clic droit ou appui long sur une pochette pour sélectionner plusieurs pistes</value>
+  </data>
 </root>
