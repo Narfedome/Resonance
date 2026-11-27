@@ -1094,26 +1094,14 @@
   <data name="FeedbackShowTechnical" xml:space="preserve">
     <value>See what is sent</value>
   </data>
-  <data name="FeedbackEmail" xml:space="preserve">
-    <value>Your email (optional)</value>
-  </data>
-  <data name="FeedbackEmailPh" xml:space="preserve">
-    <value>To hear when the fix is released</value>
-  </data>
-  <data name="FeedbackEmailHint" xml:space="preserve">
-    <value>Only used to reply to you, never published or shared.</value>
-  </data>
-  <data name="FeedbackEmailInvalid" xml:space="preserve">
-    <value>This email address doesn't look valid. Fix it or leave the field empty.</value>
-  </data>
   <data name="FeedbackPrivacy" xml:space="preserve">
-    <value>Your message is read by the developer. It is also analysed by an AI (Claude, by Anthropic) to sort it; your email is not passed on to it.</value>
+    <value>Your message is read by the developer. It is also analysed by an AI (Claude, by Anthropic) to sort it.</value>
   </data>
   <data name="FeedbackSentTitle" xml:space="preserve">
     <value>Thank you!</value>
   </data>
   <data name="FeedbackSent" xml:space="preserve">
-    <value>Your message has arrived. If you left an email, you'll hear from us when an update includes the fix.</value>
+    <value>Your message has arrived. Thank you for taking the time to write to us!</value>
   </data>
   <data name="FeedbackQueuedTitle" xml:space="preserve">
     <value>No connection</value>

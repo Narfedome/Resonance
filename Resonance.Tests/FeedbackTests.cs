@@ -18,16 +18,6 @@ public class FeedbackRulesTests
     public void CanSend_RejectsTooLongSummary() =>
         Assert.False(FeedbackRules.CanSend(new string('a', FeedbackRules.MaxSummaryLength + 1), "détail"));
 
-    [Theory]
-    [InlineData(null, true)]
-    [InlineData("", true)]
-    [InlineData("joueur@exemple.fr", true)]
-    [InlineData("joueur@exemple", false)]
-    [InlineData("joueur.exemple.fr", false)]
-    [InlineData("a@b@c.fr", false)]
-    [InlineData("joueur @exemple.fr", false)]
-    public void IsValidEmail(string? email, bool expected) => Assert.Equal(expected, FeedbackRules.IsValidEmail(email));
-
     [Fact]
     public void Tail_KeepsLastLines()
     {
@@ -42,12 +32,11 @@ public class FeedbackRulesTests
     {
         var report = FeedbackRules.Normalize(new FeedbackReport
         {
-            Kind = FeedbackKind.Idea, Summary = "  Idée  ", Details = " texte ", Where = "Répurgateurs", Email = "  "
+            Kind = FeedbackKind.Idea, Summary = "  Idée  ", Details = " texte ", Where = "Répurgateurs"
         });
         Assert.Equal("Idée", report.Summary);
         Assert.Equal("texte", report.Details);
         Assert.Null(report.Where);
-        Assert.Null(report.Email);
 
         var translation = FeedbackRules.Normalize(new FeedbackReport { Kind = FeedbackKind.Translation, Where = " Fanatique " });
         Assert.Equal("Fanatique", translation.Where);
@@ -100,7 +89,8 @@ public class FeedbackClientTests
         Assert.Equal("abc", root.GetProperty("id").GetString());
         Assert.Equal("translation", root.GetProperty("kind").GetString());
         Assert.Equal("1.5.2", root.GetProperty("technical").GetProperty("appVersion").GetString());
-        Assert.False(root.TryGetProperty("email", out _)); // null : pas envoyé
+        Assert.Equal("Fanatique", root.GetProperty("where").GetString());
+        Assert.False(root.TryGetProperty("screenshots", out var shots) && shots.GetArrayLength() > 0);
     }
 
     [Fact]
@@ -188,14 +178,13 @@ public class FeedbackOutboxTests : IDisposable
         var outbox = new FeedbackOutbox(_root);
         await outbox.EnqueueAsync(new FeedbackReport
         {
-            Id = "x", Kind = FeedbackKind.Content, Summary = "S", Details = "D", Where = "W", Email = "j@e.fr",
+            Id = "x", Kind = FeedbackKind.Content, Summary = "S", Details = "D", Where = "W",
             Screenshots = [new FeedbackAttachment { FileName = "c.jpg", Base64 = "AAAA" }]
         });
         FeedbackReport? read = null;
         await outbox.FlushAsync(r => { read = r; return Task.FromResult(FeedbackSendResult.Sent); });
         Assert.NotNull(read);
         Assert.Equal(FeedbackKind.Content, read.Kind);
-        Assert.Equal("j@e.fr", read.Email);
         Assert.Equal("AAAA", Assert.Single(read.Screenshots).Base64);
     }
 }

@@ -25,15 +25,6 @@ public static class FeedbackRules
     /// <summary>Le champ « Où ? » n'a de sens que pour une règle, une donnée ou une traduction.</summary>
     public static bool AsksWhere(FeedbackKind kind) => kind is FeedbackKind.Content or FeedbackKind.Translation;
 
-    /// <summary>Adresse vide = pas de réponse voulue ; sinon une forme minimale (le relais ne vérifie rien de plus).</summary>
-    public static bool IsValidEmail(string? email)
-    {
-        if (string.IsNullOrWhiteSpace(email)) return true;
-        var e = email.Trim();
-        var at = e.IndexOf('@');
-        return at > 0 && at == e.LastIndexOf('@') && e.IndexOf('.', at) > at + 1 && !e.EndsWith('.') && !e.Contains(' ');
-    }
-
     /// <summary>Les <paramref name="lines"/> dernières lignes d'un journal, null s'il est vide.</summary>
     public static string? Tail(string? log, int lines = LogTailLines)
     {
@@ -48,7 +39,6 @@ public static class FeedbackRules
         report.Summary = report.Summary.Trim();
         report.Details = report.Details.Trim();
         report.Where = AsksWhere(report.Kind) && !string.IsNullOrWhiteSpace(report.Where) ? report.Where.Trim() : null;
-        report.Email = string.IsNullOrWhiteSpace(report.Email) ? null : report.Email.Trim();
         return report;
     }
 }

@@ -32,12 +32,6 @@ public sealed class FeedbackReport
     /// <summary>Écran ou texte concerné - seulement pour Content/Translation.</summary>
     public string? Where { get; set; }
 
-    /// <summary>Langue de l'appli (« fr », « en ») : celle de l'e-mail envoyé au joueur à la sortie de la correction.</summary>
-    public string Language { get; set; } = "fr";
-
-    /// <summary>Pour prévenir le joueur quand une version publiée contient la correction (étiquette « corrigé » + tag de release) : le relais le garde à part, jamais dans le ticket ni envoyé au tri IA.</summary>
-    public string? Email { get; set; }
-
     /// <summary>Null quand le joueur a décoché « Joindre les informations techniques ».</summary>
     public FeedbackTechnicalInfo? Technical { get; set; }
 

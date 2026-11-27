@@ -66,10 +66,6 @@ public partial class FeedbackDialogViewModel : DialogViewModel<bool>
     private string _where = string.Empty;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ShowEmailError))]
-    private string _email = string.Empty;
-
-    [ObservableProperty]
     private bool _attachTechnical = true;
 
     [ObservableProperty]
@@ -83,7 +79,6 @@ public partial class FeedbackDialogViewModel : DialogViewModel<bool>
     public bool CanAddScreenshot => Screenshots.Count < FeedbackRules.MaxScreenshots;
 
     public bool ShowWhere => FeedbackRules.AsksWhere(Kind);
-    public bool ShowEmailError => !FeedbackRules.IsValidEmail(Email);
     public int MaxSummaryLength => FeedbackRules.MaxSummaryLength;
     public int MaxDetailsLength => FeedbackRules.MaxDetailsLength;
     public int MaxWhereLength => FeedbackRules.MaxWhereLength;
@@ -165,11 +160,6 @@ public partial class FeedbackDialogViewModel : DialogViewModel<bool>
     [RelayCommand(CanExecute = nameof(CanSend))]
     private async Task Send()
     {
-        if (ShowEmailError)
-        {
-            ErrorMessage = Loc["FeedbackEmailInvalid"];
-            return;
-        }
         ErrorMessage = string.Empty;
 
         var result = FeedbackSendResult.Rejected;
@@ -182,8 +172,6 @@ public partial class FeedbackDialogViewModel : DialogViewModel<bool>
                 Summary = Summary,
                 Details = Details,
                 Where = Where,
-                Email = Email,
-                Language = LocalizationService.Instance.Culture.TwoLetterISOLanguageName,
                 Technical = AttachTechnical ? _technical ?? FeedbackService.BuildTechnicalInfo() : null,
                 Screenshots = Screenshots.Select(s => s.Attachment).ToList()
             });
