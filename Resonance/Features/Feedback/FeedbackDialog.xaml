@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:system="clr-namespace:System;assembly=mscorlib"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               xmlns:loc="clr-namespace:Resonance.Extensions"
+               xmlns:icons="clr-namespace:Resonance.Resources.Icons"
+               xmlns:components="clr-namespace:Resonance.Components"
+               xmlns:local="clr-namespace:Resonance.Features.Feedback"
+               x:TypeArguments="system:Boolean"
+               x:Class="Resonance.Features.Feedback.FeedbackDialog"
+               x:DataType="local:FeedbackDialogViewModel"
+               BackgroundColor="Transparent"
+               Padding="0"
+               VerticalOptions="{OnPlatform Default=Start, WinUI=Center}"
+               Margin="{OnPlatform Default='0,80,0,0', WinUI='0'}">
+    <!-- « Nous écrire » (2026-11-27) : même formulaire que Mordheim Ledger, dans la carte de dialog de Resonance
+         (TrackEditDialog : ancrée en haut sur mobile pour rester stable quand le clavier s'ouvre). -->
+    <Border Style="{StaticResource DialogCardBorderStyle}" WidthRequest="{OnIdiom Default=340, Desktop=440}">
+        <ScrollView x:Name="ContentScroll" VerticalOptions="Start">
+        <VerticalStackLayout Spacing="12">
+            <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                <Label Text="{loc:Loc FeedbackTitle}" FontAttributes="Bold" FontSize="{DynamicResource AppFontSizeSectionTitle}"
+                       TextColor="{DynamicResource AppText}" HorizontalOptions="Center"/>
+                <Label Text="{Binding Subtitle}" FontSize="12" TextColor="{DynamicResource AppTextMuted}" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+
+            <!-- Type de message : bordure accent sur le type choisi ; bouton transparent par-dessus (accessibilité). -->
+            <Label Text="{loc:Loc FeedbackKindHeading}" FontSize="{OnIdiom Default=13, Desktop=11}" TextColor="{DynamicResource AppTextMuted}"/>
+            <VerticalStackLayout Spacing="6" BindableLayout.ItemsSource="{Binding Kinds}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="local:FeedbackKindOption">
+                        <Grid>
+                            <Border StrokeShape="RoundRectangle 8" StrokeThickness="1" Stroke="{DynamicResource AppBorder}"
+                                    Padding="10,8" InputTransparent="True" AutomationProperties.IsInAccessibleTree="False">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                        <Setter Property="Stroke" Value="{DynamicResource AppAccent}"/>
+                                        <Setter Property="StrokeThickness" Value="2"/>
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="{Binding Title}" FontAttributes="Bold">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="TextColor" Value="{DynamicResource AppAccent}"/>
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                    <Label Text="{Binding Description}" FontSize="12" TextColor="{DynamicResource AppTextMuted}"/>
+                                </VerticalStackLayout>
+                            </Border>
+                            <Button BackgroundColor="Transparent" BorderWidth="0" CornerRadius="8" Padding="0"
+                                    SemanticProperties.Description="{Binding Title}"
+                                    SemanticProperties.Hint="{Binding Description}"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:FeedbackDialogViewModel}}, Path=SelectKindCommand}"
+                                    CommandParameter="{Binding .}"/>
+                        </Grid>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="2">
+                <Label Text="{loc:Loc FeedbackSummary}" FontSize="{OnIdiom Default=13, Desktop=11}" TextColor="{DynamicResource AppTextMuted}"/>
+                <Entry Text="{Binding Summary}" MaxLength="{Binding MaxSummaryLength}"/>
+            </VerticalStackLayout>
+            <VerticalStackLayout Spacing="2" IsVisible="{Binding ShowWhere}">
+                <Label Text="{loc:Loc FeedbackWhere}" FontSize="{OnIdiom Default=13, Desktop=11}" TextColor="{DynamicResource AppTextMuted}"/>
+                <Entry Text="{Binding Where}" Placeholder="{loc:Loc FeedbackWherePh}" MaxLength="{Binding MaxWhereLength}"/>
+            </VerticalStackLayout>
+            <VerticalStackLayout Spacing="2">
+                <Label Text="{Binding DetailsLabel}" FontSize="{OnIdiom Default=13, Desktop=11}" TextColor="{DynamicResource AppTextMuted}"/>
+                <Editor Text="{Binding Details}" HeightRequest="120" MaxLength="{Binding MaxDetailsLength}"/>
+                <Label Text="{Binding DetailsHint}" FontSize="12" TextColor="{DynamicResource AppTextMuted}" IsVisible="{Binding HasDetailsHint}"/>
+            </VerticalStackLayout>
+
+            <!-- Captures d'écran -->
+            <VerticalStackLayout Spacing="6">
+                <Label FontSize="{OnIdiom Default=13, Desktop=11}" TextColor="{DynamicResource AppTextMuted}">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{loc:Loc FeedbackScreenshots}"/>
+                            <Span Text=" "/>
+                            <Span Text="{loc:Loc FeedbackScreenshotsMax}"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <HorizontalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Screenshots}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="local:FeedbackScreenshot">
+                            <Grid WidthRequest="60" HeightRequest="60">
+                                <Border StrokeShape="RoundRectangle 6" StrokeThickness="1" Stroke="{DynamicResource AppBorder}">
+                                    <Image Source="{Binding Image}" Aspect="AspectFill"/>
+                                </Border>
+                                <components:FaIconButtonView Style="{StaticResource GhostIconButtonStyle}"
+                                                              Icon="{x:Static icons:SolidFont.Xmark}" IconSize="12"
+                                                              ButtonWidthRequest="22" ButtonHeightRequest="22"
+                                                              HorizontalOptions="End" VerticalOptions="Start"
+                                                              Tooltip="{loc:Loc FeedbackScreenshotRemove}"
+                                                              Command="{Binding Source={RelativeSource AncestorType={x:Type local:FeedbackDialogViewModel}}, Path=RemoveScreenshotCommand}"
+                                                              CommandParameter="{Binding .}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </HorizontalStackLayout>
+                <components:IconTextButton Icon="{x:Static icons:SolidFont.Image}" IconSize="13" FontSize="13"
+                                           Text="{loc:Loc FeedbackScreenshotAdd}" TextColor="{DynamicResource AppAccent}"
+                                           IsVisible="{Binding CanAddScreenshot}"
+                                           Command="{Binding AddScreenshotCommand}"/>
+            </VerticalStackLayout>
+
+            <!-- Informations techniques -->
+            <VerticalStackLayout Spacing="6">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                    <CheckBox Grid.Column="0" IsChecked="{Binding AttachTechnical}" VerticalOptions="Center"
+                              SemanticProperties.Description="{loc:Loc FeedbackAttachTechnical}"/>
+                    <Label Grid.Column="1" Text="{loc:Loc FeedbackAttachTechnical}" VerticalOptions="Center"/>
+                </Grid>
+                <components:IconTextButton Icon="{x:Static icons:SolidFont.CircleInfo}" IconSize="12" FontSize="12"
+                                           Text="{loc:Loc FeedbackShowTechnical}" TextColor="{DynamicResource AppAccent}"
+                                           IsVisible="{Binding AttachTechnical}"
+                                           Command="{Binding ToggleTechnicalCommand}"/>
+                <Border IsVisible="{Binding ShowTechnical}" StrokeShape="RoundRectangle 6" StrokeThickness="1"
+                        Stroke="{DynamicResource AppBorder}" BackgroundColor="{DynamicResource AppBackground}" Padding="10,8">
+                    <Label Text="{Binding TechnicalPreview}" FontSize="12" TextColor="{DynamicResource AppTextMuted}"
+                           FontFamily="{OnPlatform WinUI=Consolas, Android=monospace, iOS=Menlo, MacCatalyst=Menlo}"/>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- E-mail facultatif -->
+            <VerticalStackLayout Spacing="2">
+                <Label Text="{loc:Loc FeedbackEmail}" FontSize="{OnIdiom Default=13, Desktop=11}" TextColor="{DynamicResource AppTextMuted}"/>
+                <Entry Text="{Binding Email}" Keyboard="Email" Placeholder="{loc:Loc FeedbackEmailPh}"/>
+                <Label Text="{loc:Loc FeedbackEmailHint}" FontSize="12" TextColor="{DynamicResource AppTextMuted}"/>
+            </VerticalStackLayout>
+
+            <Label Text="{loc:Loc FeedbackPrivacy}" FontSize="12" TextColor="{DynamicResource AppTextMuted}"/>
+
+            <Label Text="{Binding ErrorMessage}" FontSize="13" TextColor="{DynamicResource AppDanger}">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label" Binding="{Binding ErrorMessage}" Value="">
+                        <Setter Property="IsVisible" Value="False"/>
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button Grid.Column="0" Text="{loc:Loc BtnCancel}" Style="{StaticResource DialogSecondaryButtonStyle}"
+                        Command="{Binding CancelCommand}"/>
+                <Button Grid.Column="1" Text="{loc:Loc FeedbackSend}" Command="{Binding SendCommand}"/>
+            </Grid>
+        </VerticalStackLayout>
+        </ScrollView>
+    </Border>
+</toolkit:Popup>

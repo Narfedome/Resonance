@@ -355,10 +355,10 @@
     <value>Buy me a coffee ☕</value>
   </data>
   <data name="SettingsReportBugTitle" xml:space="preserve">
-    <value>Signaler un bug</value>
+    <value>Signaler un problème ou proposer une idée</value>
   </data>
   <data name="SettingsReportBugDesc" xml:space="preserve">
-    <value>Ouvrir le formulaire</value>
+    <value>Nous écrire</value>
   </data>
   <data name="SettingsVersion" xml:space="preserve">
     <value>Version</value>
@@ -1012,5 +1012,122 @@
   </data>
   <data name="ChannelMuteHint" xml:space="preserve">
     <value>Touchez pour couper ou rétablir le son</value>
+  </data>
+  <data name="FeedbackTitle" xml:space="preserve">
+    <value>Nous écrire</value>
+  </data>
+  <data name="FeedbackSend" xml:space="preserve">
+    <value>Envoyer</value>
+  </data>
+  <data name="FeedbackKindHeading" xml:space="preserve">
+    <value>De quoi s'agit-il ?</value>
+  </data>
+  <data name="FeedbackKindBug" xml:space="preserve">
+    <value>Un problème</value>
+  </data>
+  <data name="FeedbackKindBugDesc" xml:space="preserve">
+    <value>Plantage, son qui ne part pas, mauvais affichage</value>
+  </data>
+  <data name="FeedbackKindTranslation" xml:space="preserve">
+    <value>Traduction à revoir</value>
+  </data>
+  <data name="FeedbackKindTranslationDesc" xml:space="preserve">
+    <value>Texte de l'appli mal traduit</value>
+  </data>
+  <data name="FeedbackKindIdea" xml:space="preserve">
+    <value>Une idée</value>
+  </data>
+  <data name="FeedbackKindIdeaDesc" xml:space="preserve">
+    <value>Amélioration, nouveauté</value>
+  </data>
+  <data name="FeedbackKindOther" xml:space="preserve">
+    <value>Autre chose</value>
+  </data>
+  <data name="FeedbackKindOtherDesc" xml:space="preserve">
+    <value>Question, remerciement…</value>
+  </data>
+  <data name="FeedbackSummary" xml:space="preserve">
+    <value>En une phrase</value>
+  </data>
+  <data name="FeedbackWhere" xml:space="preserve">
+    <value>Où ? (écran, bouton, texte)</value>
+  </data>
+  <data name="FeedbackWherePh" xml:space="preserve">
+    <value>Ex. Paramètres › Thème</value>
+  </data>
+  <data name="FeedbackDetailsBug" xml:space="preserve">
+    <value>Ce qui s'est passé</value>
+  </data>
+  <data name="FeedbackDetailsBugHint" xml:space="preserve">
+    <value>Ce que vous faisiez, ce qui s'est passé, ce que vous attendiez.</value>
+  </data>
+  <data name="FeedbackDetailsTranslation" xml:space="preserve">
+    <value>Texte actuel et votre proposition</value>
+  </data>
+  <data name="FeedbackDetailsTranslationHint" xml:space="preserve">
+    <value>Le texte affiché et ce que vous proposez.</value>
+  </data>
+  <data name="FeedbackDetailsIdea" xml:space="preserve">
+    <value>Votre idée</value>
+  </data>
+  <data name="FeedbackDetailsIdeaHint" xml:space="preserve">
+    <value>Ce qui vous manque en partie et ce que l'appli pourrait faire à la place.</value>
+  </data>
+  <data name="FeedbackDetailsOther" xml:space="preserve">
+    <value>Votre message</value>
+  </data>
+  <data name="FeedbackScreenshots" xml:space="preserve">
+    <value>Captures d'écran</value>
+  </data>
+  <data name="FeedbackScreenshotsMax" xml:space="preserve">
+    <value>(3 au maximum)</value>
+  </data>
+  <data name="FeedbackScreenshotAdd" xml:space="preserve">
+    <value>Ajouter une capture</value>
+  </data>
+  <data name="FeedbackScreenshotRemove" xml:space="preserve">
+    <value>Retirer la capture</value>
+  </data>
+  <data name="FeedbackAttachTechnical" xml:space="preserve">
+    <value>Joindre les informations techniques</value>
+  </data>
+  <data name="FeedbackShowTechnical" xml:space="preserve">
+    <value>Voir ce qui est envoyé</value>
+  </data>
+  <data name="FeedbackEmail" xml:space="preserve">
+    <value>Votre e-mail (facultatif)</value>
+  </data>
+  <data name="FeedbackEmailPh" xml:space="preserve">
+    <value>Pour être prévenu quand la correction sort</value>
+  </data>
+  <data name="FeedbackEmailHint" xml:space="preserve">
+    <value>Utilisé seulement pour vous répondre, jamais publié ni partagé.</value>
+  </data>
+  <data name="FeedbackEmailInvalid" xml:space="preserve">
+    <value>Cette adresse e-mail ne semble pas valide. Corrigez-la ou laissez le champ vide.</value>
+  </data>
+  <data name="FeedbackPrivacy" xml:space="preserve">
+    <value>Votre message est lu par le développeur. Il est aussi analysé par une IA (Claude, d'Anthropic) pour le trier ; votre e-mail ne lui est pas transmis.</value>
+  </data>
+  <data name="FeedbackSentTitle" xml:space="preserve">
+    <value>Merci !</value>
+  </data>
+  <data name="FeedbackSent" xml:space="preserve">
+    <value>Votre message est bien arrivé. Si vous avez laissé un e-mail, vous serez prévenu quand une mise à jour contiendra la correction.</value>
+  </data>
+  <data name="FeedbackQueuedTitle" xml:space="preserve">
+    <value>Pas de connexion</value>
+  </data>
+  <data name="FeedbackQueued" xml:space="preserve">
+    <value>Votre message est gardé sur l'appareil et sera envoyé automatiquement au prochain lancement avec une connexion.</value>
+  </data>
+  <data name="FeedbackRateLimitedTitle" xml:space="preserve">
+    <value>Trop d'envois</value>
+  </data>
+  <data name="FeedbackRateLimited" xml:space="preserve">
+    <value>Trop de messages envoyés depuis cet appareil en peu de temps. Le vôtre est gardé et partira automatiquement au prochain lancement.</value>
+  </data>
+  <data name="FeedbackRejected" xml:space="preserve">
+    <value>Le serveur a refusé ce message. Votre texte est toujours là : vérifiez-le ou réessayez plus tard.</value>
   </data>
 </root>
