@@ -1,5 +1,5 @@
 # À la publication d'une version (tag vX.Y.Z) : le relais « Nous écrire » passe chaque ticket du dépôt de support
-# étiqueté « corrigé » pour cette appli à « livré:X.Y.Z » et le ferme. Voir Tools/FeedbackRelay/README.md du dépôt MordheimLedger (relais commun).
+# étiqueté « corrigé » pour cette appli à « livré:X.Y.Z » et le ferme. Voir relay/README.md du dépôt Support.
 # Secrets : FEEDBACK_RELAY_URL (adresse du Worker), FEEDBACK_RELEASE_TOKEN (même valeur que RELEASE_TOKEN du Worker).
 name: Livrer les tickets corrigés
 

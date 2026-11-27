@@ -1,7 +1,7 @@
 namespace Resonance.Core.Models.Feedback;
 
 /// <summary>Ce dont parle un message « Nous écrire » - décide de l'étiquette du ticket (voir le relais,
-/// Tools/FeedbackRelay du dépôt MordheimLedger, commun aux deux applis) et des consignes affichées sous les champs.</summary>
+/// relay/ du dépôt Support) et des consignes affichées sous les champs.</summary>
 public enum FeedbackKind
 {
     Bug,

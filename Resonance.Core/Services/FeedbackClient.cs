@@ -18,7 +18,7 @@ public enum FeedbackSendResult
     Rejected
 }
 
-/// <summary>Envoie un <see cref="FeedbackReport"/> au relais (Tools/FeedbackRelay du dépôt MordheimLedger) en JSON. Sans dépendance MAUI :
+/// <summary>Envoie un <see cref="FeedbackReport"/> au relais (relay/ du dépôt Support) en JSON. Sans dépendance MAUI :
 /// l'appli lui passe l'adresse du relais et la clé d'appli (un identifiant public qui écarte les robots, pas un
 /// secret - le jeton GitHub ne quitte jamais le relais).</summary>
 public sealed class FeedbackClient
