@@ -196,7 +196,7 @@
     <value>Global</value>
   </data>
   <data name="MixerPlayAll" xml:space="preserve">
-    <value>Tout lancer (Ctrl+Entrée)</value>
+    <value>Lancer les ambiances et musiques (Ctrl+Entrée)</value>
   </data>
   <data name="MixerFadeOutAll" xml:space="preserve">
     <value>Tout couper en fondu (Ctrl+Espace)</value>
@@ -493,7 +493,7 @@
     <value>Réorganiser</value>
   </data>
   <data name="TourCampaignHandleBody" xml:space="preserve">
-    <value>Faites glisser la poignée pour changer l'ordre des campagnes. Chapitres et scènes ont la même poignée.</value>
+    <value>Appuyez longuement sur une campagne, puis faites-la glisser pour changer l'ordre. Chapitres et scènes se déplacent de la même façon.</value>
   </data>
   <data name="TourSessionTitle" xml:space="preserve">
     <value>Un chapitre</value>
@@ -541,7 +541,7 @@
     <value>Le fond de la tranche</value>
   </data>
   <data name="TourMixerChannelBackgroundBody" xml:space="preserve">
-    <value>Il s'éclaire pendant la lecture et suit le volume réel : il monte pendant un fondu d'entrée et descend pendant un fondu de sortie. Les bandes en haut et en bas signalent qu'un fondu de sortie ou d'entrée est réglé.</value>
+    <value>Il s&apos;éclaire pendant la lecture et suit le volume réel : il monte pendant un fondu d&apos;entrée et descend pendant un fondu de sortie. Les bandes en haut et en bas signalent qu&apos;un fondu de sortie ou d&apos;entrée est réglé.</value>
   </data>
   <data name="TourSettingsIntroTitle" xml:space="preserve">
     <value>Réglages du canal</value>
@@ -646,7 +646,7 @@
     <value>Une piste</value>
   </data>
   <data name="TourLibraryTileBody" xml:space="preserve">
-    <value>Touchez une tuile pour sélectionner la piste : son contour passe au bleu.</value>
+    <value>Touchez une tuile pour sélectionner la piste : son contour passe au doré. Un appui long sur une pochette en coche plusieurs, pour les supprimer d'un coup.</value>
   </data>
   <data name="TourLibraryPlayTitle" xml:space="preserve">
     <value>Écouter</value>
@@ -700,7 +700,7 @@
     <value>Commandes globales</value>
   </data>
   <data name="TourMixerGlobalBody" xml:space="preserve">
-    <value>Lancez tous les canaux, coupez-les en fondu ou arrêtez tout d'un coup. Le curseur en dessous règle le volume général sans toucher au volume de chaque canal.</value>
+    <value>Lancez toutes les ambiances et musiques, coupez tout en fondu ou arrêtez tout d&apos;un coup. Le curseur à côté règle le volume général sans toucher au volume de chaque canal.</value>
   </data>
   <data name="TourMixerFreeformTitle" xml:space="preserve">
     <value>Scène libre</value>
@@ -712,19 +712,19 @@
     <value>Ajouter un canal</value>
   </data>
   <data name="TourMixerAddBody" xml:space="preserve">
-    <value>Chaque canal joue une piste : ajoutez-en pour superposer musique et ambiances.</value>
+    <value>Ajoutez une ambiance ou une musique : la Bibliothèque s&apos;ouvre pour choisir son son. Les effets s&apos;ajoutent de la même façon dans leur onglet.</value>
   </data>
   <data name="TourMixerAddEmptySceneBody" xml:space="preserve">
-    <value>Cette scène est vide : ajoutez un canal, puis choisissez sa piste dans la Bibliothèque.</value>
+    <value>Cette scène est vide : ajoutez une ambiance ou une musique, la Bibliothèque s&apos;ouvre pour choisir son son.</value>
   </data>
   <data name="TourMixerAddNoTracksBody" xml:space="preserve">
-    <value>Votre Bibliothèque est vide : importez d'abord vos sons depuis l'onglet Bibliothèque, puis ajoutez un canal ici.</value>
+    <value>Votre Bibliothèque est vide : importez d&apos;abord vos sons depuis l&apos;onglet Bibliothèque, puis ajoutez-les ici.</value>
   </data>
   <data name="TourMixerChannelTitle" xml:space="preserve">
     <value>Un canal</value>
   </data>
   <data name="TourMixerChannelBody" xml:space="preserve">
-    <value>Chaque canal joue une piste : sa tranche réunit la lecture, le volume et ses réglages.</value>
+    <value>Chaque tranche joue un son. Touchez son étiquette pour ouvrir ses actions en bas de l&apos;écran.</value>
   </data>
   <data name="TourMixerChannelPlayTitle" xml:space="preserve">
     <value>Lecture et pause</value>
@@ -748,7 +748,7 @@
     <value>Choisir la piste</value>
   </data>
   <data name="TourMixerChannelTrackBody" xml:space="preserve">
-    <value>Ouvre la Bibliothèque pour choisir la piste que joue ce canal.</value>
+    <value>Ouvre la Bibliothèque pour changer le son de ce canal.</value>
   </data>
   <data name="TourMixerChannelSettingsTitle" xml:space="preserve">
     <value>Réglages du canal</value>
@@ -763,10 +763,10 @@
     <value>Retire ce canal de la scène. La piste, elle, reste dans votre Bibliothèque.</value>
   </data>
   <data name="TourMixerChannelHandleTitle" xml:space="preserve">
-    <value>Déplacer le canal</value>
+    <value>Changer l&apos;ordre</value>
   </data>
   <data name="TourMixerChannelHandleBody" xml:space="preserve">
-    <value>Faites glisser cette poignée pour changer l'ordre des canaux.</value>
+    <value>Appuyez longuement sur l&apos;étiquette, puis faites-la glisser pour changer l&apos;ordre des canaux.</value>
   </data>
   <data name="SettingsTourDesc" xml:space="preserve">
     <value>Visites guidées</value>
@@ -1012,6 +1012,84 @@
   </data>
   <data name="ChannelMuteHint" xml:space="preserve">
     <value>Touchez pour couper ou rétablir le son</value>
+  </data>
+  <data name="ChannelActionChangeSound" xml:space="preserve">
+    <value>Changer de son</value>
+  </data>
+  <data name="ChannelActionRemove" xml:space="preserve">
+    <value>Retirer</value>
+  </data>
+  <data name="ChannelActionSettings" xml:space="preserve">
+    <value>Réglages</value>
+  </data>
+  <data name="ChannelActionStop" xml:space="preserve">
+    <value>Arrêter</value>
+  </data>
+  <data name="ChannelCloseActions" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  <data name="ChannelFadeInShort" xml:space="preserve">
+    <value>Fondu à l&apos;entrée</value>
+  </data>
+  <data name="ChannelFadeOutShort" xml:space="preserve">
+    <value>Fondu à la sortie</value>
+  </data>
+  <data name="ChannelLoopingShort" xml:space="preserve">
+    <value>En boucle</value>
+  </data>
+  <data name="ChannelMutedShort" xml:space="preserve">
+    <value>Coupé</value>
+  </data>
+  <data name="ChannelOnceShort" xml:space="preserve">
+    <value>Une fois</value>
+  </data>
+  <data name="ChannelOpenActions" xml:space="preserve">
+    <value>Toucher pour les actions du canal</value>
+  </data>
+  <data name="MixerAddAmbience" xml:space="preserve">
+    <value>+ Ajouter une ambiance ou une musique</value>
+  </data>
+  <data name="MixerAddEffect" xml:space="preserve">
+    <value>+ Ajouter un effet</value>
+  </data>
+  <data name="MixerChannelVolumeName" xml:space="preserve">
+    <value>Volume du canal</value>
+  </data>
+  <data name="MixerTabAmbiences" xml:space="preserve">
+    <value>Ambiances et musique</value>
+  </data>
+  <data name="MixerTabEffects" xml:space="preserve">
+    <value>Effets</value>
+  </data>
+  <data name="TourMixerTabsBody" xml:space="preserve">
+    <value>Les ambiances et musiques qui tournent sont d&apos;un côté, les effets qu&apos;on déclenche de l&apos;autre. Un point signale qu&apos;un son de l&apos;autre onglet est en train de jouer.</value>
+  </data>
+  <data name="TourMixerTabsTitle" xml:space="preserve">
+    <value>Ambiances et effets</value>
+  </data>
+  <data name="MixerReturnToScene" xml:space="preserve">
+    <value>Revenir à « {0} »</value>
+  </data>
+  <data name="LibSelectionCount" xml:space="preserve">
+    <value>{0} sélectionnée(s)</value>
+  </data>
+  <data name="SettingsGroupAppearance" xml:space="preserve">
+    <value>Apparence</value>
+  </data>
+  <data name="SettingsGroupData" xml:space="preserve">
+    <value>Données</value>
+  </data>
+  <data name="SettingsGroupDiscover" xml:space="preserve">
+    <value>Découvrir</value>
+  </data>
+  <data name="SettingsGroupAbout" xml:space="preserve">
+    <value>À propos</value>
+  </data>
+  <data name="LibLongPressHint" xml:space="preserve">
+    <value>Appui long sur une pochette pour sélectionner plusieurs pistes</value>
+  </data>
+  <data name="LibRightClickHint" xml:space="preserve">
+    <value>Clic droit ou appui long sur une pochette pour sélectionner plusieurs pistes</value>
   </data>
   <data name="FeedbackTitle" xml:space="preserve">
     <value>Nous écrire</value>

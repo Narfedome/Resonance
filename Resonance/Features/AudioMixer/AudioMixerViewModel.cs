@@ -56,6 +56,9 @@ namespace Resonance.Features.AudioMixer
                 foreach (var channel in CurrentChannels)
                     channel.RefreshThemeDependentBindings();
             };
+
+            // Ambiances et effets affichés à part (cf. AudioMixerViewModel.Tabs.cs).
+            CurrentChannels.CollectionChanged += OnCurrentChannelsChanged;
         }
 
         // ── Sélecteur de scène ────────────────────────────────────
@@ -269,6 +272,8 @@ namespace Resonance.Features.AudioMixer
         /// </summary>
         public void ResetActiveScene()
         {
+            // La scène de retour peut être celle qu'on vient de supprimer : on l'oublie.
+            RememberReturnScene(null, null);
             ClearChannels();
             _activeScene = null;
             OnPropertyChanged(nameof(HasActiveScene));
@@ -499,9 +504,9 @@ namespace Resonance.Features.AudioMixer
             return sceneTracks.Where(st => File.Exists(st.Track.FilePath)).ToList();
         }
 
-        // Sans scène chargée (ni réelle, ni la scène orpheline), AddChannel produirait un strip
+        // Sans scène chargée (ni réelle, ni la scène orpheline), l'ajout d'un canal produirait un strip
         // dont le picker de piste ne pourrait jamais persister (SaveChannelAsSceneTrack exige
-        // _activeScene) : le bouton "+" du Mixer se lie à ce flag plutôt que de laisser
+        // _activeScene) : les boutons "Ajouter" du Mixer se lient à ce flag plutôt que de laisser
         // l'utilisateur découvrir le problème après coup, silencieusement.
         public bool HasActiveScene => _activeScene != null;
 
@@ -518,6 +523,10 @@ namespace Resonance.Features.AudioMixer
         {
             if (_isLoadingScene || IsFreeformActive) return;
             _isLoadingScene = true;
+
+            // Scène de campagne qu'on quitte : le bouton de la scène libre devient "retour" pour y
+            // revenir d'un geste (cf. ReturnFromFreeform), sans rechercher chapitre et scène.
+            RememberReturnScene(SelectedSession, SelectedScene);
 
             var shell = Shell.Current;
             if (shell != null) shell.IsEnabled = false;

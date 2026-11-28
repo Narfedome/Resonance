@@ -44,6 +44,7 @@ namespace Resonance.Services
         public const string MixerSceneSelectorKey = "Tour.MixerSceneSelector";
         public const string MixerGlobalKey = "Tour.MixerGlobal";
         public const string MixerFreeformKey = "Tour.MixerFreeform";
+        public const string MixerTabsKey = "Tour.MixerTabs";
         public const string MixerAddChannelKey = "Tour.MixerAddChannel";
         public const string MixerChannelKey = "Tour.MixerChannel";
         public const string MixerChannelBackgroundKey = "Tour.MixerChannelBackground";
@@ -136,12 +137,12 @@ namespace Resonance.Services
             if (hasTracks)
             {
                 builder.AddStep(Step(LibraryTrackTileKey, "TourLibraryTileTitle", "TourLibraryTileBody"))
-                    .AddStep(Step(LibraryTrackPlayKey, "TourLibraryPlayTitle", "TourLibraryPlayBody"))
-                    .AddStep(Step(LibraryTrackCheckKey, "TourLibraryCheckTitle", "TourLibraryCheckBody"));
+                    .AddStep(Step(LibraryTrackPlayKey, "TourLibraryPlayTitle", "TourLibraryPlayBody"));
             }
 
+            // Plus d'étape sur la case à cocher ni sur "Tout sélectionner" : tous deux n'apparaissent
+            // qu'en mode sélection (appui long), expliqué dans l'étape de la tuile.
             return StartAsync(builder
-                .AddStep(Step(LibrarySelectAllKey, "TourLibrarySelectAllTitle", "TourLibrarySelectAllBody"))
                 .AddStep(Step(LibraryAddKey, "TourLibraryAddTitle", "TourLibraryAddBody"))
                 .AddStep(Step(LibraryEditKey, "TourLibraryEditTitle", "TourLibraryEditBody"))
                 .AddStep(Step(LibraryDeleteKey, "TourLibraryDeleteTitle", "TourLibraryDeleteBody"))
@@ -168,18 +169,23 @@ namespace Resonance.Services
                 .AddStep(Step(MixerSceneSelectorKey, "TourMixerSceneTitle", "TourMixerSceneBody"))
                 .AddStep(Step(MixerGlobalKey, "TourMixerGlobalTitle", "TourMixerGlobalBody"))
                 .AddStep(Step(MixerFreeformKey, "TourMixerFreeformTitle", "TourMixerFreeformBody"))
+                // Onglets : téléphone seulement (sur Windows les deux listes sont côte à côte, la
+                // cible n'existe pas et l'étape est sautée).
+                .AddStep(Step(MixerTabsKey, "TourMixerTabsTitle", "TourMixerTabsBody"))
                 .AddStep(Step(MixerAddChannelKey, "TourMixerAddTitle", addChannelBody));
             if (hasChannels)
             {
+                // D'abord la tranche elle-même, puis le panneau d'actions qu'ouvre le toucher de son
+                // étiquette (AudioMixerViewModel.PrepareForTour l'ouvre sur la première ambiance).
                 builder.AddStep(Step(MixerChannelKey, "TourMixerChannelTitle", "TourMixerChannelBody"))
                     .AddStep(Step(MixerChannelBackgroundKey, "TourMixerChannelBackgroundTitle", "TourMixerChannelBackgroundBody"))
                     .AddStep(Step(MixerChannelPlayKey, "TourMixerChannelPlayTitle", "TourMixerChannelPlayBody"))
-                    .AddStep(Step(MixerChannelStopKey, "TourMixerChannelStopTitle", "TourMixerChannelStopBody"))
                     .AddStep(Step(MixerChannelVolumeKey, "TourMixerChannelVolumeTitle", "TourMixerChannelVolumeBody"))
+                    .AddStep(Step(MixerChannelHandleKey, "TourMixerChannelHandleTitle", "TourMixerChannelHandleBody"))
+                    .AddStep(Step(MixerChannelStopKey, "TourMixerChannelStopTitle", "TourMixerChannelStopBody"))
                     .AddStep(Step(MixerChannelTrackKey, "TourMixerChannelTrackTitle", "TourMixerChannelTrackBody"))
                     .AddStep(Step(MixerChannelSettingsKey, "TourMixerChannelSettingsTitle", "TourMixerChannelSettingsBody"))
-                    .AddStep(Step(MixerChannelRemoveKey, "TourMixerChannelRemoveTitle", "TourMixerChannelRemoveBody"))
-                    .AddStep(Step(MixerChannelHandleKey, "TourMixerChannelHandleTitle", "TourMixerChannelHandleBody"));
+                    .AddStep(Step(MixerChannelRemoveKey, "TourMixerChannelRemoveTitle", "TourMixerChannelRemoveBody"));
             }
 
             await StartAsync(builder.Build());

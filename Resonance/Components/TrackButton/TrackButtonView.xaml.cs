@@ -27,6 +27,42 @@ public partial class TrackButtonView : ContentView
         set => SetValue(SelectCommandProperty, value);
     }
 
+    // Masque le rond de lecture (mode sélection de la Bibliothèque, cf. maquette : on coche, on n'écoute pas).
+    public static readonly BindableProperty ShowPlayButtonProperty =
+        BindableProperty.Create(nameof(ShowPlayButton), typeof(bool), typeof(TrackButtonView), true);
+
+    public bool ShowPlayButton
+    {
+        get => (bool)GetValue(ShowPlayButtonProperty);
+        set => SetValue(ShowPlayButtonProperty, value);
+    }
+
+    // Tap et appui long sur la pochette (hors rond de lecture), avec la piste en paramètre.
+    public static readonly BindableProperty CoverTapCommandProperty =
+        BindableProperty.Create(nameof(CoverTapCommand), typeof(ICommand), typeof(TrackButtonView));
+
+    public ICommand? CoverTapCommand
+    {
+        get => (ICommand?)GetValue(CoverTapCommandProperty);
+        set => SetValue(CoverTapCommandProperty, value);
+    }
+
+    public static readonly BindableProperty CoverLongPressCommandProperty =
+        BindableProperty.Create(nameof(CoverLongPressCommand), typeof(ICommand), typeof(TrackButtonView));
+
+    public ICommand? CoverLongPressCommand
+    {
+        get => (ICommand?)GetValue(CoverLongPressCommandProperty);
+        set => SetValue(CoverLongPressCommandProperty, value);
+    }
+
+    // Rond de lecture : lance ou met en pause, puis signale la sélection au parent (s'il en veut).
+    private void OnPlayBadgeTapped(object? sender, TappedEventArgs e)
+    {
+        ViewModel?.TogglePlayCommand.Execute(null);
+        SelectCommand?.Execute(CurrentTrack);
+    }
+
     public TrackButtonView()
     {
         InitializeComponent();
@@ -70,17 +106,11 @@ public partial class TrackButtonView : ContentView
         ViewModel = new TrackButtonViewModel(audioService, coverArtService);
 
         // If the XAML child control exists, bind it to the ViewModel so its inner bindings use the VM as source.
-        if (IconBtn != null)
-        {
-            IconBtn.BindingContext = ViewModel;
+        if (CoverBorder != null)
+            CoverBorder.BindingContext = ViewModel;
 
-            // Create a composite command: toggle play then notify parent selection command (if any)
-            IconBtn.Command = new Command(() =>
-            {
-                ViewModel?.TogglePlayCommand.Execute(null);
-                SelectCommand?.Execute(CurrentTrack);
-            });
-        }
+        if (PlayBadge != null)
+            PlayBadge.BindingContext = ViewModel;
 
         // Forward any already-set CurrentTrack to the ViewModel
         if (CurrentTrack != null)

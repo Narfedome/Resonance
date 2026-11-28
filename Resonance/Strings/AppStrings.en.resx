@@ -196,7 +196,7 @@
     <value>Global</value>
   </data>
   <data name="MixerPlayAll" xml:space="preserve">
-    <value>Play All (Ctrl+Enter)</value>
+    <value>Play ambiences and music (Ctrl+Enter)</value>
   </data>
   <data name="MixerFadeOutAll" xml:space="preserve">
     <value>Fade Out All (Ctrl+Space)</value>
@@ -493,7 +493,7 @@
     <value>Reorder</value>
   </data>
   <data name="TourCampaignHandleBody" xml:space="preserve">
-    <value>Drag the handle to reorder your campaigns. Chapters and scenes have the same handle.</value>
+    <value>Press and hold a campaign, then drag it to reorder. Chapters and scenes move the same way.</value>
   </data>
   <data name="TourSessionTitle" xml:space="preserve">
     <value>A chapter</value>
@@ -646,7 +646,7 @@
     <value>A track</value>
   </data>
   <data name="TourLibraryTileBody" xml:space="preserve">
-    <value>Tap a tile to select the track: its outline turns blue.</value>
+    <value>Tap a tile to select the track: its outline turns gold. Press and hold a cover to check several and delete them at once.</value>
   </data>
   <data name="TourLibraryPlayTitle" xml:space="preserve">
     <value>Listen</value>
@@ -700,7 +700,7 @@
     <value>Global controls</value>
   </data>
   <data name="TourMixerGlobalBody" xml:space="preserve">
-    <value>Play every channel, fade them all out, or stop everything at once. The slider below sets the master volume without changing each channel's own volume.</value>
+    <value>Play every ambience and music, fade everything out, or stop it all at once. The slider next to them sets the master volume without changing each channel&apos;s own volume.</value>
   </data>
   <data name="TourMixerFreeformTitle" xml:space="preserve">
     <value>Free scene</value>
@@ -712,19 +712,19 @@
     <value>Add a channel</value>
   </data>
   <data name="TourMixerAddBody" xml:space="preserve">
-    <value>Each channel plays one track: add more to layer music and ambiences.</value>
+    <value>Add an ambience or music: the Library opens so you can pick its sound. Effects are added the same way in their tab.</value>
   </data>
   <data name="TourMixerAddEmptySceneBody" xml:space="preserve">
-    <value>This scene is empty: add a channel, then pick its track from the Library.</value>
+    <value>This scene is empty: add an ambience or music, and the Library opens so you can pick its sound.</value>
   </data>
   <data name="TourMixerAddNoTracksBody" xml:space="preserve">
-    <value>Your Library is empty: first import your sounds from the Library tab, then add a channel here.</value>
+    <value>Your Library is empty: first import your sounds from the Library tab, then add them here.</value>
   </data>
   <data name="TourMixerChannelTitle" xml:space="preserve">
     <value>A channel</value>
   </data>
   <data name="TourMixerChannelBody" xml:space="preserve">
-    <value>Each channel plays one track: its strip holds playback, volume, and settings.</value>
+    <value>Each strip plays one sound. Tap its label to open its actions at the bottom of the screen.</value>
   </data>
   <data name="TourMixerChannelPlayTitle" xml:space="preserve">
     <value>Play and pause</value>
@@ -742,13 +742,13 @@
     <value>Volume</value>
   </data>
   <data name="TourMixerChannelVolumeBody" xml:space="preserve">
-    <value>Drag to set the channel volume: it's saved with the scene. Tap the number above it to mute the channel without stopping the track.</value>
+    <value>Drag to set the channel volume: it&apos;s saved with the scene. Tap the number above it to mute the channel without stopping the track.</value>
   </data>
   <data name="TourMixerChannelTrackTitle" xml:space="preserve">
     <value>Pick the track</value>
   </data>
   <data name="TourMixerChannelTrackBody" xml:space="preserve">
-    <value>Opens the Library to pick the track this channel plays.</value>
+    <value>Opens the Library to change this channel&apos;s sound.</value>
   </data>
   <data name="TourMixerChannelSettingsTitle" xml:space="preserve">
     <value>Channel settings</value>
@@ -763,10 +763,10 @@
     <value>Removes this channel from the scene. The track stays in your Library.</value>
   </data>
   <data name="TourMixerChannelHandleTitle" xml:space="preserve">
-    <value>Move the channel</value>
+    <value>Reorder</value>
   </data>
   <data name="TourMixerChannelHandleBody" xml:space="preserve">
-    <value>Drag this handle to reorder the channels.</value>
+    <value>Press and hold the label, then drag it to reorder the channels.</value>
   </data>
   <data name="SettingsTourDesc" xml:space="preserve">
     <value>Guided tours</value>
@@ -1012,6 +1012,84 @@
   </data>
   <data name="ChannelMuteHint" xml:space="preserve">
     <value>Tap to mute or unmute</value>
+  </data>
+  <data name="ChannelActionChangeSound" xml:space="preserve">
+    <value>Change sound</value>
+  </data>
+  <data name="ChannelActionRemove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="ChannelActionSettings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="ChannelActionStop" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="ChannelCloseActions" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="ChannelFadeInShort" xml:space="preserve">
+    <value>Fade in</value>
+  </data>
+  <data name="ChannelFadeOutShort" xml:space="preserve">
+    <value>Fade out</value>
+  </data>
+  <data name="ChannelLoopingShort" xml:space="preserve">
+    <value>Looping</value>
+  </data>
+  <data name="ChannelMutedShort" xml:space="preserve">
+    <value>Muted</value>
+  </data>
+  <data name="ChannelOnceShort" xml:space="preserve">
+    <value>Plays once</value>
+  </data>
+  <data name="ChannelOpenActions" xml:space="preserve">
+    <value>Tap for channel actions</value>
+  </data>
+  <data name="MixerAddAmbience" xml:space="preserve">
+    <value>+ Add an ambience or music</value>
+  </data>
+  <data name="MixerAddEffect" xml:space="preserve">
+    <value>+ Add an effect</value>
+  </data>
+  <data name="MixerChannelVolumeName" xml:space="preserve">
+    <value>Channel volume</value>
+  </data>
+  <data name="MixerTabAmbiences" xml:space="preserve">
+    <value>Ambiences &amp; music</value>
+  </data>
+  <data name="MixerTabEffects" xml:space="preserve">
+    <value>Effects</value>
+  </data>
+  <data name="TourMixerTabsBody" xml:space="preserve">
+    <value>Looping ambiences and music are on one side, effects you trigger are on the other. A dot shows that a sound on the other tab is playing.</value>
+  </data>
+  <data name="TourMixerTabsTitle" xml:space="preserve">
+    <value>Ambiences and effects</value>
+  </data>
+  <data name="MixerReturnToScene" xml:space="preserve">
+    <value>Back to &quot;{0}&quot;</value>
+  </data>
+  <data name="LibSelectionCount" xml:space="preserve">
+    <value>{0} selected</value>
+  </data>
+  <data name="SettingsGroupAppearance" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="SettingsGroupData" xml:space="preserve">
+    <value>Data</value>
+  </data>
+  <data name="SettingsGroupDiscover" xml:space="preserve">
+    <value>Discover</value>
+  </data>
+  <data name="SettingsGroupAbout" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="LibLongPressHint" xml:space="preserve">
+    <value>Press and hold a cover to select several tracks</value>
+  </data>
+  <data name="LibRightClickHint" xml:space="preserve">
+    <value>Right-click or press and hold a cover to select several tracks</value>
   </data>
   <data name="FeedbackTitle" xml:space="preserve">
     <value>Contact us</value>

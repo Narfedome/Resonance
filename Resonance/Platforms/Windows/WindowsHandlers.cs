@@ -12,6 +12,22 @@ static class WindowsHandlers
 {
     public static void Configure(IMauiHandlersCollection handlers)
     {
+        // La recherche de la Bibliothèque est un champ arrondi dessiné côté MAUI (cf. LibraryTrackView) :
+        // la zone de texte native de l'AutoSuggestBox y dessinait sa propre boîte (fond, bordure, trait
+        // d'accent au focus) - une boîte dans la boîte. On neutralise ses ressources de thème.
+        Microsoft.Maui.Handlers.SearchBarHandler.Mapper.AppendToMapping("Borderless", (handler, view) =>
+        {
+            var transparent = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
+            var resources = handler.PlatformView.Resources;
+            foreach (var key in new[] { "TextControlBackground", "TextControlBackgroundPointerOver", "TextControlBackgroundFocused",
+                                        "TextControlBorderBrush", "TextControlBorderBrushPointerOver", "TextControlBorderBrushFocused" })
+                resources[key] = transparent;
+            resources["TextControlBorderThemeThickness"] = new Microsoft.UI.Xaml.Thickness(0);
+            resources["TextControlBorderThemeThicknessFocused"] = new Microsoft.UI.Xaml.Thickness(0);
+            handler.PlatformView.BorderThickness = new Microsoft.UI.Xaml.Thickness(0);
+            handler.PlatformView.Background = transparent;
+        });
+
         // Sur Windows, ListViewBase.SingleSelectionFollowsFocus vaut true par défaut : le
         // premier élément réalisé d'un CollectionView prend le focus clavier au chargement
         // et s'affiche "sélectionné" (bordure accent) sans qu'aucun tap n'ait eu lieu, alors

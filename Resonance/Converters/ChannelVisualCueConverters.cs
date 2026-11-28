@@ -4,8 +4,8 @@ using System.Globalization;
 
 namespace Resonance.Converters
 {
-    // Convertit Volume (0-1) en opacité pour le fond "en lecture" d'un channel strip (cf.
-    // MixerChannelCardView) : plancher à 0.15 plutôt qu'un mapping direct 0-1, pour qu'un canal à
+    // Convertit Volume (0-1) en opacité pour le fond "en lecture" d'un canal du mixeur (cf.
+    // MixerConsoleStripView / MixerEffectPadView) : plancher à 0.15 plutôt qu'un mapping direct 0-1, pour qu'un canal à
     // très faible volume reste visible comme "en lecture, discret" plutôt que de se confondre avec
     // un canal désactivé/grisé (IsEnabled) - toujours appliqué à un calque de fond dédié, jamais à
     // la carte entière, donc les boutons/le texte restent lisibles quel que soit le volume.

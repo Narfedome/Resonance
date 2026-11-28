@@ -66,6 +66,9 @@ namespace Resonance.Features.Library
 
         public string SelectedCountLabel => string.Format(Loc["LibSelectedCount"], Selection.SelectedCount);
 
+        // Titre de la barre du mode sélection (cf. LibraryTrackView) : le compteur seul, sans le verbe.
+        public string SelectionCountText => string.Format(Loc["LibSelectionCount"], Selection.SelectedCount);
+
         public bool CanDelete => HasSelection || SelectedTrackItem != null;
 
         public string DeleteTooltip => HasSelection ? SelectedCountLabel : Loc["LibDelete"];
@@ -218,6 +221,7 @@ namespace Resonance.Features.Library
                 {
                     OnPropertyChanged(nameof(HasSelection));
                     OnPropertyChanged(nameof(SelectedCountLabel));
+                    OnPropertyChanged(nameof(SelectionCountText));
                     OnPropertyChanged(nameof(CanDelete));
                     OnPropertyChanged(nameof(DeleteTooltip));
                 }
@@ -653,6 +657,32 @@ namespace Resonance.Features.Library
         {
             SelectedTrackItem = track;
         }
+
+        /// <summary>
+        /// Appui long sur une tuile (mode CRUD) : coche la piste, ce qui fait entrer en mode sélection
+        /// (le mode, c'est simplement HasSelection). Un nouvel appui long la décoche.
+        /// </summary>
+        [RelayCommand]
+        public void LongPressItem(Track? track) { if (track != null) track.IsSelected = !track.IsSelected; }
+
+        /// <summary>
+        /// Tap sur une tuile : hors mode sélection, la piste devient la piste courante (contour doré) ;
+        /// en mode sélection, elle est cochée ou décochée.
+        /// </summary>
+        [RelayCommand]
+        public void TapItem(Track? track)
+        {
+            if (track == null)
+                return;
+            if (HasSelection)
+                track.IsSelected = !track.IsSelected;
+            else
+                SelectedTrackItem = track;
+        }
+
+        /// <summary>Croix de la barre de sélection : tout décocher, ce qui quitte le mode.</summary>
+        [RelayCommand]
+        public void ExitSelection() => Selection.DeselectAll(TrackItems.SelectMany(g => g));
 
         [RelayCommand]
         public async Task ImportMultipleTracks()

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:Resonance.Components"
+             xmlns:corevm="clr-namespace:Resonance.Components;assembly=Resonance.Core"
+             xmlns:icons="clr-namespace:Resonance.Resources.Icons"
+             xmlns:loc="clr-namespace:Resonance.Extensions"
+             xmlns:local="clr-namespace:Resonance.Features.AudioMixer"
+             xmlns:services="clr-namespace:Resonance.Services"
+             xmlns:onboarding="clr-namespace:Plugin.Maui.Onboarding"
+             x:Class="Resonance.Components.MixerConsoleStripView"
+             x:DataType="corevm:ChannelStripViewModel"
+             WidthRequest="{DynamicResource AppConsoleStripWidth}">
+
+    <!-- Tranche d'ambiance/musique façon table de mixage : voyant, lecture, valeur (touchée = couper
+         le son) et fader gradué, nom sur une étiquette de ruban adhésif. Les actions plus rares
+         (arrêter, changer de son, réglages, retirer) ne sont pas répétées sur chaque tranche :
+         toucher l'étiquette ouvre le panneau d'actions commun en bas du mixeur. -->
+    <Border AutomationId="MixerChannel"
+            StrokeThickness="2" Stroke="Transparent"
+            StrokeShape="RoundRectangle 8"
+            IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
+        <Border.Triggers>
+            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                <Setter Property="Stroke" Value="{DynamicResource AppAccent}"/>
+            </DataTrigger>
+        </Border.Triggers>
+        <Border.Behaviors>
+            <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelKey}"/>
+        </Border.Behaviors>
+        <Grid>
+            <!-- Fond dont l'opacité suit le volume réellement entendu (LiveVolume, qui rampe pendant
+                 un fondu), dans la couleur "en lecture". -->
+            <Border StrokeThickness="0" InputTransparent="True" StrokeShape="Rectangle"
+                    Opacity="{Binding LiveVolume, Converter={StaticResource VolumeToOpacityConverter}}"
+                    Background="{Binding IsPlaying, Converter={StaticResource BoolToActiveStrokeConverter}}">
+                <Border.Behaviors>
+                    <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelBackgroundKey}"/>
+                </Border.Behaviors>
+            </Border>
+
+            <!-- Bandes de fondu de sortie (haut) / d'entrée (bas) : réglages persistés sur la piste
+                 de scène, affichés indépendamment de la lecture en cours. -->
+            <Grid InputTransparent="True" RowDefinitions="1*,2*,1*">
+                <Border Grid.Row="0" StrokeThickness="0" StrokeShape="Rectangle"
+                        IsVisible="{Binding IsFadeOut}"
+                        Background="{Binding IsFadeOut, Converter={StaticResource FadeEdgeBrushConverter}}"/>
+                <Border Grid.Row="2" StrokeThickness="0" StrokeShape="Rectangle"
+                        IsVisible="{Binding IsFadeIn}"
+                        Background="{Binding IsFadeIn, Converter={StaticResource FadeEdgeBrushConverter}, ConverterParameter=Bottom}"/>
+            </Grid>
+
+            <Grid Padding="4,8,4,8" RowSpacing="8" RowDefinitions="auto,auto,*,auto,auto">
+
+                <!-- Voyant : vert tant que la tranche joue. -->
+                <BoxView Grid.Row="0" WidthRequest="8" HeightRequest="8" CornerRadius="4"
+                         HorizontalOptions="Center" Color="{DynamicResource AppBorder}">
+                    <BoxView.Triggers>
+                        <DataTrigger TargetType="BoxView" Binding="{Binding IsPlaying}" Value="True">
+                            <Setter Property="Color" Value="#7FD38B"/>
+                        </DataTrigger>
+                    </BoxView.Triggers>
+                </BoxView>
+
+                <!-- Lecture / pause, bouton rond de console. -->
+                <Border Grid.Row="1" WidthRequest="44" HeightRequest="44" HorizontalOptions="Center"
+                        StrokeThickness="0" StrokeShape="RoundRectangle 22"
+                        BackgroundColor="{DynamicResource AppBorder}"
+                        ToolTipProperties.Text="{Binding IsPlaying, Converter={StaticResource BoolToTooltipPlayPauseConverter}}"
+                        SemanticProperties.Description="{Binding IsPlaying, Converter={StaticResource BoolToTooltipPlayPauseConverter}}">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding IsPlaying}" Value="True">
+                            <Setter Property="BackgroundColor" Value="{DynamicResource AppAccent}"/>
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding TogglePlayCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Border.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelPlayKey}"/>
+                    </Border.Behaviors>
+                    <!-- Symbole simple (pas la variante cerclée) : le rond est déjà le bouton. -->
+                    <Label Text="{x:Static icons:SolidFont.Play}"
+                           FontFamily="FontSolid" FontSize="15"
+                           TextColor="{DynamicResource AppAccent}"
+                           HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding IsPlaying}" Value="True">
+                                <Setter Property="Text" Value="{x:Static icons:SolidFont.Pause}"/>
+                                <Setter Property="TextColor" Value="{DynamicResource AppBackground}"/>
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+
+                <!-- Valeur (touchée = couper/remettre le son) + fader gradué. -->
+                <components:ChannelVolumeSliderView Grid.Row="2"
+                                      HorizontalOptions="Center"
+                                      Value="{Binding Volume, Mode=TwoWay}"
+                                      ValueText="{Binding DisplayVolume}"
+                                      Minimum="0" Maximum="1"
+                                      MinimumHeightRequest="{DynamicResource AppChannelSliderMinHeight}"
+                                      Thickness="{DynamicResource AppChannelStripWidth}"
+                                      IsMuted="{Binding IsMuted}"
+                                      ValueTappedCommand="{Binding ToggleMuteCommand}"
+                                      ValueTooltip="{loc:Loc ChannelMuteHint}">
+                    <components:ChannelVolumeSliderView.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelVolumeKey}"/>
+                    </components:ChannelVolumeSliderView.Behaviors>
+                    <!-- En lecture, le fond de la tranche s'éclaire : graduations plus claires pour
+                         rester visibles. -->
+                    <components:ChannelVolumeSliderView.Triggers>
+                        <DataTrigger TargetType="components:ChannelVolumeSliderView" Binding="{Binding IsPlaying}" Value="True">
+                            <Setter Property="TickColor" Value="{DynamicResource AppTextMuted}"/>
+                        </DataTrigger>
+                    </components:ChannelVolumeSliderView.Triggers>
+                </components:ChannelVolumeSliderView>
+
+                <!-- Position dans la piste, seulement pour une piste qui ne boucle pas. -->
+                <ProgressBar Grid.Row="3" Margin="4,0"
+                             Progress="{Binding Progress}"
+                             ProgressColor="{DynamicResource AppAccent}"
+                             IsVisible="{Binding ShowsProgress}"/>
+
+                <!-- Étiquette façon ruban adhésif (légèrement penchée), dans les couleurs de surface du
+                     thème : un beige plein ressortait trop sur le reste de la console. Toucher
+                     ouvre/ferme le panneau d'actions ; appui long puis glisser change l'ordre des
+                     tranches (plus de poignée à part). Le fader reste hors du drag. -->
+                <Border Grid.Row="4" MinimumHeightRequest="30" Padding="3,5" Rotation="-1"
+                        StrokeThickness="1" StrokeShape="RoundRectangle 3"
+                        Stroke="{DynamicResource AppBorder}"
+                        BackgroundColor="{DynamicResource AppSurface}"
+                        ToolTipProperties.Text="{loc:Loc ChannelOpenActions}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type local:AudioMixerViewModel}}, Path=SelectChannelCommand}"
+                                              CommandParameter="{Binding .}"/>
+                        <DragGestureRecognizer CanDrag="True" DragStarting="OnDragStarting" DropCompleted="OnDropCompleted"/>
+                    </Border.GestureRecognizers>
+                    <Border.Behaviors>
+                        <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerChannelHandleKey}"/>
+                    </Border.Behaviors>
+                    <Label AutomationId="MixerChannelTrackName"
+                           Text="{Binding DisplayTrackName}"
+                           TextColor="{DynamicResource AppText}" FontSize="11" LineHeight="1.05"
+                           HorizontalTextAlignment="Center" VerticalOptions="Center"
+                           LineBreakMode="TailTruncation" MaxLines="2"/>
+                </Border>
+            </Grid>
+
+            <ActivityIndicator IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}"
+                               HorizontalOptions="Center" VerticalOptions="Center"/>
+        </Grid>
+    </Border>
+</ContentView>
