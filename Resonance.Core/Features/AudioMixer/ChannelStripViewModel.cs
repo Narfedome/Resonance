@@ -116,6 +116,12 @@ namespace Resonance.Components
         [ObservableProperty]
         private bool isLooping;
 
+        // Canal dont le panneau d'actions est ouvert dans le mixeur (un seul à la fois, cf.
+        // AudioMixerViewModel.SelectedChannel) : porté ici pour que la rangée/le pad le mette en
+        // évidence par simple binding, sans converter comparant à l'élément sélectionné.
+        [ObservableProperty]
+        private bool isSelected;
+
         // Le strip existe (et apparaît, dans l'ordre) avant que son lecteur natif soit prêt :
         // AudioMixerViewModel.LoadScene affiche tous les strips d'un coup puis crée les lecteurs
         // en tâche de fond, au lieu de bloquer l'affichage de la scène entière derrière un unique

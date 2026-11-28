@@ -535,6 +535,7 @@ namespace Resonance.Features.Campaigns
             {
                 try
                 {
+                    _audioMixerViewModel.PrepareForTour();
                     await _tourService.StartMixerTourAsync(_audioMixerViewModel.CurrentChannels.Count > 0);
                 }
                 catch (Exception ex)

@@ -53,8 +53,9 @@
          sur Desktop (cohérent avec le reste de l'accordéon resserré). -->
     <OnIdiom x:Key="AppSceneRowPadding" x:TypeArguments="Thickness" Phone="0,7" Tablet="0,7" Desktop="0,3" />
 
-    <!-- AudioMixer (ChannelStripView / ChannelVolumeSliderView) : plus de place à la souris sur
-         Desktop, plus de pistes visibles confortablement sur un petit écran Phone. -->
+    <!-- AudioMixer (MixerConsoleStripView / ChannelVolumeSliderView) : largeur d'une tranche (5 tiennent
+         sur un téléphone) et du curseur vertical qu'elle contient. -->
+    <OnIdiom x:Key="AppConsoleStripWidth" x:TypeArguments="x:Double" Phone="68" Tablet="72" Desktop="64" />
     <OnIdiom x:Key="AppChannelStripWidth" x:TypeArguments="x:Double" Phone="50" Tablet="50" Desktop="34" />
     <OnIdiom x:Key="AppChannelSliderMinHeight" x:TypeArguments="x:Double" Phone="100" Tablet="100" Desktop="140" />
 

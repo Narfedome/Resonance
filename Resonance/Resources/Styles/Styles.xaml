@@ -12,6 +12,14 @@
         <Setter Property="IconColor" Value="{DynamicResource AppTextMuted}"/>
     </Style>
 
+    <!-- Icône seule, dans la couleur d'accent, sans fond : pour les rangées de commandes du mixeur
+         (commandes générales, panneau d'actions), où des boutons pleins répétés surchargeaient
+         l'écran et faisaient concurrence aux canaux en lecture. -->
+    <Style x:Key="PlainAccentIconButtonStyle" TargetType="components:FaIconButtonView">
+        <Setter Property="IconBackgroundColor" Value="Transparent"/>
+        <Setter Property="IconColor" Value="{DynamicResource AppAccent}"/>
+    </Style>
+
     <!-- Style implicite (pas de x:Key, s'applique a tout FaIconButtonView qui ne precise pas
          Style="...") : fond plein accent par defaut (Ajouter/Editer/Supprimer partout dans
          l'appli), via un vrai {DynamicResource} pour suivre les changements de theme/palette -

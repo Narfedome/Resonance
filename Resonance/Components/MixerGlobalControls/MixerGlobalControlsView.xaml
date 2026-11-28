@@ -10,71 +10,37 @@
              x:Class="Resonance.Components.MixerGlobalControlsView"
              x:DataType="local:AudioMixerViewModel">
 
-    <!-- Global Commands + Add -->
-    <Grid Padding="10" ColumnSpacing="15"
+    <!-- Commandes générales sur UNE ligne compacte (tout lancer, tout couper en fondu, tout
+         arrêter, volume général), affichée dans la carte de la scène (cf. MixerSceneSelectorView)
+         pour laisser un maximum de hauteur aux canaux. Les boutons "ajouter" vivent au bas de
+         chaque liste, et la scène libre a son bouton flottant (cf. AudioMixerPage). -->
+    <Grid ColumnSpacing="6"
+          ColumnDefinitions="auto,auto,auto,auto,*,auto"
           IsEnabled="{Binding Loading.IsLoading, Converter={StaticResource InverseBoolConverter}}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="auto"/>
-        </Grid.ColumnDefinitions>
-        <Border Grid.Column="0">
-            <Border.Behaviors>
-                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerGlobalKey}"/>
-            </Border.Behaviors>
-            <VerticalStackLayout Margin="10" Spacing="4">
-            <HorizontalStackLayout Spacing="10">
-                <Label Text="{loc:Loc MixerGlobal}" VerticalOptions="Center"/>
-                <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Play}"
-                                             Command="{Binding PlayAllCommand}"
-                                             Tooltip="{loc:Loc MixerPlayAll}" />
-                <components:FaIconButtonView Icon="{x:Static icons:SolidFont.VolumeXmark}"
-                                             Command="{Binding FadeOutAllCommand}"
-                                             Tooltip="{loc:Loc MixerFadeOutAll}" />
-                <components:FaIconButtonView Icon="{x:Static icons:SolidFont.Stop}"
-                                             Command="{Binding StopAllCommand}"
-                                             Tooltip="{loc:Loc MixerStopAll}" />
-            </HorizontalStackLayout>
-            <!-- Volume général : multiplie le volume de chaque canal sans modifier leurs réglages. Sur
-                 sa propre ligne (largeur des boutons au-dessus) : à côté d'eux, il ne tenait pas sur
-                 un écran de téléphone avec les boutons "sans scène" et "+". -->
-            <Grid ColumnDefinitions="auto,*,auto" ColumnSpacing="6">
-                <Label Grid.Column="0" Text="{x:Static icons:SolidFont.VolumeHigh}" FontFamily="FontSolid"
-                       VerticalOptions="Center" TextColor="{DynamicResource AppTextMuted}"/>
-                <Slider Grid.Column="1" Minimum="0" Maximum="1" VerticalOptions="Center"
-                        Value="{Binding MasterVolume}"
-                        ToolTipProperties.Text="{loc:Loc MixerMasterVolume}"
-                        SemanticProperties.Description="{loc:Loc MixerMasterVolumeName}" />
-                <Label Grid.Column="2" Text="{Binding DisplayMasterVolume}" VerticalOptions="Center"
-                       HorizontalTextAlignment="End" MinimumWidthRequest="28"/>
-            </Grid>
-            </VerticalStackLayout>
-        </Border>
+        <Grid.Behaviors>
+            <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerGlobalKey}"/>
+        </Grid.Behaviors>
+        <components:FaIconButtonView Grid.Column="0" Style="{StaticResource PlainAccentIconButtonStyle}"
+                                     Icon="{x:Static icons:SolidFont.Play}"
+                                     Command="{Binding PlayAllCommand}"
+                                     Tooltip="{loc:Loc MixerPlayAll}" />
+        <components:FaIconButtonView Grid.Column="1" Style="{StaticResource PlainAccentIconButtonStyle}"
+                                     Icon="{x:Static icons:SolidFont.VolumeXmark}"
+                                     Command="{Binding FadeOutAllCommand}"
+                                     Tooltip="{loc:Loc MixerFadeOutAll}" />
+        <components:FaIconButtonView Grid.Column="2" Style="{StaticResource PlainAccentIconButtonStyle}"
+                                     Icon="{x:Static icons:SolidFont.Stop}"
+                                     Command="{Binding StopAllCommand}"
+                                     Tooltip="{loc:Loc MixerStopAll}" />
 
-        <!-- Bascule sur la scène orpheline (sans campagne/chapitre) : utiliser le Mixer sans
-             jamais passer par l'accordéon. Repositionné ici (colonne "*" jusque-là vide) plutôt
-             que dans la barre de sélection : il y mangeait trop de place et forçait les noms de
-             chapitre/scène à tronquer plus vite. Masqué une fois qu'on est déjà en mode "sans
-             scène" (IsFreeformActive) : rebasculer dessus n'a pas de sens tant qu'on n'en est
-             pas sorti. -->
-        <components:FaIconButtonView Grid.Column="1" HorizontalOptions="End"
-                 Icon="{x:Static icons:SolidFont.Bolt}"
-                 Command="{Binding SelectFreeformSceneCommand}"
-                 IsVisible="{Binding IsFreeformActive, Converter={StaticResource InverseBoolConverter}}"
-                 Tooltip="{loc:Loc MixerFreeform}" >
-            <components:FaIconButtonView.Behaviors>
-                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerFreeformKey}"/>
-            </components:FaIconButtonView.Behaviors>
-        </components:FaIconButtonView>
-
-        <components:FaIconButtonView Grid.Column="2"
-                 Icon="{x:Static icons:SolidFont.Plus}"
-                 Command="{Binding AddChannelCommand}"
-                 IsEnabled="{Binding HasActiveScene}"
-                 Tooltip="{loc:Loc BtnAddChannel}">
-            <components:FaIconButtonView.Behaviors>
-                <onboarding:OnboardingTargetBehavior Key="{x:Static services:AppTourService.MixerAddChannelKey}"/>
-            </components:FaIconButtonView.Behaviors>
-        </components:FaIconButtonView>
+        <!-- Volume général : multiplie le volume de chaque canal sans modifier leurs réglages. -->
+        <Label Grid.Column="3" Text="{x:Static icons:SolidFont.VolumeHigh}" FontFamily="FontSolid"
+               Margin="6,0,0,0" VerticalOptions="Center" TextColor="{DynamicResource AppTextMuted}"/>
+        <Slider Grid.Column="4" Minimum="0" Maximum="1" VerticalOptions="Center"
+                Value="{Binding MasterVolume}"
+                ToolTipProperties.Text="{loc:Loc MixerMasterVolume}"
+                SemanticProperties.Description="{loc:Loc MixerMasterVolumeName}" />
+        <Label Grid.Column="5" Text="{Binding DisplayMasterVolume}" VerticalOptions="Center"
+               HorizontalTextAlignment="End" MinimumWidthRequest="28"/>
     </Grid>
 </ContentView>

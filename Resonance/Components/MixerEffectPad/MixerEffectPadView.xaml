@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:Resonance.Components"
+             xmlns:corevm="clr-namespace:Resonance.Components;assembly=Resonance.Core"
+             xmlns:icons="clr-namespace:Resonance.Resources.Icons"
+             xmlns:loc="clr-namespace:Resonance.Extensions"
+             xmlns:local="clr-namespace:Resonance.Features.AudioMixer"
+             x:Class="Resonance.Components.MixerEffectPadView"
+             x:DataType="corevm:ChannelStripViewModel">
+
+    <!-- Pad d'un effet : une grande zone qu'on touche pour jouer le son (chaque appui le rejoue
+         depuis le début), sans viser pendant qu'on parle à la table. Le bouton "…" ouvre le
+         panneau d'actions commun (arrêter, changer de son, réglages, retirer). -->
+    <Border AutomationId="MixerChannel"
+            StrokeThickness="1" Stroke="{DynamicResource AppBorder}"
+            StrokeShape="RoundRectangle 14"
+            BackgroundColor="{DynamicResource AppSurface}"
+            MinimumHeightRequest="{OnIdiom Default=104, Desktop=96}"
+            IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}"
+            SemanticProperties.Description="{Binding DisplayTrackName}"
+            SemanticProperties.Hint="{loc:Loc ChannelTrigger}">
+        <Border.Triggers>
+            <DataTrigger TargetType="Border" Binding="{Binding IsPlaying}" Value="True">
+                <Setter Property="Stroke" Value="{DynamicResource AppAccent}"/>
+                <Setter Property="StrokeThickness" Value="2"/>
+            </DataTrigger>
+            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                <Setter Property="Stroke" Value="{DynamicResource AppAccent}"/>
+                <Setter Property="StrokeThickness" Value="3"/>
+            </DataTrigger>
+        </Border.Triggers>
+        <!-- Toucher joue l'effet ; appui long puis glisser change l'ordre des pads (comme les
+             étiquettes des tranches, sans poignée à part). -->
+        <Border.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding TogglePlayCommand}"/>
+            <DragGestureRecognizer CanDrag="True" DragStarting="OnDragStarting" DropCompleted="OnDropCompleted"/>
+        </Border.GestureRecognizers>
+        <Grid>
+            <Border StrokeThickness="0" InputTransparent="True" StrokeShape="Rectangle"
+                    Opacity="{Binding LiveVolume, Converter={StaticResource VolumeToOpacityConverter}}"
+                    Background="{Binding IsPlaying, Converter={StaticResource BoolToActiveStrokeConverter}}"/>
+
+            <Grid Padding="10,6,4,8" RowSpacing="4" RowDefinitions="auto,*,auto,auto" ColumnDefinitions="*,auto">
+                <Label Grid.Row="0" Grid.Column="0"
+                       Text="{x:Static icons:SolidFont.Bolt}" FontFamily="FontSolid"
+                       FontSize="{OnIdiom Default=24, Desktop=20}"
+                       TextColor="{DynamicResource AppAccent}" VerticalOptions="Center"
+                       InputTransparent="True"/>
+
+                <components:FaIconButtonView Grid.Row="0" Grid.Column="1"
+                                             Style="{StaticResource GhostIconButtonStyle}"
+                                             Icon="{x:Static icons:SolidFont.Ellipsis}"
+                                             Command="{Binding Source={RelativeSource AncestorType={x:Type local:AudioMixerViewModel}}, Path=SelectChannelCommand}"
+                                             CommandParameter="{Binding .}"
+                                             Tooltip="{loc:Loc ChannelOpenActions}"/>
+
+                <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                       AutomationId="MixerChannelTrackName"
+                       Text="{Binding DisplayTrackName}"
+                       FontAttributes="Bold"
+                       LineBreakMode="TailTruncation" MaxLines="2"
+                       InputTransparent="True"/>
+
+                <!-- Progression de l'effet en cours, sous le nom. Opacity plutôt que IsVisible :
+                     la ligne garde sa hauteur, le pad ne change pas de taille en démarrant. -->
+                <ProgressBar Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,6,0"
+                             Progress="{Binding Progress}"
+                             ProgressColor="{DynamicResource AppAccent}"
+                             Opacity="{Binding IsPlaying, Converter={StaticResource BoolToOpacityConverter}}"
+                             InputTransparent="True"/>
+            </Grid>
+
+            <ActivityIndicator IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}"
+                               HorizontalOptions="Center" VerticalOptions="Center"/>
+        </Grid>
+    </Border>
+</ContentView>
