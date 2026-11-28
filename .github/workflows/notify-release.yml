@@ -1,0 +1,26 @@
+# À la publication d'une version (tag vX.Y.Z) : le relais « Nous écrire » passe chaque ticket du dépôt de support
+# étiqueté « corrigé » pour cette appli à « livré:X.Y.Z » et le ferme. Voir relay/README.md du dépôt Support.
+# Secrets : FEEDBACK_RELAY_URL (adresse du Worker), FEEDBACK_RELEASE_TOKEN (même valeur que RELEASE_TOKEN du Worker).
+name: Livrer les tickets corrigés
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Livrer les tickets corrigés
+        env:
+          RELAY_URL: ${{ secrets.FEEDBACK_RELAY_URL }}
+          RELEASE_TOKEN: ${{ secrets.FEEDBACK_RELEASE_TOKEN }}
+          VERSION: ${{ github.ref_name }}
+        run: |
+          if [ -z "$RELAY_URL" ]; then echo "Relais non configuré : rien à faire."; exit 0; fi
+          curl --fail-with-body -sS -X POST "$RELAY_URL/released" \
+            -H "Authorization: Bearer $RELEASE_TOKEN" -H "Content-Type: application/json" \
+            -d "{\"app\":\"resonance\",\"version\":\"$VERSION\"}" | tee result.json
+          echo "### Tickets livrés dans $VERSION" >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"; cat result.json >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"

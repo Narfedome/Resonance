@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Delete your data — Resonance</title>
+  <link rel="icon" href="../assets/logo.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <header>
+    <nav class="container">
+      <a class="brand" href="index.html">
+        <img src="../assets/logo.svg" alt="Resonance logo" />
+        <span>Resonance</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html#features">Features</a>
+        <a href="index.html#screenshots">Screenshots</a>
+        <a href="index.html#download">Download</a>
+        <a href="changelog.html">Changelog</a>
+        <span class="lang-switch">
+          <a href="../data-deletion.html">FR</a>
+          <span class="sep">|</span>
+          <a class="active" href="data-deletion.html">EN</a>
+        </span>
+      </div>
+    </nav>
+  </header>
+
+  <main class="legal">
+    <h1>Delete your data</h1>
+    <p class="updated">Last updated: November 28, 2026</p>
+
+    <p>
+      This page explains how to request deletion of data related to <strong>Resonance</strong>
+      (developer: Narfedome).
+    </p>
+
+    <h2>Data on your device</h2>
+    <p>
+      Everything you create in Resonance stays on your device and is never sent to a server. To delete it,
+      uninstall the app or clear its data (Android: Settings › Apps › Resonance › Storage › Clear data). The
+      developer has no copy of it.
+    </p>
+
+    <h2>Messages sent from "Contact us"</h2>
+    <p>
+      Only messages you chose to send from Settings › "Contact us" are kept by the developer. To have them
+      deleted:
+    </p>
+    <ol>
+      <li>email <a href="mailto:narfedome.support@gmail.com">narfedome.support@gmail.com</a> with the subject "Delete my data - Resonance";</li>
+      <li>give the approximate date you sent it and the summary (one-sentence line) of your message: since no
+        account or identifier is asked for, this is how it can be found;</li>
+      <li>you get a confirmation once it has been deleted, within 30 days at the latest.</li>
+    </ol>
+
+    <h2>What is deleted</h2>
+    <ul>
+      <li>the message (type, summary, details);</li>
+      <li>attached screenshots;</li>
+      <li>attached technical information (app version, device model and system, language, last lines of the
+        error log).</li>
+    </ul>
+
+    <h2>What is kept, and for how long</h2>
+    <ul>
+      <li>nothing after your request: no copy of the message is kept;</li>
+      <li>without a request, a message is kept while the problem is being handled, then at most 12 months after
+        it is closed;</li>
+      <li>temporary technical data, without the message content, is erased automatically: a per-IP send counter
+        (1 hour) and the message's random identifier, used to avoid duplicates (30 days).</li>
+    </ul>
+  </main>
+
+  <footer>
+    <div>© <span id="year"></span> Resonance. All rights reserved.</div>
+    <div class="footer-links">
+      <a href="index.html">Back to home</a>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
