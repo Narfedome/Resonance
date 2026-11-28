@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Supprimer tes données — Resonance</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <nav class="container">
+      <a class="brand" href="index.html">
+        <img src="assets/logo.svg" alt="Logo Resonance" />
+        <span>Resonance</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html#features">Fonctionnalités</a>
+        <a href="index.html#screenshots">Aperçu</a>
+        <a href="index.html#download">Téléchargement</a>
+        <a href="changelog.html">Changelog</a>
+        <span class="lang-switch">
+          <a class="active" href="data-deletion.html">FR</a>
+          <span class="sep">|</span>
+          <a href="en/data-deletion.html">EN</a>
+        </span>
+      </div>
+    </nav>
+  </header>
+
+  <main class="legal">
+    <h1>Supprimer tes données</h1>
+    <p class="updated">Dernière mise à jour : 28 novembre 2026</p>
+
+    <p>
+      Cette page explique comment demander la suppression des données liées à <strong>Resonance</strong>
+      (développeur : Narfedome).
+    </p>
+
+    <h2>Les données sur ton appareil</h2>
+    <p>
+      Tout ce que tu crées dans Resonance reste sur ton appareil et n'est jamais envoyé à un serveur. Pour le
+      supprimer, désinstalle l'application ou efface ses données (Android : Paramètres › Applications ›
+      Resonance › Stockage › Effacer les données). Le développeur n'en a aucune copie.
+    </p>
+
+    <h2>Les messages envoyés depuis « Nous écrire »</h2>
+    <p>
+      Seuls les messages que tu as choisi d'envoyer depuis Paramètres › « Nous écrire » sont conservés par le
+      développeur. Pour les faire supprimer :
+    </p>
+    <ol>
+      <li>écris à <a href="mailto:narfedome.support@gmail.com">narfedome.support@gmail.com</a> avec l'objet « Suppression de mes données - Resonance » ;</li>
+      <li>indique la date approximative de l'envoi et le résumé (la phrase) de ton message : aucun compte ni
+        identifiant n'étant demandé, c'est ce qui permet de le retrouver ;</li>
+      <li>tu reçois une confirmation une fois la suppression faite, au plus tard sous 30 jours.</li>
+    </ol>
+
+    <h2>Ce qui est supprimé</h2>
+    <ul>
+      <li>le message (type, résumé, détail) ;</li>
+      <li>les captures d'écran jointes ;</li>
+      <li>les informations techniques jointes (version de l'appli, modèle et système de l'appareil, langue,
+        dernières lignes du journal d'erreurs).</li>
+    </ul>
+
+    <h2>Ce qui est conservé, et combien de temps</h2>
+    <ul>
+      <li>rien après ta demande : aucune copie du message n'est gardée ;</li>
+      <li>sans demande de ta part, un message est conservé le temps de traiter le problème, puis au plus
+        12 mois après sa clôture ;</li>
+      <li>des données techniques temporaires, sans le contenu du message, sont effacées automatiquement : un
+        compteur d'envois par adresse IP (1 heure) et l'identifiant aléatoire du message, qui évite les doublons
+        (30 jours).</li>
+    </ul>
+  </main>
+
+  <footer>
+    <div>© <span id="year"></span> Resonance. Tous droits réservés.</div>
+    <div class="footer-links">
+      <a href="index.html">Retour à l'accueil</a>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

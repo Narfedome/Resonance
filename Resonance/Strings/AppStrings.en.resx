@@ -355,10 +355,10 @@
     <value>Buy me a coffee ☕</value>
   </data>
   <data name="SettingsReportBugTitle" xml:space="preserve">
-    <value>Report a bug</value>
+    <value>Report a problem or suggest an idea</value>
   </data>
   <data name="SettingsReportBugDesc" xml:space="preserve">
-    <value>Open the form</value>
+    <value>Contact us</value>
   </data>
   <data name="SettingsVersion" xml:space="preserve">
     <value>Version</value>
@@ -1012,5 +1012,110 @@
   </data>
   <data name="ChannelMuteHint" xml:space="preserve">
     <value>Tap to mute or unmute</value>
+  </data>
+  <data name="FeedbackTitle" xml:space="preserve">
+    <value>Contact us</value>
+  </data>
+  <data name="FeedbackSend" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="FeedbackKindHeading" xml:space="preserve">
+    <value>What is it about?</value>
+  </data>
+  <data name="FeedbackKindBug" xml:space="preserve">
+    <value>A problem</value>
+  </data>
+  <data name="FeedbackKindBugDesc" xml:space="preserve">
+    <value>Crash, sound not playing, wrong display</value>
+  </data>
+  <data name="FeedbackKindTranslation" xml:space="preserve">
+    <value>Translation to review</value>
+  </data>
+  <data name="FeedbackKindTranslationDesc" xml:space="preserve">
+    <value>Badly translated app text</value>
+  </data>
+  <data name="FeedbackKindIdea" xml:space="preserve">
+    <value>An idea</value>
+  </data>
+  <data name="FeedbackKindIdeaDesc" xml:space="preserve">
+    <value>Improvement, new feature</value>
+  </data>
+  <data name="FeedbackKindOther" xml:space="preserve">
+    <value>Something else</value>
+  </data>
+  <data name="FeedbackKindOtherDesc" xml:space="preserve">
+    <value>Question, thanks…</value>
+  </data>
+  <data name="FeedbackSummary" xml:space="preserve">
+    <value>In one sentence</value>
+  </data>
+  <data name="FeedbackWhere" xml:space="preserve">
+    <value>Where? (screen, button, text)</value>
+  </data>
+  <data name="FeedbackWherePh" xml:space="preserve">
+    <value>E.g. Settings › Theme</value>
+  </data>
+  <data name="FeedbackDetailsBug" xml:space="preserve">
+    <value>What happened</value>
+  </data>
+  <data name="FeedbackDetailsBugHint" xml:space="preserve">
+    <value>What you were doing, what happened, what you expected.</value>
+  </data>
+  <data name="FeedbackDetailsTranslation" xml:space="preserve">
+    <value>Current text and your suggestion</value>
+  </data>
+  <data name="FeedbackDetailsTranslationHint" xml:space="preserve">
+    <value>The text shown and what you suggest.</value>
+  </data>
+  <data name="FeedbackDetailsIdea" xml:space="preserve">
+    <value>Your idea</value>
+  </data>
+  <data name="FeedbackDetailsIdeaHint" xml:space="preserve">
+    <value>What you miss during a session and what the app could do instead.</value>
+  </data>
+  <data name="FeedbackDetailsOther" xml:space="preserve">
+    <value>Your message</value>
+  </data>
+  <data name="FeedbackScreenshots" xml:space="preserve">
+    <value>Screenshots</value>
+  </data>
+  <data name="FeedbackScreenshotsMax" xml:space="preserve">
+    <value>(3 at most)</value>
+  </data>
+  <data name="FeedbackScreenshotAdd" xml:space="preserve">
+    <value>Add a screenshot</value>
+  </data>
+  <data name="FeedbackScreenshotRemove" xml:space="preserve">
+    <value>Remove the screenshot</value>
+  </data>
+  <data name="FeedbackAttachTechnical" xml:space="preserve">
+    <value>Attach technical information</value>
+  </data>
+  <data name="FeedbackShowTechnical" xml:space="preserve">
+    <value>See what is sent</value>
+  </data>
+  <data name="FeedbackPrivacy" xml:space="preserve">
+    <value>Your message is read by the developer. It is also analysed by an AI (Claude, by Anthropic) to sort it.</value>
+  </data>
+  <data name="FeedbackSentTitle" xml:space="preserve">
+    <value>Thank you!</value>
+  </data>
+  <data name="FeedbackSent" xml:space="preserve">
+    <value>Your message has arrived. Thank you for taking the time to write to us!</value>
+  </data>
+  <data name="FeedbackQueuedTitle" xml:space="preserve">
+    <value>No connection</value>
+  </data>
+  <data name="FeedbackQueued" xml:space="preserve">
+    <value>Your message is kept on the device and will be sent automatically the next time the app starts with a connection.</value>
+  </data>
+  <data name="FeedbackRateLimitedTitle" xml:space="preserve">
+    <value>Too many messages</value>
+  </data>
+  <data name="FeedbackRateLimited" xml:space="preserve">
+    <value>Too many messages were sent from this device recently. Yours is kept and will be sent automatically the next time the app starts.</value>
+  </data>
+  <data name="FeedbackRejected" xml:space="preserve">
+    <value>The server refused this message. Your text is still here: check it or try again later.</value>
   </data>
 </root>
