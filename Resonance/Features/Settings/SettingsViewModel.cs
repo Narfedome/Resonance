@@ -160,8 +160,25 @@ namespace Resonance.Features.Settings
             await Launcher.OpenAsync(new Uri("https://buymeacoffee.com/narfedome"));
 
         [RelayCommand]
-        public async Task ReportBug() =>
-            await Launcher.OpenAsync(new Uri("https://docs.google.com/forms/d/e/1FAIpQLSdg2q1o01eGZsFvd0qIwOqYEVKDwBikQ0g7FWLSWHenKqeW0g/viewform?usp=dialog"));
+        public async Task ReportBug()
+        {
+            // « Nous écrire » dans l'appli dès que le relais commun est déployé (FeedbackService.Endpoint), l'ancien
+            // formulaire Google en attendant.
+            if (!FeedbackService.IsConfigured)
+            {
+                await Launcher.OpenAsync(FeedbackService.LegacyFormUri);
+                return;
+            }
+            var viewModel = new Feedback.FeedbackDialogViewModel();
+            if (await ShowDialogAsync(new Feedback.FeedbackDialog(viewModel)) is not true) return;
+            var (title, message) = viewModel.Result switch
+            {
+                Core.Services.FeedbackSendResult.Retry => (Loc["FeedbackQueuedTitle"], Loc["FeedbackQueued"]),
+                Core.Services.FeedbackSendResult.RateLimited => (Loc["FeedbackRateLimitedTitle"], Loc["FeedbackRateLimited"]),
+                _ => (Loc["FeedbackSentTitle"], Loc["FeedbackSent"])
+            };
+            await ShowInfoAsync(title, message);
+        }
 
         /// <summary>Relu à chaque affichage de la page (cf. InitializeAsync) : le journal grossit pendant l'utilisation.</summary>
         [ObservableProperty]

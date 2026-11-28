@@ -67,8 +67,17 @@ namespace Resonance.Features.Campaigns
         [RelayCommand]
         public void Select(ExplorerRow row) => SelectedRow = row;
 
+        private static bool _feedbackFlushed;
+
         public async Task InitializeAsync()
         {
+            // Messages « Nous écrire » restés en attente (hors connexion) : renvoyés en arrière-plan, une fois par lancement.
+            if (!_feedbackFlushed)
+            {
+                _feedbackFlushed = true;
+                _ = Task.Run(FeedbackService.FlushOutboxAsync);
+            }
+
             await Loading.RunAsync(async () =>
             {
                 var campaigns = await _sceneDataService.GetCampaignsAsync();
